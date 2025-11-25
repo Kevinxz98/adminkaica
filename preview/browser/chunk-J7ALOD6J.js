@@ -1,0 +1,1 @@
+import{m as r}from"./chunk-YYBUJILI.js";import{l as t}from"./chunk-ZYATWVLX.js";import{jb as n,ka as e,na as i}from"./chunk-DT3HLPPQ.js";var M=(()=>{class o{constructor(){i(r)._applyBodyHighContrastModeCssClasses()}static \u0275fac=function(d){return new(d||o)};static \u0275mod=n({type:o});static \u0275inj=e({imports:[t,t]})}return o})();export{M as a};

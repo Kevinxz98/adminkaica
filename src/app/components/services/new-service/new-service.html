@@ -1,0 +1,111 @@
+<app-breadcrumb
+  title="Admin Services"
+  [subtitle]="false"
+  active_item="Nuevo Servicio"
+></app-breadcrumb>
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-body">
+        <form [formGroup]="serviceForm" (ngSubmit)="saveService()">
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+            <label for="name" class="form-label">Nombre del servicio:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              formControlName="name"
+            />
+          </div>
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-3">
+            <label for="image" class="form-label">Imagen del servicio:</label>
+            <input
+              type="file"
+              class="form-control"
+              id="image"
+              (change)="onFileSelected($event)"
+              accept="image/*"
+            />
+          </div>
+
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-3">
+            <label for="lead" class="form-label">Lead:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="lead"
+              formControlName="lead" 
+            />
+            
+          </div>
+
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-3">
+            <label for="description" class="form-label">Descripción:</label>
+
+            <quill-editor
+              formControlName="description"
+              placeholder="Escribe la descripción de tu servicio..."
+              id="editor"
+              [modules]="modules"
+            >
+            </quill-editor>
+          </div>
+
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-3">
+            <label for="price_monthly" class="form-label">Precio:</label>
+            <input
+              type="number"
+              class="form-control"
+              id="price_monthly"
+              formControlName="price_monthly"
+              min="0"
+              step="0.01"
+            />
+          </div>
+
+          <div
+            formArrayName="features"
+            class="col-12 mt-3"
+            *ngFor="let feature of features.controls; let i = index"
+          >
+            <label for="feature-{{ i }}" class="form-label"
+              >Característica {{ i + 1 }}:</label
+            >
+            <div class="input-group mb-3">
+              <input
+                type="text"
+                class="form-control"
+                id="feature-{{ i }}"
+                [formControlName]="i"
+              />
+
+              <button
+                class="btn btn-success"
+                type="button"
+                (click)="addFeature()"
+              >
+                + Agregar
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-danger"
+                (click)="removeFeature(i)"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+
+          <div class="col-12 mt-3">
+            <button type="submit" class="btn btn-primary">
+              Crear Servicio
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

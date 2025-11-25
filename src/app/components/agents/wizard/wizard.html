@@ -1,0 +1,160 @@
+<app-breadcrumb
+  title="{{agentName | titlecase }}"
+  [subtitle]="false"
+  active_item="Crear Agente"
+></app-breadcrumb>
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          {{agentName | titlecase }}
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="basicwizard">
+          <ul ngbNav #nav="ngbNav" class="nav nav-tabs nav-justified flex-md-row flex-column mb-4 tab-style-6 p-0">
+            <li [ngbNavItem]="1" class="nav-item" data-target-form="#contactDetailForm">
+              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1 "
+                data-bs-toggle="tab" data-toggle="tab" href="#contactDetail"><span>Contact Detail</span></a>
+              <ng-template ngbNavContent>
+                <form id="contactForm" class="needs-validation" novalidate>
+                  <div class="mb-3">
+                    <label for="fullName2" class="form-label">Full Name:</label>
+                    <input type="text" id="fullName2" name="fullName2" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="email2" class="form-label">Email:</label>
+                    <input type="email" id="email2" name="email2" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="phoneNumber2" class="form-label">Phone Number:</label>
+                    <input type="tel" id="phoneNumber2" name="phoneNumber2" class="form-control" pattern="[0-9]{10}"
+                      placeholder="Enter 10-digit phone number">
+                  </div>
+                </form>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="2" class="nav-item" data-target-form="#jobDetailForm">
+              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
+                data-bs-toggle="tab" data-toggle="tab" href="#jobDetail"><span>Job Detail</span></a>
+              <ng-template ngbNavContent>
+                <form id="jobForm" class="needs-validation" novalidate>
+                  <div class="mb-3">
+                    <label for="jobTitle" class="form-label">Job Title:</label>
+                    <input type="text" id="jobTitle" name="jobTitle" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="company" class="form-label">Company:</label>
+                    <input type="text" id="company" name="company" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="location" class="form-label">Location:</label>
+                    <input type="text" id="location" name="location" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="jobDescription" class="form-label">Job Description:</label>
+                    <textarea id="jobDescription" name="jobDescription" class="form-control" rows="4"
+                      required></textarea>
+                  </div>
+                </form>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="3" class="nav-item" data-target-form="#educationDetailForm">
+              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
+                data-bs-toggle="tab" data-toggle="tab" href="#educationDetail"><span>Education Detail</span></a>
+              <ng-template ngbNavContent>
+                <form id="educationForm" class="needs-validation" novalidate>
+                  <div class="mb-3">
+                    <label for="degree" class="form-label">Degree:</label>
+                    <input type="text" id="degree" name="degree" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="institution" class="form-label">Institution:</label>
+                    <input type="text" id="institution" name="institution" class="form-control" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="graduationYear" class="form-label">Graduation Year:</label>
+                    <input type="number" id="graduationYear" name="graduationYear" class="form-control" min="1900"
+                      max="2100" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="fieldOfStudy" class="form-label">Field of Study:</label>
+                    <input type="text" id="fieldOfStudy" name="fieldOfStudy" class="form-control" required>
+                  </div>
+                </form>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="4" class="nav-item">
+              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
+                data-bs-toggle="tab" data-toggle="tab" href="#finish"><span>Finish</span></a>
+              <ng-template ngbNavContent>
+                <div class="row d-flex justify-content-center">
+                  <div class="col-lg-10">
+                    <div class="text-center p-4">
+                      <span class="avatar avatar-xl avatar-rounded bg-success-transparent svg-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                          <rect width="256" height="256" fill="none" />
+                          <circle cx="128" cy="128" r="96" opacity="0.2" />
+                          <polyline points="88 136 112 160 168 104" fill="none" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
+                          <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
+                            stroke-linejoin="round" stroke-width="16" />
+                        </svg>
+                      </span>
+                      <h3 class="mt-2">Successful <span class="fs-14 align-middle">🎉</span></h3>
+                      <p>Nulla facilisi. Praesent euismod, ex in viverra ullamcorper, augue justo convallis urna, a
+                        sollicitudin quam libero et magna. Sed ac metus.</p>
+                      <div class="mb-0">
+                        <div class="form-check d-inline-block">
+                          <input class="form-check-input" id="customCheck1" required="" type="checkbox"> <label
+                            class="form-check-label" for="customCheck1">I agree with the <a
+                              class="fw-medium text-decoration-underline" [routerLink]="['/pages/terms']" >Terms and
+                              Conditions.</a></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div><!-- end col -->
+                </div><!-- end row -->
+              </ng-template>
+            </li>
+          </ul>
+          <div class="tab-content" [ngbNavOutlet]="nav"></div>
+          <div class="d-flex wizard justify-content-between">
+            <div class="d-flex mt-3">
+              @if (nav.activeId > 1) {
+              <div class="previous me-2">
+                <a href="javascript:void(0);" class="btn icon-btn btn-primary" (click)="nav.select(nav.activeId - 1)">
+                  <i class="bx bx-left-arrow-alt me-2"></i>Back
+                </a>
+              </div>
+              }
+              @if (nav?.activeId !== nav?.links?.length) {
+              <div class="next">
+                <a href="javascript:void(0);" class="btn icon-btn btn-secondary mt-3 mt-md-0"
+                  (click)="nav.select(nav.activeId + 1)">
+                  Next<i class="bx bx-right-arrow-alt ms-2"></i>
+                </a>
+              </div>
+              }
+            </div>
+            @if (nav?.activeId === nav?.links?.length) {
+            <div class="last">
+              <a href="javascript:void(0);" class="btn btn-success mt-3 mt-md-0"
+                (click)="nav.select(nav.activeId)">Finish</a>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

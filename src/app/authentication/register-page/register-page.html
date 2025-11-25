@@ -1,0 +1,143 @@
+<div class="authentication-basic-background">
+  <img src="./assets/images/media/backgrounds/9.png" alt="" />
+</div>
+<div class="container">
+  <div
+    class="row justify-content-center align-items-center authentication authentication-basic h-100"
+  >
+    <div class="col-xxl-4 col-xl-5 col-lg-6 col-md-6 col-sm-8 col-12">
+      <div class="card custom-card border-0 my-4">
+        <div class="card-body p-5">
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            @if(errorMessage){
+
+            <p class="text-danger">{{errorMessage}}</p>
+            } 
+            <div class="mb-4">
+              <a
+                [routerLink]="['/dashboards/sales']"
+                class="d-flex justify-content-center"
+              >
+                <img
+                  src="./assets/images/logos/kaica.png"
+                  alt="logo"
+                  class="desktop-dark"
+                />
+              </a>
+            </div>
+            <div>
+              <h4 class="mb-1 fw-semibold">Registrate</h4>
+              <p class="mb-4 text-muted fw-normal">
+                ¡Únete a nosotros creando una cuenta gratuita!
+              </p>
+            </div>
+            <div class="row gy-3">
+              <div class="col-xl-12">
+                <label for="signin-username" class="form-label text-default"
+                  >Nombre</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="signin-username"
+                  placeholder="Ingrese su Nombre"
+                  formControlName="name"
+                />
+              </div>
+              <div class="col-xl-12">
+                <label for="signin-email" class="form-label text-default"
+                  >Email</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="signin-email"
+                  placeholder="Enter Email"
+                  formControlName="email"
+                />
+              </div>
+              <div class="col-xl-12 mb-2">
+                <label
+                  for="signin-password"
+                  class="form-label text-default d-block"
+                  >Contraseña</label
+                >
+                <div class="position-relative">
+                  <input
+                    class="form-control"
+                    [type]="showPassword ? 'text' : 'password'"
+                    autocomplete
+                    id="signin-password"
+                    placeholder="Enter Password"
+                    type="password"
+                    formControlName="password"
+                  />
+                  <a
+                    class="show-password-button text-muted"
+                    href="javascript:void(0);"
+                    id="button-addon2"
+                    (click)="createpassword()"
+                    ><i class="ri-eye-{{toggleClass}} align-middle"></i
+                  ></a>
+                </div>
+              </div>
+              <div class="col-xl-12 mb-2">
+                <label
+                  for="signin-confirm-password"
+                  class="form-label text-default d-block"
+                  >Confirme su Contraseña</label
+                >
+                <div class="position-relative">
+                  <input
+                    class="form-control"
+                    [type]="showPassword1 ? 'text' : 'password'"
+                    autocomplete
+                    id="signin-confirm-password"
+                    placeholder="Enter Password"
+                    type="password"
+                    formControlName="password_confirmation"
+                  />
+                  <a
+                    class="show-password-button text-muted"
+                    href="javascript:void(0);"
+                    id="button-addon2"
+                    (click)="createpassword1()"
+                    ><i class="ri-eye-{{toggleClass1}} align-middle"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+            <div class="d-grid mt-3">
+              <button type="submit" class="btn btn-primary">Registrarse</button>
+            </div>
+            <!-- //Register with Google button
+          <div class="text-center my-3 authentication-barrier">
+            <span class="op-4 fs-13">OR</span>
+          </div>
+          
+          <div class="d-grid mb-3">
+            <button
+              class="btn btn-white btn-w-lg border d-flex align-items-center justify-content-center flex-fill mb-3"
+            >
+              <span class="avatar avatar-xs">
+                <img src="./assets/images/media/apps/google.png" alt="" />
+              </span>
+              <span class="lh-1 ms-2 fs-13 text-default fw-medium"
+                >Signup with Google</span
+              >
+            </button>
+          </div>
+            -->
+
+            <div class="text-center mt-3 fw-medium">
+              ¿Ya tienes una cuenta?
+              <a [routerLink]="['/auth/login']" class="text-primary"
+                >Iniciar sesión</a
+              >
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

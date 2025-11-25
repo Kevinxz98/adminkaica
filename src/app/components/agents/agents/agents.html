@@ -1,0 +1,77 @@
+<app-breadcrumb
+  title="Agentes IA"
+  [subtitle]="false"
+  active_item="Agentes"
+></app-breadcrumb>
+
+<div class="row custom-card-grid pb-3">
+  @if(loading){
+  <div class="text-center p-5">
+    <div
+      class="spinner-border text-primary"
+      role="status"
+      style="width: 3rem; height: 3rem"
+    >
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3 fw-semibold">Cargando Agentes...</p>
+  </div>
+  }@else { @for (card of agentCards; track $index) {
+  <div class="col-xxl-8 col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-xxl-0">
+    <div class="border rounded p-3">
+      <div class="d-sm-flex d-block align-items-top mb-3">
+        <div class="d-flex flex-fill align-items-start gap-3">
+          <div>
+            <span class="avatar avatar-rounded">
+              <img [src]="card.imageUrl" alt="" />
+            </span>
+          </div>
+          <div class="title-agent lh-1 me-2">
+            <p class="mb-1 fw-semibold fs-14">{{card.title}}</p>
+            <div class="fs-11 text-muted">Update on Nov, 2025 - v1</div>
+            <div class="agent-actions p-0 mt-2">
+              <button
+                class="btn-read"
+                (click)="goToAgentDetail(card.slug); $event.stopPropagation()"
+              >
+                Leer Más
+              </button>
+
+              <button
+                class="btn-create"
+                (click)="goToCreateAgent(); $event.stopPropagation()"
+              >
+                Contratar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="ps-sm-0 mt-sm-0 mt-3 ps-sm-0 ps-2">
+          <span class="badge bg-success">Activo</span>
+        </div>
+      </div>
+      <div class="ps-sm-3 ps-0 mb-3">
+        <p class="fw-semibold mb-1 ps-2">Acerca de nuestro servicio😀</p>
+        <p class="mb-0 text-muted ps-2">{{card.lead}}</p>
+      </div>
+      <div class="product-images ps-sm-4 ps-0">
+        <div class="row">
+          <div
+            class="col-xl-6 d-flex align-items-start justify-content-sm-start mt-sm-0 mt-2 flex-wrap gap-2"
+          >
+            <button class="btn btn-sm btn-warning-light me-2">
+              Reportar fallos
+            </button>
+            <button class="btn btn-sm btn-icon btn-success-light me-2">
+              <i class="ri-thumb-up-line"></i>
+            </button>
+            <button class="btn btn-sm btn-icon btn-danger-light">
+              <i class="ri-thumb-down-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  } }
+</div>

@@ -1,0 +1,1 @@
+import{Ia as i,eb as n,kb as r,y as t}from"./chunk-DT3HLPPQ.js";var c=class e{constructor(o){this.element=o}ngOnInit(){t(this.element.nativeElement,"click").subscribe(()=>{this.element.nativeElement.classList.toggle("on")})}static \u0275fac=function(m){return new(m||e)(n(i))};static \u0275dir=r({type:e,selectors:[["","appToggleBtn",""]]})};export{c as a};

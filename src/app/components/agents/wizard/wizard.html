@@ -1,160 +1,355 @@
-<app-breadcrumb
-  title="{{agentName | titlecase }}"
-  [subtitle]="false"
-  active_item="Crear Agente"
-></app-breadcrumb>
-<!-- Start:: row-2 -->
-<div class="row">
-  <div class="col-xl-6">
-    <div class="card custom-card">
-      <div class="card-header">
-        <div class="card-title">
-          {{agentName | titlecase }}
+<div class="wizard-container">
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div
+        class="progress"
+        [style.width]="(currentStep / totalSteps) * 100 + '%'"
+      ></div>
+    </div>
+    <div class="step-indicators">
+      <div
+        *ngFor="let step of [1,2,3,4,5,6,7]"
+        [class.active]="step === currentStep"
+        [class.completed]="step < currentStep"
+        class="step-indicator"
+        (click)="goToStep(step)"
+      >
+        {{step}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
+    <!-- STEP 1: Información General -->
+    <div *ngIf="currentStep === 1" class="step-content">
+      <h2>Información General</h2>
+
+      <div class="form-group">
+        <label>¿Cómo quieres llamar tu chatbot?</label>
+        <input
+          type="text"
+          formControlName="nombre"
+          class="form-control"
+          placeholder="Nombre del asistente"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>¿En qué categoría encaja mejor tu negocio?</label>
+        <select formControlName="categoria" class="form-control">
+          <option value="">Selecciona una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat">{{cat}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>¿En qué idioma va a responder tu chatbot?</label>
+        <select formControlName="idioma" class="form-control">
+          <option value="es">Español</option>
+          <option value="en">Inglés</option>
+          <option value="fr">Francés</option>
+          <option value="de">Alemán</option>
+        </select>
+      </div>
+
+      <file-pond
+        #myPond
+        [options]="singlepondOptions"
+        class="single-fileupload"
+        [files]="pondFiles"
+        (oninit)="pondHandleInit()"
+        (onaddfile)="pondHandleAddFile($event)"
+        (onactivatefile)="pondHandleActivateFile($event)"
+      >
+      </file-pond>
+
+      <div class="form-group">
+        <label>¿Quieres subir un avatar o logo para tu bot?</label>
+        <input
+          type="file"
+          (change)="onFileSelected($event)"
+          class="form-control"
+        />
+      </div>
+    </div>
+
+    <!-- STEP 2: Tono y Personalidad -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <h2>🟦 STEP 2 — Tono y Personalidad</h2>
+
+      <div class="form-group">
+        <label>¿Qué estilo prefieres?</label>
+        <select formControlName="estilo" class="form-control">
+          <option value="">Selecciona un estilo</option>
+          <option *ngFor="let estilo of estilos" [value]="estilo">
+            {{estilo}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label
+          >¿Qué tan técnico debe ser el chatbot?
+          ({{wizardForm.get('nivelTecnico')?.value}}%)</label
+        >
+        <input
+          type="range"
+          formControlName="nivelTecnico"
+          min="0"
+          max="100"
+          class="form-range"
+        />
+        <div class="slider-labels">
+          <span>0% = cero tecnicismos</span>
+          <span>100% = súper técnico</span>
         </div>
       </div>
-      <div class="card-body">
-        <div id="basicwizard">
-          <ul ngbNav #nav="ngbNav" class="nav nav-tabs nav-justified flex-md-row flex-column mb-4 tab-style-6 p-0">
-            <li [ngbNavItem]="1" class="nav-item" data-target-form="#contactDetailForm">
-              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1 "
-                data-bs-toggle="tab" data-toggle="tab" href="#contactDetail"><span>Contact Detail</span></a>
-              <ng-template ngbNavContent>
-                <form id="contactForm" class="needs-validation" novalidate>
-                  <div class="mb-3">
-                    <label for="fullName2" class="form-label">Full Name:</label>
-                    <input type="text" id="fullName2" name="fullName2" class="form-control" required>
-                  </div>
 
-                  <div class="mb-3">
-                    <label for="email2" class="form-label">Email:</label>
-                    <input type="email" id="email2" name="email2" class="form-control" required>
-                  </div>
+      <div class="form-group">
+        <label>¿Quieres que el chatbot use emojis?</label>
+        <select formControlName="usoEmojis" class="form-control">
+          <option value="">Selecciona una opción</option>
+          <option *ngFor="let opcion of usoEmojisOptions" [value]="opcion">
+            {{opcion}}
+          </option>
+        </select>
+      </div>
+    </div>
 
-                  <div class="mb-3">
-                    <label for="phoneNumber2" class="form-label">Phone Number:</label>
-                    <input type="tel" id="phoneNumber2" name="phoneNumber2" class="form-control" pattern="[0-9]{10}"
-                      placeholder="Enter 10-digit phone number">
-                  </div>
-                </form>
-              </ng-template>
-            </li>
-            <li [ngbNavItem]="2" class="nav-item" data-target-form="#jobDetailForm">
-              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
-                data-bs-toggle="tab" data-toggle="tab" href="#jobDetail"><span>Job Detail</span></a>
-              <ng-template ngbNavContent>
-                <form id="jobForm" class="needs-validation" novalidate>
-                  <div class="mb-3">
-                    <label for="jobTitle" class="form-label">Job Title:</label>
-                    <input type="text" id="jobTitle" name="jobTitle" class="form-control" required>
-                  </div>
+    <!-- STEP 3: Mensajes Automáticos -->
+    <div *ngIf="currentStep === 3" class="step-content">
+      <h2>🟦 STEP 3 — Mensajes Automáticos</h2>
 
-                  <div class="mb-3">
-                    <label for="company" class="form-label">Company:</label>
-                    <input type="text" id="company" name="company" class="form-control" required>
-                  </div>
+      <div class="form-group">
+        <label>Mensaje de bienvenida:</label>
+        <textarea
+          formControlName="mensajeBienvenida"
+          class="form-control"
+          rows="3"
+          placeholder="¿Qué quieres que el bot diga cuando alguien inicia una conversación?"
+        ></textarea>
+      </div>
 
-                  <div class="mb-3">
-                    <label for="location" class="form-label">Location:</label>
-                    <input type="text" id="location" name="location" class="form-control" required>
-                  </div>
+      <div class="form-group">
+        <label>Mensaje cuando no estás disponible:</label>
+        <textarea
+          formControlName="mensajeNoDisponible"
+          class="form-control"
+          rows="3"
+          placeholder="¿Qué debe responder el bot si alguien escribe fuera de horario?"
+        ></textarea>
+      </div>
 
-                  <div class="mb-3">
-                    <label for="jobDescription" class="form-label">Job Description:</label>
-                    <textarea id="jobDescription" name="jobDescription" class="form-control" rows="4"
-                      required></textarea>
-                  </div>
-                </form>
-              </ng-template>
-            </li>
-            <li [ngbNavItem]="3" class="nav-item" data-target-form="#educationDetailForm">
-              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
-                data-bs-toggle="tab" data-toggle="tab" href="#educationDetail"><span>Education Detail</span></a>
-              <ng-template ngbNavContent>
-                <form id="educationForm" class="needs-validation" novalidate>
-                  <div class="mb-3">
-                    <label for="degree" class="form-label">Degree:</label>
-                    <input type="text" id="degree" name="degree" class="form-control" required>
-                  </div>
+      <div class="form-group">
+        <label>Mensaje por ausencia temporal:</label>
+        <textarea
+          formControlName="mensajeAusencia"
+          class="form-control"
+          rows="3"
+          placeholder="Si no puedes responder por un momento, ¿qué debe decir?"
+        ></textarea>
+      </div>
 
-                  <div class="mb-3">
-                    <label for="institution" class="form-label">Institution:</label>
-                    <input type="text" id="institution" name="institution" class="form-control" required>
-                  </div>
+      <div class="form-group">
+        <label>Respuestas rápidas (opcional):</label>
+        <div formArrayName="respuestasRapidas">
+          <div
+            *ngFor="let respuesta of respuestasRapidas.controls; let i = index"
+            class="respuesta-rapida"
+          >
+            <input
+              [formControlName]="i"
+              class="form-control"
+              placeholder="Ej: Horarios, Tarifas, etc."
+            />
+            <button
+              type="button"
+              (click)="removeRespuestaRapida(i)"
+              class="btn-remove"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+        <button type="button" (click)="addRespuestaRapida()" class="btn-add">
+          + Agregar respuesta rápida
+        </button>
+      </div>
+    </div>
 
-                  <div class="mb-3">
-                    <label for="graduationYear" class="form-label">Graduation Year:</label>
-                    <input type="number" id="graduationYear" name="graduationYear" class="form-control" min="1900"
-                      max="2100" required>
-                  </div>
+    <!-- STEP 4: Canales de comunicación -->
+    <div *ngIf="currentStep === 4" class="step-content">
+      <h2>🟦 STEP 4 — Canales de comunicación</h2>
 
-                  <div class="mb-3">
-                    <label for="fieldOfStudy" class="form-label">Field of Study:</label>
-                    <input type="text" id="fieldOfStudy" name="fieldOfStudy" class="form-control" required>
-                  </div>
-                </form>
-              </ng-template>
-            </li>
-            <li [ngbNavItem]="4" class="nav-item">
-              <a ngbNavLink class="nav-link icon-btn d-flex align-items-center justify-content-md-center gap-1"
-                data-bs-toggle="tab" data-toggle="tab" href="#finish"><span>Finish</span></a>
-              <ng-template ngbNavContent>
-                <div class="row d-flex justify-content-center">
-                  <div class="col-lg-10">
-                    <div class="text-center p-4">
-                      <span class="avatar avatar-xl avatar-rounded bg-success-transparent svg-success">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-                          <rect width="256" height="256" fill="none" />
-                          <circle cx="128" cy="128" r="96" opacity="0.2" />
-                          <polyline points="88 136 112 160 168 104" fill="none" stroke="currentColor"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="16" />
-                          <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
-                            stroke-linejoin="round" stroke-width="16" />
-                        </svg>
-                      </span>
-                      <h3 class="mt-2">Successful <span class="fs-14 align-middle">🎉</span></h3>
-                      <p>Nulla facilisi. Praesent euismod, ex in viverra ullamcorper, augue justo convallis urna, a
-                        sollicitudin quam libero et magna. Sed ac metus.</p>
-                      <div class="mb-0">
-                        <div class="form-check d-inline-block">
-                          <input class="form-check-input" id="customCheck1" required="" type="checkbox"> <label
-                            class="form-check-label" for="customCheck1">I agree with the <a
-                              class="fw-medium text-decoration-underline" [routerLink]="['/pages/terms']" >Terms and
-                              Conditions.</a></label>
-                        </div>
-                      </div>
-                    </div>
-                  </div><!-- end col -->
-                </div><!-- end row -->
-              </ng-template>
-            </li>
-          </ul>
-          <div class="tab-content" [ngbNavOutlet]="nav"></div>
-          <div class="d-flex wizard justify-content-between">
-            <div class="d-flex mt-3">
-              @if (nav.activeId > 1) {
-              <div class="previous me-2">
-                <a href="javascript:void(0);" class="btn icon-btn btn-primary" (click)="nav.select(nav.activeId - 1)">
-                  <i class="bx bx-left-arrow-alt me-2"></i>Back
-                </a>
-              </div>
-              }
-              @if (nav?.activeId !== nav?.links?.length) {
-              <div class="next">
-                <a href="javascript:void(0);" class="btn icon-btn btn-secondary mt-3 mt-md-0"
-                  (click)="nav.select(nav.activeId + 1)">
-                  Next<i class="bx bx-right-arrow-alt ms-2"></i>
-                </a>
-              </div>
-              }
-            </div>
-            @if (nav?.activeId === nav?.links?.length) {
-            <div class="last">
-              <a href="javascript:void(0);" class="btn btn-success mt-3 mt-md-0"
-                (click)="nav.select(nav.activeId)">Finish</a>
-            </div>
-            }
+      <div class="form-group">
+        <label>¿En qué canales deseas activar tu chatbot?</label>
+        <div class="checkboxes-group">
+          <div *ngFor="let canal of canales" class="checkbox-item">
+            <label>
+              <input
+                type="checkbox"
+                [value]="canal"
+                (change)="onCanalChange(canal, $event.target.checked)"
+              />
+              {{canal}}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="canalesArray.value.includes('WhatsApp Business')"
+        class="form-group"
+      >
+        <label
+          >¿Cuál es tu número de WhatsApp Business para conectar la API?</label
+        >
+        <input
+          type="text"
+          formControlName="whatsappBusiness"
+          class="form-control"
+          placeholder="+34 123 456 789"
+        />
+      </div>
+    </div>
+
+    <!-- STEP 5: Inteligencia / Configuración Smart -->
+    <div *ngIf="currentStep === 5" class="step-content">
+      <h2>🟦 STEP 5 — Inteligencia / Configuración Smart</h2>
+
+      <div class="form-group">
+        <label>¿Cuál es el objetivo principal de tu chatbot?</label>
+        <select formControlName="objetivoPrincipal" class="form-control">
+          <option value="">Selecciona un objetivo</option>
+          <option *ngFor="let objetivo of objetivos" [value]="objetivo">
+            {{objetivo}}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>¿Qué preguntas reciben más frecuentemente tus clientes?</label>
+        <textarea
+          formControlName="preguntasFrecuentes"
+          class="form-control"
+          rows="4"
+          placeholder="Lista las preguntas más comunes separadas por comas"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>¿Hay temas que NO quieres que el bot responda?</label>
+        <textarea
+          formControlName="temasExcluidos"
+          class="form-control"
+          rows="4"
+          placeholder="Temas sensibles o información confidencial"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>¿Quieres que el bot capture datos?</label>
+        <div class="checkboxes-group">
+          <div *ngFor="let dato of datosCapturarOptions" class="checkbox-item">
+            <label>
+              <input
+                type="checkbox"
+                [value]="dato"
+                (change)="onDatoCapturarChange(dato, $event.target.checked)"
+              />
+              {{dato}}
+            </label>
           </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- STEP 6: Vista previa del chatbot -->
+    <div *ngIf="currentStep === 6" class="step-content">
+      <h2>🟦 STEP 6 — Vista previa del chatbot</h2>
+
+      <div class="preview-container">
+        <h3>Resumen de tu configuración:</h3>
+        <div class="preview-section">
+          <h4>Información General</h4>
+          <p><strong>Nombre:</strong> {{wizardForm.get('nombre')?.value}}</p>
+          <p>
+            <strong>Categoría:</strong> {{wizardForm.get('categoria')?.value}}
+          </p>
+          <p><strong>Idioma:</strong> {{wizardForm.get('idioma')?.value}}</p>
+        </div>
+
+        <div class="preview-section">
+          <h4>Tono y Personalidad</h4>
+          <p><strong>Estilo:</strong> {{wizardForm.get('estilo')?.value}}</p>
+          <p>
+            <strong>Nivel Técnico:</strong>
+            {{wizardForm.get('nivelTecnico')?.value}}%
+          </p>
+          <p>
+            <strong>Uso de Emojis:</strong>
+            {{wizardForm.get('usoEmojis')?.value}}
+          </p>
+        </div>
+
+        <div class="question-section">
+          <p>
+            <strong
+              >¿Quieres editar algo del comportamiento antes de
+              continuar?</strong
+            >
+          </p>
+          <button type="button" (click)="goToStep(1)" class="btn-edit">
+            Volver a pasos anteriores
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7: Confirmación y Activación -->
+    <div *ngIf="currentStep === 7" class="step-content">
+      <h2>🟦 STEP 7 — Confirmación y Activación</h2>
+
+      <div class="form-group">
+        <label>¿Deseas guardar y activar tu chatbot ahora?</label>
+        <select formControlName="estadoActivacion" class="form-control">
+          <option value="">Selecciona una opción</option>
+          <option *ngFor="let estado of estadosActivacion" [value]="estado">
+            {{estado}}
+          </option>
+        </select>
+      </div>
+
+      <div class="action-buttons">
+        <button type="button" class="btn-test">Probar bot</button>
+        <button type="submit" class="btn-submit" [disabled]="!wizardForm.valid">
+          Finalizar Configuración
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+      <button
+        type="button"
+        (click)="prevStep()"
+        [disabled]="currentStep === 1"
+        class="btn-prev"
+      >
+        Anterior
+      </button>
+
+      <button
+        *ngIf="currentStep < totalSteps"
+        type="button"
+        (click)="nextStep()"
+        [disabled]="!isStepValid(currentStep)"
+        class="btn-next"
+      >
+        Siguiente
+      </button>
+    </div>
+  </form>
+</div>

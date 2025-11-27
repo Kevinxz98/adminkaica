@@ -1,31 +1,27 @@
 <div class="wizard-container">
   <!-- Progress Bar -->
   <div class="progress-container">
-    <div class="progress-bar">
-      <div
-        class="progress"
-        [style.width]="(currentStep / totalSteps) * 100 + '%'"
-      ></div>
-    </div>
-    <div class="step-indicators">
-      <div
-        *ngFor="let step of [1,2,3,4,5,6,7]"
-        [class.active]="step === currentStep"
-        [class.completed]="step < currentStep"
-        class="step-indicator"
-        (click)="goToStep(step)"
-      >
-        {{step}}
+      <div class="step-indicators">
+        <div *ngFor="let step of [1,2,3,4,5,6,7]" 
+             [class.active]="step === currentStep"
+             [class.completed]="step < currentStep"
+             class="step-indicator"
+             (click)="goToStep(step)">
+          <span class="step-number">{{step}}</span>
+        </div>
+      </div>
+      
+      <div class="progress-bar-vertical">
+        <div class="progress-vertical" [style.height]="((currentStep - 1) / (totalSteps - 1)) * 100 + '%'"></div>
       </div>
     </div>
-  </div>
 
   <!-- Step Content -->
-  <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
+  <form class="col-xl-10 col-md-10 col-sm-12" [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
     <!-- STEP 1: Información General -->
     <div *ngIf="currentStep === 1" class="step-content">
       <h2>Información General</h2>
-
+      <hr>
       <div class="form-group">
         <label>¿Cómo quieres llamar tu chatbot?</label>
         <input
@@ -54,31 +50,25 @@
         </select>
       </div>
 
-      <file-pond
-        #myPond
-        [options]="singlepondOptions"
-        class="single-fileupload"
-        [files]="pondFiles"
-        (oninit)="pondHandleInit()"
-        (onaddfile)="pondHandleAddFile($event)"
-        (onactivatefile)="pondHandleActivateFile($event)"
-      >
-      </file-pond>
-
       <div class="form-group">
-        <label>¿Quieres subir un avatar o logo para tu bot?</label>
-        <input
-          type="file"
-          (change)="onFileSelected($event)"
-          class="form-control"
-        />
+        <label>¿Quieres subir un avatar o logo para tu bot? (Opcional)</label>
+        <file-pond
+          #myPond
+          [options]="singlepondOptions"
+          class="single-fileupload"
+          [files]="pondFiles"
+          (oninit)="pondHandleInit()"
+          (onaddfile)="pondHandleAddFile($event)"
+          (onactivatefile)="pondHandleActivateFile($event)"
+        >
+        </file-pond>
       </div>
     </div>
 
     <!-- STEP 2: Tono y Personalidad -->
     <div *ngIf="currentStep === 2" class="step-content">
-      <h2>🟦 STEP 2 — Tono y Personalidad</h2>
-
+      <h2>Tono y Personalidad</h2>
+      <hr>
       <div class="form-group">
         <label>¿Qué estilo prefieres?</label>
         <select formControlName="estilo" class="form-control">

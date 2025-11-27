@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '../../../shared/shared.module';
@@ -37,7 +37,7 @@ export class Wizard implements OnInit {
   datosCapturarOptions = ['Nombre', 'Teléfono', 'Email', 'Otro campo'];
   estadosActivacion = ['Activar', 'Solo guardar', 'Guardar como borrador'];
 
-  constructor(private fb: FormBuilder, private chatbotService: ChatbotService) {
+  constructor(private fb: FormBuilder, private chatbotService: ChatbotService, private renderer: Renderer2) {
     this.wizardForm = this.createForm();
     FilePond.registerPlugin(FilePondPluginImagePreview);
   }

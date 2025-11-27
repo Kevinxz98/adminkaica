@@ -50,8 +50,12 @@ export class Agents implements OnInit {
     });
   }
 
-  goToCreateAgent() {
-    this.router.navigate(['/agentes/crear']);
+  goToCreateAgent(slug?: string) {
+    if (!slug) {
+      console.warn('Agente sin slug, no puedo navegar.');
+      return;
+    }
+    this.router.navigate(['/agents/', slug, 'wizard']);
   }
 
   goToAgentDetail(slug: string) {

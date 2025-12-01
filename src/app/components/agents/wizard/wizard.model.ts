@@ -9,6 +9,12 @@ export interface ChatbotConfig {
   estilo: string;
   nivelTecnico: number;
   usoEmojis: string;
+
+  nombreEmpresa: string;
+  sitioWeb: string;
+  descripcionEmpresa: string;
+  horarioAtencion: string;
+  informacionAdicional: string;
   
   // Step 3 - Mensajes Automáticos
   mensajeBienvenida: string;

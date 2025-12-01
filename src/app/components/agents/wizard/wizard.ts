@@ -1,15 +1,29 @@
-import { Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  Renderer2,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormArray,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { SharedModule } from '../../../shared/shared.module';
 import { ChatbotConfig } from './wizard.model';
 import { ChatbotService } from '../../../shared/services/chatbot-service.service';
 import { FilePondComponent, FilePondModule } from 'ngx-filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
-import * as prismCodeData from '../../../shared/prismData/forms/file_uploads'
+import * as prismCodeData from '../../../shared/prismData/forms/file_uploads';
 import * as FilePond from 'filepond';
-
+import { AgentService } from '../../../shared/services/agent-service.service';
+import { ActivatedRoute } from '@angular/router';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-wizard',
@@ -17,91 +31,139 @@ import * as FilePond from 'filepond';
   templateUrl: './wizard.html',
   styleUrl: './wizard.scss',
 })
-
 export class Wizard implements OnInit {
-
   prismCode = prismCodeData;
-  @ViewChild("myPond") myPond!: FilePondComponent;
+  @ViewChild('myPond') myPond!: FilePondComponent;
 
-  
-
+  slug: string | null = null;
+  agentName: string = '';
   currentStep = 1;
-  totalSteps = 7;
+  totalSteps = 8;
   wizardForm!: FormGroup;
+  public companyLogo: any = null;
 
-  categorias = ['Ventas', 'Soporte', 'Reservas', 'Educación', 'Servicios profesionales', 'Otro'];
+  categorias = [
+    'Ventas',
+    'Soporte',
+    'Reservas',
+    'Educación',
+    'Servicios profesionales',
+    'Otro',
+  ];
   estilos = ['Formal', 'Casual', 'Divertido', 'Profesional', 'Educativo'];
   usoEmojisOptions = ['Sí', 'No', 'Que los decida según contexto'];
-  canales = ['Página web', 'WhatsApp Business', 'Facebook Messenger', 'Instagram DM', 'API'];
-  objetivos = ['Generar ventas', 'Atender clientes', 'Reservas / agendamiento', 'Información rápida', 'FAQ', 'Todos los anteriores'];
+  canales = [
+    'Página web',
+    'WhatsApp Business',
+    'Facebook Messenger',
+    'Instagram DM',
+    'API',
+  ];
+  objetivos = [
+    'Generar ventas',
+    'Atender clientes',
+    'Reservas / agendamiento',
+    'Información rápida',
+    'FAQ',
+    'Todos los anteriores',
+  ];
   datosCapturarOptions = ['Nombre', 'Teléfono', 'Email', 'Otro campo'];
   estadosActivacion = ['Activar', 'Solo guardar', 'Guardar como borrador'];
 
-  constructor(private fb: FormBuilder, private chatbotService: ChatbotService, private renderer: Renderer2) {
+  constructor(
+    private fb: FormBuilder,
+    private chatbotService: ChatbotService,
+    private renderer: Renderer2,
+    private agentService: AgentService,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {
     this.wizardForm = this.createForm();
     FilePond.registerPlugin(FilePondPluginImagePreview);
+    this.slug = this.route.snapshot.paramMap.get('slug');
+    
   }
 
   ngOnInit(): void {
     this.loadExistingData();
+    this.getNameAgent();
   }
+
+  getNameAgent(){
+    if (this.slug) {
+      this.agentService.getAgentBySlug(this.slug).subscribe((agent) => {
+        this.agentName = agent.name;
+        this.cdr.detectChanges();
+      });
+    }
+  }
+
   pondOptions: FilePond.FilePondOptions = {
     allowMultiple: true,
-    labelIdle: "Drop files here to Upload...",
+    labelIdle: 'Drop files here to Upload...',
   };
   singlepondOptions: FilePond.FilePondOptions = {
     allowMultiple: false,
     stylePanelLayout: 'compact circle',
-    labelIdle: "Drop files here to Upload...",
+    labelIdle: 'Drop files here to Upload...',
   };
 
-  pondFiles: FilePond.FilePondOptions["files"] = [
+  pondFiles: FilePond.FilePondOptions['files'] = [];
 
-  ];
-
-  pondHandleInit() {
-  }
+  pondHandleInit() {}
 
   pondHandleAddFile(event: any) {
-    console.log('File added:', event);
+    const file = event.file;
+
+    // si subes al backend al instante
+    this.companyLogo = file.getFileEncodeBase64String
+      ? file.getFileEncodeBase64String()
+      : file.file;
     
   }
 
-  pondHandleActivateFile(event: any) {
-  }
+  pondHandleActivateFile(event: any) {}
 
   
-   createForm(): FormGroup {
+
+  createForm(): FormGroup {
     return this.fb.group({
       // Step 1
       nombre: ['', Validators.required],
       categoria: ['', Validators.required],
       idioma: ['es', Validators.required],
       avatar: [null],
-      
+
+      //step 3
+      nombreEmpresa: ['', Validators.required],
+      sitioWeb: [''],
+      descripcionEmpresa: [''],
+      horarioAtencion: [''],
+      informacionAdicional: [''],
+
       // Step 2
       estilo: ['', Validators.required],
       nivelTecnico: [50],
       usoEmojis: ['', Validators.required],
-      
-      // Step 3
+
+      // Step 4
       mensajeBienvenida: ['', Validators.required],
       mensajeNoDisponible: ['', Validators.required],
       mensajeAusencia: ['', Validators.required],
       respuestasRapidas: this.fb.array([]),
-      
-      // Step 4
+
+      // Step 5
       canales: this.fb.array([], Validators.required),
       whatsappBusiness: [''],
-      
-      // Step 5
+
+      // Step 6
       objetivoPrincipal: ['', Validators.required],
       preguntasFrecuentes: [''],
       temasExcluidos: [''],
       datosCapturar: this.fb.array([]),
-      
-      // Step 7
-      estadoActivacion: ['', Validators.required]
+
+      // Step 8
+      estadoActivacion: ['', Validators.required],
     });
   }
 
@@ -121,6 +183,17 @@ export class Wizard implements OnInit {
     return this.wizardForm.get('datosCapturar') as FormArray;
   }
 
+  generateWelcomeMessage(): void {
+    const nombre = this.wizardForm.get('nombre')?.value || 'Chatbot';
+    const nombreEmpresa = this.wizardForm.get('nombreEmpresa')?.value || 'con nosotros';
+    const mensaje = `¡Hola! Soy ${nombre}, tu asistente virtual. ¿En qué puedo ayudarte hoy? 😊`;
+    const mensajeNoDisponible = `¡Hola! Gracias por contactarnos. En este momento estamos fuera de la oficina. Te responderemos lo antes posible durante nuestro próximo horario de atención`;
+    const mensajeAusencia = `¿Todavía estás disponible para continuar la conversación? Si necesitas más ayuda, no dudes en escribirme nuevamente. ¡Estoy aquí para ayudarte cuando lo necesites!`;
+    this.wizardForm.patchValue({ mensajeBienvenida: mensaje });
+    this.wizardForm.patchValue({ mensajeNoDisponible: mensajeNoDisponible });
+    this.wizardForm.patchValue({ mensajeAusencia: mensajeAusencia });
+  }
+
   addRespuestaRapida(): void {
     this.respuestasRapidas.push(this.fb.control(''));
   }
@@ -134,7 +207,7 @@ export class Wizard implements OnInit {
     if (isChecked) {
       canalesArray.push(this.fb.control(canal));
     } else {
-      const index = canalesArray.controls.findIndex(x => x.value === canal);
+      const index = canalesArray.controls.findIndex((x) => x.value === canal);
       canalesArray.removeAt(index);
     }
   }
@@ -144,7 +217,7 @@ export class Wizard implements OnInit {
     if (isChecked) {
       datosArray.push(this.fb.control(dato));
     } else {
-      const index = datosArray.controls.findIndex(x => x.value === dato);
+      const index = datosArray.controls.findIndex((x) => x.value === dato);
       datosArray.removeAt(index);
     }
   }
@@ -192,18 +265,24 @@ export class Wizard implements OnInit {
   isStepValid(step: number): boolean {
     switch (step) {
       case 1:
-        return !!this.wizardForm.get('nombre')?.valid && 
-               !!this.wizardForm.get('categoria')?.valid;
+        return (
+          !!this.wizardForm.get('nombre')?.valid &&
+          !!this.wizardForm.get('categoria')?.valid
+        );
       case 2:
-        return !!this.wizardForm.get('estilo')?.valid && 
-               !!this.wizardForm.get('usoEmojis')?.valid;
+        return !!this.wizardForm.get('nombreEmpresa')?.valid;
       case 3:
-        return !!this.wizardForm.get('mensajeBienvenida')?.valid;
+        return (
+          !!this.wizardForm.get('estilo')?.valid &&
+          !!this.wizardForm.get('usoEmojis')?.valid
+        );
       case 4:
-        return !!this.wizardForm.get('canales')?.valid;
+        return !!this.wizardForm.get('mensajeBienvenida')?.valid;
       case 5:
+        return !!this.wizardForm.get('canales')?.valid;
+      case 6:
         return !!this.wizardForm.get('objetivoPrincipal')?.valid;
-      case 7:
+      case 8:
         return !!this.wizardForm.get('estadoActivacion')?.valid;
       default:
         return true;

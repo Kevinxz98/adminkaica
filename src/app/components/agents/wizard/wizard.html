@@ -2,7 +2,7 @@
   <!-- Progress Bar -->
   <div class="progress-container">
       <div class="step-indicators">
-        <div *ngFor="let step of [1,2,3,4,5,6,7]" 
+        <div *ngFor="let step of [1,2,3,4,5,6,7,8]" 
              [class.active]="step === currentStep"
              [class.completed]="step < currentStep"
              class="step-indicator"
@@ -20,7 +20,7 @@
   <form class="col-xl-10 col-md-10 col-sm-12" [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
     <!-- STEP 1: Información General -->
     <div *ngIf="currentStep === 1" class="step-content">
-      <h2>Información General</h2>
+      <h2>Información General - {{agentName}}</h2>
       <hr>
       <div class="form-group">
         <label>¿Cómo quieres llamar tu chatbot?</label>
@@ -56,7 +56,7 @@
           #myPond
           [options]="singlepondOptions"
           class="single-fileupload"
-          [files]="pondFiles"
+          [files]="companyLogo ? [{ source: companyLogo, options: { type: 'local' }}] : []"
           (oninit)="pondHandleInit()"
           (onaddfile)="pondHandleAddFile($event)"
           (onactivatefile)="pondHandleActivateFile($event)"
@@ -64,9 +64,61 @@
         </file-pond>
       </div>
     </div>
+    <!-- STEP 3: Informacion de la empresa -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <h2>Información de la empresa</h2>
+      <hr>
+      <div class="form-group">
+        <label>Nombre de la empresa:</label>
+        <input
+          type="text"
+          formControlName="nombreEmpresa"
+          class="form-control"
+          placeholder="Nombre de la empresa"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Sitio web de la empresa:</label>
+        <input
+          type="text"
+          formControlName="sitioWeb"
+          class="form-control"
+          placeholder="https://www.ejemplo.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Descripción breve de la empresa:</label>
+        <textarea
+          formControlName="descripcionEmpresa"
+          class="form-control"
+          rows="3"
+          placeholder="Describe brevemente tu empresa"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label>Horario de atención al cliente:</label>
+        <input
+          type="text"
+          formControlName="horarioAtencion"
+          class="form-control"
+          placeholder="Lun-Vie 9:00-18:00"
+        />
+      </div>
+      <div class="form-group">
+        <label>Información adicional relevante:</label>
+        <textarea
+          formControlName="informacionAdicional"
+          class="form-control"
+          rows="3"
+          placeholder="Cualquier otra información que el bot deba conocer"
+        ></textarea>
+      </div>
+    </div>
 
     <!-- STEP 2: Tono y Personalidad -->
-    <div *ngIf="currentStep === 2" class="step-content">
+    <div *ngIf="currentStep === 3" class="step-content">
       <h2>Tono y Personalidad</h2>
       <hr>
       <div class="form-group">
@@ -109,15 +161,18 @@
     </div>
 
     <!-- STEP 3: Mensajes Automáticos -->
-    <div *ngIf="currentStep === 3" class="step-content">
-      <h2>🟦 STEP 3 — Mensajes Automáticos</h2>
-
+    <div *ngIf="currentStep === 4" class="step-content">
+      <h2>Mensajes Automáticos</h2>
+      <hr>
       <div class="form-group">
-        <label>Mensaje de bienvenida:</label>
+        <label class="d-inline-block">Mensaje de bienvenida: </label> 
+        <button class="btn btn-sm btn-warning mx-2" type="button" (click)="generateWelcomeMessage()">
+          <i class="bi bi-stars"></i> Generar Ejemplo
+        </button>
         <textarea
           formControlName="mensajeBienvenida"
           class="form-control"
-          rows="3"
+          rows="2"
           placeholder="¿Qué quieres que el bot diga cuando alguien inicia una conversación?"
         ></textarea>
       </div>
@@ -127,7 +182,7 @@
         <textarea
           formControlName="mensajeNoDisponible"
           class="form-control"
-          rows="3"
+          rows="2"
           placeholder="¿Qué debe responder el bot si alguien escribe fuera de horario?"
         ></textarea>
       </div>
@@ -137,7 +192,7 @@
         <textarea
           formControlName="mensajeAusencia"
           class="form-control"
-          rows="3"
+          rows="2"
           placeholder="Si no puedes responder por un momento, ¿qué debe decir?"
         ></textarea>
       </div>
@@ -170,7 +225,7 @@
     </div>
 
     <!-- STEP 4: Canales de comunicación -->
-    <div *ngIf="currentStep === 4" class="step-content">
+    <div *ngIf="currentStep === 5" class="step-content">
       <h2>🟦 STEP 4 — Canales de comunicación</h2>
 
       <div class="form-group">
@@ -206,7 +261,7 @@
     </div>
 
     <!-- STEP 5: Inteligencia / Configuración Smart -->
-    <div *ngIf="currentStep === 5" class="step-content">
+    <div *ngIf="currentStep === 6" class="step-content">
       <h2>🟦 STEP 5 — Inteligencia / Configuración Smart</h2>
 
       <div class="form-group">
@@ -257,7 +312,7 @@
     </div>
 
     <!-- STEP 6: Vista previa del chatbot -->
-    <div *ngIf="currentStep === 6" class="step-content">
+    <div *ngIf="currentStep === 7" class="step-content">
       <h2>🟦 STEP 6 — Vista previa del chatbot</h2>
 
       <div class="preview-container">
@@ -299,7 +354,7 @@
     </div>
 
     <!-- STEP 7: Confirmación y Activación -->
-    <div *ngIf="currentStep === 7" class="step-content">
+    <div *ngIf="currentStep === 8" class="step-content">
       <h2>🟦 STEP 7 — Confirmación y Activación</h2>
 
       <div class="form-group">

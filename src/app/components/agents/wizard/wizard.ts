@@ -70,6 +70,13 @@ export class Wizard implements OnInit {
   datosCapturarOptions = ['Nombre', 'Teléfono', 'Email', 'Otro campo'];
   estadosActivacion = ['Activar', 'Solo guardar', 'Guardar como borrador'];
 
+  posicionesWidget = [
+    { value: 'bottom-right', label: 'Esquina inferior derecha', icon: '⬊' },
+    { value: 'bottom-left', label: 'Esquina inferior izquierda', icon: '⬋' },
+    { value: 'top-right', label: 'Esquina superior derecha', icon: '⬈' },
+    { value: 'top-left', label: 'Esquina superior izquierda', icon: '⬉' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private chatbotService: ChatbotService,
@@ -81,7 +88,7 @@ export class Wizard implements OnInit {
     this.wizardForm = this.createForm();
     FilePond.registerPlugin(FilePondPluginImagePreview);
     this.slug = this.route.snapshot.paramMap.get('slug');
-    
+
   }
 
   ngOnInit(): void {
@@ -89,7 +96,7 @@ export class Wizard implements OnInit {
     this.getNameAgent();
   }
 
-  getNameAgent(){
+  getNameAgent() {
     if (this.slug) {
       this.agentService.getAgentBySlug(this.slug).subscribe((agent) => {
         this.agentName = agent.name;
@@ -110,7 +117,7 @@ export class Wizard implements OnInit {
 
   pondFiles: FilePond.FilePondOptions['files'] = [];
 
-  pondHandleInit() {}
+  pondHandleInit() { }
 
   pondHandleAddFile(event: any) {
     const file = event.file;
@@ -119,12 +126,10 @@ export class Wizard implements OnInit {
     this.companyLogo = file.getFileEncodeBase64String
       ? file.getFileEncodeBase64String()
       : file.file;
-    
+
   }
 
-  pondHandleActivateFile(event: any) {}
-
-  
+  pondHandleActivateFile(event: any) { }
 
   createForm(): FormGroup {
     return this.fb.group({
@@ -154,6 +159,11 @@ export class Wizard implements OnInit {
 
       // Step 5
       canales: this.fb.array([], Validators.required),
+      color: ['#2196F3'],
+      posicion: ['bottom-right'],
+      mostrarAvatar: [false],
+      sonidoNotificacion: [false],
+      tamanoWidget: [''],
       whatsappBusiness: [''],
 
       // Step 6
@@ -181,6 +191,70 @@ export class Wizard implements OnInit {
 
   get datosCapturarArray(): FormArray {
     return this.wizardForm.get('datosCapturar') as FormArray;
+  }
+
+
+  getIdiomaNombre(codigo: string): string {
+    const idiomas: { [key: string]: string } = {
+      'es': 'Español',
+      'en': 'Inglés',
+      'fr': 'Francés',
+      'de': 'Alemán',
+      'pt': 'Portugués',
+      'it': 'Italiano'
+    };
+    return idiomas[codigo] || codigo;
+  }
+
+  getColorNombre(hexColor: string): string {
+    const colores: { [key: string]: string } = {
+      '#2196F3': 'Azul',
+      '#4CAF50': 'Verde',
+      '#FF9800': 'Naranja',
+      '#9C27B0': 'Púrpura',
+      '#F44336': 'Rojo',
+      '#607D8B': 'Gris'
+    };
+    return colores[hexColor] || 'Personalizado';
+  }
+
+  getPosicionNombre(posicion: string): string {
+    const posiciones: { [key: string]: string } = {
+      'bottom-right': 'Esquina inferior derecha',
+      'bottom-left': 'Esquina inferior izquierda',
+      'top-right': 'Esquina superior derecha',
+      'top-left': 'Esquina superior izquierda'
+    };
+    return posiciones[posicion] || posicion;
+  }
+
+  getAvatarUrl(): string {
+    const avatar = this.wizardForm.get('avatar')?.value;
+    if (avatar && typeof avatar !== 'string') {
+      return URL.createObjectURL(avatar);
+    }
+    return avatar || '';
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  probarChatbotDemo(): void {
+    // Abre una ventana de demo interactiva
+    alert('🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)');
+  }
+
+  descargarConfiguracion(): void {
+    const config = this.wizardForm.value;
+    const configStr = JSON.stringify(config, null, 2);
+    const blob = new Blob([configStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `config-chatbot-${config.nombre || 'mi-chatbot'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   generateWelcomeMessage(): void {
@@ -273,8 +347,7 @@ export class Wizard implements OnInit {
         return !!this.wizardForm.get('nombreEmpresa')?.valid;
       case 3:
         return (
-          !!this.wizardForm.get('estilo')?.valid &&
-          !!this.wizardForm.get('usoEmojis')?.valid
+          !!this.wizardForm.get('estilo')?.valid
         );
       case 4:
         return !!this.wizardForm.get('mensajeBienvenida')?.valid;

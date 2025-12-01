@@ -1,20 +1,17 @@
 <div class="wizard-container">
   <!-- Progress Bar -->
   <div class="progress-container">
-      <div class="step-indicators">
-        <div *ngFor="let step of [1,2,3,4,5,6,7,8]" 
-             [class.active]="step === currentStep"
-             [class.completed]="step < currentStep"
-             class="step-indicator"
-             (click)="goToStep(step)">
-          <span class="step-number">{{step}}</span>
-        </div>
-      </div>
-      
-      <div class="progress-bar-vertical">
-        <div class="progress-vertical" [style.height]="((currentStep - 1) / (totalSteps - 1)) * 100 + '%'"></div>
+    <div class="step-indicators">
+      <div *ngFor="let step of [1,2,3,4,5,6,7,8]" [class.active]="step === currentStep"
+        [class.completed]="step < currentStep" class="step-indicator" (click)="goToStep(step)">
+        <span class="step-number">{{step}}</span>
       </div>
     </div>
+
+    <div class="progress-bar-vertical">
+      <div class="progress-vertical" [style.height]="((currentStep - 1) / (totalSteps - 1)) * 100 + '%'"></div>
+    </div>
+  </div>
 
   <!-- Step Content -->
   <form class="col-xl-10 col-md-10 col-sm-12" [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
@@ -24,12 +21,7 @@
       <hr>
       <div class="form-group">
         <label>¿Cómo quieres llamar tu chatbot?</label>
-        <input
-          type="text"
-          formControlName="nombre"
-          class="form-control"
-          placeholder="Nombre del asistente"
-        />
+        <input type="text" formControlName="nombre" class="form-control" placeholder="Nombre del asistente" />
       </div>
 
       <div class="form-group">
@@ -52,15 +44,9 @@
 
       <div class="form-group">
         <label>¿Quieres subir un avatar o logo para tu bot? (Opcional)</label>
-        <file-pond
-          #myPond
-          [options]="singlepondOptions"
-          class="single-fileupload"
-          [files]="companyLogo ? [{ source: companyLogo, options: { type: 'local' }}] : []"
-          (oninit)="pondHandleInit()"
-          (onaddfile)="pondHandleAddFile($event)"
-          (onactivatefile)="pondHandleActivateFile($event)"
-        >
+        <file-pond #myPond [options]="singlepondOptions" class="single-fileupload"
+          [files]="companyLogo ? [{ source: companyLogo, options: { type: 'local' }}] : []" (oninit)="pondHandleInit()"
+          (onaddfile)="pondHandleAddFile($event)" (onactivatefile)="pondHandleActivateFile($event)">
         </file-pond>
       </div>
     </div>
@@ -70,50 +56,27 @@
       <hr>
       <div class="form-group">
         <label>Nombre de la empresa:</label>
-        <input
-          type="text"
-          formControlName="nombreEmpresa"
-          class="form-control"
-          placeholder="Nombre de la empresa"
-        />
+        <input type="text" formControlName="nombreEmpresa" class="form-control" placeholder="Nombre de la empresa" />
       </div>
 
       <div class="form-group">
         <label>Sitio web de la empresa:</label>
-        <input
-          type="text"
-          formControlName="sitioWeb"
-          class="form-control"
-          placeholder="https://www.ejemplo.com"
-        />
+        <input type="text" formControlName="sitioWeb" class="form-control" placeholder="https://www.ejemplo.com" />
       </div>
 
       <div class="form-group">
         <label>Descripción breve de la empresa:</label>
-        <textarea
-          formControlName="descripcionEmpresa"
-          class="form-control"
-          rows="3"
-          placeholder="Describe brevemente tu empresa"
-        ></textarea>
+        <textarea formControlName="descripcionEmpresa" class="form-control" rows="3"
+          placeholder="Describe brevemente tu empresa"></textarea>
       </div>
       <div class="form-group">
         <label>Horario de atención al cliente:</label>
-        <input
-          type="text"
-          formControlName="horarioAtencion"
-          class="form-control"
-          placeholder="Lun-Vie 9:00-18:00"
-        />
+        <input type="text" formControlName="horarioAtencion" class="form-control" placeholder="Lun-Vie 9:00-18:00" />
       </div>
       <div class="form-group">
         <label>Información adicional relevante:</label>
-        <textarea
-          formControlName="informacionAdicional"
-          class="form-control"
-          rows="3"
-          placeholder="Cualquier otra información que el bot deba conocer"
-        ></textarea>
+        <textarea formControlName="informacionAdicional" class="form-control" rows="3"
+          placeholder="Cualquier otra información que el bot deba conocer"></textarea>
       </div>
     </div>
 
@@ -132,17 +95,9 @@
       </div>
 
       <div class="form-group">
-        <label
-          >¿Qué tan técnico debe ser el chatbot?
-          ({{wizardForm.get('nivelTecnico')?.value}}%)</label
-        >
-        <input
-          type="range"
-          formControlName="nivelTecnico"
-          min="0"
-          max="100"
-          class="form-range"
-        />
+        <label>¿Qué tan técnico debe ser el chatbot?
+          ({{wizardForm.get('nivelTecnico')?.value}}%)</label>
+        <input type="range" formControlName="nivelTecnico" min="0" max="100" class="form-range" />
         <div class="slider-labels">
           <span>0% = cero tecnicismos</span>
           <span>100% = súper técnico</span>
@@ -165,55 +120,32 @@
       <h2>Mensajes Automáticos</h2>
       <hr>
       <div class="form-group">
-        <label class="d-inline-block">Mensaje de bienvenida: </label> 
+        <label class="d-inline-block">Mensaje de bienvenida: </label>
         <button class="btn btn-sm btn-warning mx-2" type="button" (click)="generateWelcomeMessage()">
           <i class="bi bi-stars"></i> Generar Ejemplo
         </button>
-        <textarea
-          formControlName="mensajeBienvenida"
-          class="form-control"
-          rows="2"
-          placeholder="¿Qué quieres que el bot diga cuando alguien inicia una conversación?"
-        ></textarea>
+        <textarea formControlName="mensajeBienvenida" class="form-control" rows="2"
+          placeholder="¿Qué quieres que el bot diga cuando alguien inicia una conversación?"></textarea>
       </div>
 
       <div class="form-group">
         <label>Mensaje cuando no estás disponible:</label>
-        <textarea
-          formControlName="mensajeNoDisponible"
-          class="form-control"
-          rows="2"
-          placeholder="¿Qué debe responder el bot si alguien escribe fuera de horario?"
-        ></textarea>
+        <textarea formControlName="mensajeNoDisponible" class="form-control" rows="2"
+          placeholder="¿Qué debe responder el bot si alguien escribe fuera de horario?"></textarea>
       </div>
 
       <div class="form-group">
         <label>Mensaje por ausencia temporal:</label>
-        <textarea
-          formControlName="mensajeAusencia"
-          class="form-control"
-          rows="2"
-          placeholder="Si no puedes responder por un momento, ¿qué debe decir?"
-        ></textarea>
+        <textarea formControlName="mensajeAusencia" class="form-control" rows="2"
+          placeholder="Si no puedes responder por un momento, ¿qué debe decir?"></textarea>
       </div>
 
       <div class="form-group">
         <label>Respuestas rápidas (opcional):</label>
         <div formArrayName="respuestasRapidas">
-          <div
-            *ngFor="let respuesta of respuestasRapidas.controls; let i = index"
-            class="respuesta-rapida"
-          >
-            <input
-              [formControlName]="i"
-              class="form-control"
-              placeholder="Ej: Horarios, Tarifas, etc."
-            />
-            <button
-              type="button"
-              (click)="removeRespuestaRapida(i)"
-              class="btn-remove"
-            >
+          <div *ngFor="let respuesta of respuestasRapidas.controls; let i = index" class="respuesta-rapida">
+            <input [formControlName]="i" class="form-control" placeholder="Ej: Horarios, Tarifas, etc." />
+            <button type="button" (click)="removeRespuestaRapida(i)" class="btn-remove">
               ×
             </button>
           </div>
@@ -226,43 +158,50 @@
 
     <!-- STEP 4: Canales de comunicación -->
     <div *ngIf="currentStep === 5" class="step-content">
-      <h2>🟦 STEP 4 — Canales de comunicación</h2>
-
+      <h2>Configurar Visual</h2>
+      <p>Recuerda que estas configuraciones las puedes editar cuando desees</p>
+      <hr>
       <div class="form-group">
-        <label>¿En qué canales deseas activar tu chatbot?</label>
-        <div class="checkboxes-group">
-          <div *ngFor="let canal of canales" class="checkbox-item">
-            <label>
-              <input
-                type="checkbox"
-                [value]="canal"
-                (change)="onCanalChange(canal, $event.target.checked)"
-              />
-              {{canal}}
-            </label>
-          </div>
-        </div>
+        <label>Color del widget del chatbot:</label>
+        <input type="color" value="#2196F3" formControlName="color" class="form-control form-control-color"  />
+      </div>
+      <div class="form-group">
+        <label>Posición del widget en la pantalla:</label>
+        <select formControlName="posicion" class="form-control">
+          <option value="bottom-right">Abajo a la derecha</option>
+          <option value="bottom-left">Abajo a la izquierda</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="mostrarAvatar" />
+          Mostrar avatar del bot en el widget
+        </label>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="sonidoNotificacion" />
+          Habilitar sonido de notificación para nuevos mensajes
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Tamaño del widget del chatbot:</label>
+        <select formControlName="tamanoWidget" class="form-control">
+          <option value="pequeño">Pequeño</option>
+          <option value="mediano">Mediano</option>
+          <option value="grande">Grande</option>
+        </select>
       </div>
 
-      <div
-        *ngIf="canalesArray.value.includes('WhatsApp Business')"
-        class="form-group"
-      >
-        <label
-          >¿Cuál es tu número de WhatsApp Business para conectar la API?</label
-        >
-        <input
-          type="text"
-          formControlName="whatsappBusiness"
-          class="form-control"
-          placeholder="+34 123 456 789"
-        />
+      <div *ngIf="canalesArray.value.includes('WhatsApp Business')" class="form-group">
+        <label>¿Cuál es tu número de WhatsApp Business para conectar la API?</label>
+        <input type="text" formControlName="whatsappBusiness" class="form-control" placeholder="+34 123 456 789" />
       </div>
     </div>
 
     <!-- STEP 5: Inteligencia / Configuración Smart -->
     <div *ngIf="currentStep === 6" class="step-content">
-      <h2>🟦 STEP 5 — Inteligencia / Configuración Smart</h2>
+      <h2>Inteligencia / Configuración Smart</h2>
 
       <div class="form-group">
         <label>¿Cuál es el objetivo principal de tu chatbot?</label>
@@ -276,22 +215,14 @@
 
       <div class="form-group">
         <label>¿Qué preguntas reciben más frecuentemente tus clientes?</label>
-        <textarea
-          formControlName="preguntasFrecuentes"
-          class="form-control"
-          rows="4"
-          placeholder="Lista las preguntas más comunes separadas por comas"
-        ></textarea>
+        <textarea formControlName="preguntasFrecuentes" class="form-control" rows="4"
+          placeholder="Lista las preguntas más comunes separadas por comas"></textarea>
       </div>
 
       <div class="form-group">
         <label>¿Hay temas que NO quieres que el bot responda?</label>
-        <textarea
-          formControlName="temasExcluidos"
-          class="form-control"
-          rows="4"
-          placeholder="Temas sensibles o información confidencial"
-        ></textarea>
+        <textarea formControlName="temasExcluidos" class="form-control" rows="4"
+          placeholder="Temas sensibles o información confidencial"></textarea>
       </div>
 
       <div class="form-group">
@@ -299,11 +230,7 @@
         <div class="checkboxes-group">
           <div *ngFor="let dato of datosCapturarOptions" class="checkbox-item">
             <label>
-              <input
-                type="checkbox"
-                [value]="dato"
-                (change)="onDatoCapturarChange(dato, $event.target.checked)"
-              />
+              <input type="checkbox" [value]="dato" (change)="onDatoCapturarChange(dato, $event.target.checked)" />
               {{dato}}
             </label>
           </div>
@@ -312,43 +239,210 @@
     </div>
 
     <!-- STEP 6: Vista previa del chatbot -->
+    <!-- STEP 7: Vista previa detallada del chatbot -->
     <div *ngIf="currentStep === 7" class="step-content">
-      <h2>🟦 STEP 6 — Vista previa del chatbot</h2>
+      <h2>🟦 STEP 7 — Vista Previa del Chatbot</h2>
 
-      <div class="preview-container">
-        <h3>Resumen de tu configuración:</h3>
-        <div class="preview-section">
-          <h4>Información General</h4>
-          <p><strong>Nombre:</strong> {{wizardForm.get('nombre')?.value}}</p>
-          <p>
-            <strong>Categoría:</strong> {{wizardForm.get('categoria')?.value}}
-          </p>
-          <p><strong>Idioma:</strong> {{wizardForm.get('idioma')?.value}}</p>
+      <div class="preview-wrapper">
+        <!-- Preview principal del chatbot -->
+        <div class="chatbot-preview-container">
+          <h3>👁️ Vista Previa en Tiempo Real</h3>
+          <p>Así se verá tu chatbot en tu sitio web:</p>
+
+          <div class="website-simulator">
+            <!-- Simulación de página web -->
+            <ng-container *ngIf="wizardForm.get('sitioWeb')?.value; else noUrl">
+              <iframe src="https://www.eltiempo.com" width="100%" height="500px"></iframe>
+            </ng-container>
+            <ng-template #noUrl>
+            <div class="website-header">
+              <div class="website-navbar">
+                <div class="website-logo">🌐 {{wizardForm.get('nombreEmpresa')?.value || 'Mi Empresa'}}</div>
+                <div class="website-menu">
+                  <span>Inicio</span>
+                  <span>Productos</span>
+                  <span>Servicios</span>
+                  <span>Contacto</span>
+                </div>
+              </div>
+              <div class="website-hero">
+                <h1>Bienvenido a {{wizardForm.get('nombreEmpresa')?.value || 'nuestra empresa'}}</h1>
+                <p>{{wizardForm.get('descripcionEmpresa')?.value || 'Descripción de la empresa'}}</p>
+              </div>
+            </div>
+            </ng-template>
+
+            <!-- Widget del Chatbot -->
+            <div class="chatbot-widget"
+              [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+              <!-- Cabecera del chat -->
+              <div class="chat-header">
+                <div class="chat-avatar">
+                  <div class="avatar-circle"
+                    [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+                    <span *ngIf="!wizardForm.get('avatar')?.value">{{wizardForm.get('nombre')?.value?.charAt(0) ||
+                      'B'}}</span>
+                    <img *ngIf="wizardForm.get('avatar')?.value" [src]="getAvatarUrl()" alt="Avatar">
+                  </div>
+                  <div class="chat-info">
+                    <h4>{{wizardForm.get('nombre')?.value || 'Mi Chatbot'}}</h4>
+                    <span class="chat-status">● En línea</span>
+                  </div>
+                </div>
+                <button class="chat-close">×</button>
+              </div>
+
+              <!-- Cuerpo del chat -->
+              <div class="chat-body">
+                <!-- Mensaje de bienvenida -->
+                <div class="message-bot">
+                  <div class="message-content">
+                    <p>{{wizardForm.get('mensajeBienvenida')?.value || '¡Hola! ¿En qué puedo ayudarte?'}}</p>
+                    <span class="message-time">Ahora</span>
+                  </div>
+                </div>
+
+                <!-- Ejemplo de conversación -->
+                <div class="message-user">
+                  <div class="message-content" [style.background]=" wizardForm.get('color')?.value || '#2196F3'" >
+                    <p>¿Cuáles son sus horarios de atención?</p>
+                    <span class="message-time">Hace 1 min</span>
+                  </div>
+                </div>
+
+                <div class="message-bot">
+                  <div class="message-content">
+                    <p>{{wizardForm.get('horarioAtencion')?.value || 'Lunes a Viernes de 9:00 a 18:00'}}</p>
+                    <span class="message-time">Hace 1 min</span>
+                  </div>
+                </div>
+
+                <!-- Respuestas rápidas -->
+                <div class="quick-replies">
+                  <div class="quick-reply"
+                    *ngFor="let respuesta of respuestasRapidas.controls; let i = index; trackBy: trackByIndex">
+                    {{respuesta.value || 'Respuesta rápida ' + (i+1)}}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input para mensajes -->
+              <div class="chat-input">
+                <input type="text" placeholder="Escribe tu mensaje aquí..." value="¿Qué productos tienen?">
+                <button class="send-button">➤</button>
+              </div>
+            </div>
+
+            <!-- Posición del widget -->
+            <div class="widget-position-indicator"
+              [class]="'position-' + (wizardForm.get('posicion')?.value || 'bottom-right')">
+              <div class="widget-bubble"
+                [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+                <div class="widget-icon">
+                  {{wizardForm.get('mostrarAvatar')?.value ? '🤖' : '💬'}}
+                </div>
+                <span class="widget-notification"
+                  *ngIf="wizardForm.get('sonidoNotificacion')?.value">1</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="preview-section">
-          <h4>Tono y Personalidad</h4>
-          <p><strong>Estilo:</strong> {{wizardForm.get('estilo')?.value}}</p>
-          <p>
-            <strong>Nivel Técnico:</strong>
-            {{wizardForm.get('nivelTecnico')?.value}}%
-          </p>
-          <p>
-            <strong>Uso de Emojis:</strong>
-            {{wizardForm.get('usoEmojis')?.value}}
-          </p>
-        </div>
+        <!-- Panel de configuración -->
+        <div class="configuration-panel">
+          <h3>📋 Configuración Aplicada</h3>
 
-        <div class="question-section">
-          <p>
-            <strong
-              >¿Quieres editar algo del comportamiento antes de
-              continuar?</strong
-            >
-          </p>
-          <button type="button" (click)="goToStep(1)" class="btn-edit">
-            Volver a pasos anteriores
-          </button>
+          <div class="config-sections">
+            <!-- Identidad -->
+            <div class="config-section">
+              <h4>🆔 Identidad</h4>
+              <div class="config-item">
+                <strong>Nombre del chatbot:</strong>
+                <span>{{wizardForm.get('nombre')?.value || 'No definido'}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Empresa:</strong>
+                <span>{{wizardForm.get('nombreEmpresa')?.value || 'No definido'}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Idioma:</strong>
+                <span>{{getIdiomaNombre(wizardForm.get('idioma')?.value)}}</span>
+              </div>
+            </div>
+
+            <!-- Apariencia -->
+            <div class="config-section">
+              <h4>🎨 Apariencia</h4>
+              <div class="config-item">
+                <strong>Color principal:</strong>
+                <span class="color-preview"
+                  [style.background]="wizardForm.get('color')?.value || '#2196F3'"></span>
+                <span>{{getColorNombre(wizardForm.get('color')?.value)}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Posición:</strong>
+                <span>{{getPosicionNombre(wizardForm.get('posicion')?.value)}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Avatar visible:</strong>
+                <span>{{wizardForm.get('mostrarAvatar')?.value ? 'Sí' : 'No'}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Sonido de notificación:</strong>
+                <span>{{wizardForm.get('sonidoNotificacion')?.value ? 'Activado' :
+                  'Desactivado'}}</span>
+              </div>
+            </div>
+
+            <!-- Comportamiento -->
+            <div class="config-section">
+              <h4>🤖 Comportamiento</h4>
+              <div class="config-item">
+                <strong>Estilo de comunicación:</strong>
+                <span>{{wizardForm.get('estilo')?.value || 'No definido'}}</span>
+              </div>
+              <div class="config-item">
+                <strong>Nivel técnico:</strong>
+                <div class="tech-level">
+                  <div class="tech-bar" [style.width]="wizardForm.get('nivelTecnico')?.value + '%'"></div>
+                </div>
+                <span>{{wizardForm.get('nivelTecnico')?.value || 50}}%</span>
+              </div>
+              <div class="config-item">
+                <strong>Uso de emojis:</strong>
+                <span>{{wizardForm.get('usoEmojis')?.value || 'No definido'}}</span>
+              </div>
+            </div>
+
+            <!-- Mensajes -->
+            <div class="config-section">
+              <h4>💬 Mensajes</h4>
+              <div class="message-preview">
+                <p><strong>Bienvenida:</strong> "{{wizardForm.get('mensajeBienvenida')?.value || 'No definido'}}"</p>
+                <p><strong>No disponible:</strong> "{{wizardForm.get('mensajeNoDisponible')?.value || 'No definido'}}"
+                </p>
+                <p><strong>Ausencia:</strong> "{{wizardForm.get('mensajeAusencia')?.value || 'No definido'}}"</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="preview-actions">
+            <button type="button" (click)="goToStep(1)" class="btn-edit">
+              ✏️ Editar Configuración
+            </button>
+            <button type="button" (click)="probarChatbotDemo()" class="btn-test">
+              🚀 Probar Demo Interactiva
+            </button>
+            <button type="button" (click)="descargarConfiguracion()" class="btn-download">
+              📥 Descargar Configuración
+            </button>
+          </div>
+
+          <!-- Nota final -->
+          <div class="preview-note">
+            <p>✅ Tu chatbot está listo para implementar. Revisa que todo esté correcto antes de continuar.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -377,22 +471,12 @@
 
     <!-- Navigation Buttons -->
     <div class="navigation-buttons">
-      <button
-        type="button"
-        (click)="prevStep()"
-        [disabled]="currentStep === 1"
-        class="btn-prev"
-      >
+      <button type="button" (click)="prevStep()" [disabled]="currentStep === 1" class="btn-prev">
         Anterior
       </button>
 
-      <button
-        *ngIf="currentStep < totalSteps"
-        type="button"
-        (click)="nextStep()"
-        [disabled]="!isStepValid(currentStep)"
-        class="btn-next"
-      >
+      <button *ngIf="currentStep < totalSteps" type="button" (click)="nextStep()" [disabled]="!isStepValid(currentStep)"
+        class="btn-next">
         Siguiente
       </button>
     </div>

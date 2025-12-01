@@ -24,6 +24,11 @@ export interface ChatbotConfig {
   
   // Step 4 - Canales de comunicación
   canales: string[];
+  color: string
+  posicion: string
+  mostrarAvatar: boolean;
+  sonidoNotificacion: boolean;
+  tamanoWidget: string;
   whatsappBusiness: string;
   
   // Step 5 - Inteligencia / Configuración Smart

@@ -33,7 +33,7 @@ export class Agents implements OnInit {
       next: (agents) => {
         this.agentCards = agents.map((a: any) => ({
           imageUrl: a.image
-            ? `http://localhost:8000/storage/${a.image}`
+            ? `https://backend.kaica.co/public/storage/${a.image}`
             : 'assets/default-agent.png',
           title: a.name,
           lead: a.lead,

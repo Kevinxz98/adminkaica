@@ -25,7 +25,7 @@ interface AuthResponse {
   providedIn: 'root',
 })
 export class Auth {
-  private apiUrl = 'http://localhost:8000/api/auth'; // Replace with your API URL
+  private apiUrl = 'https://backend.kaica.co/public/api/auth'; // Replace with your API URL
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.currentUserSubject.asObservable();

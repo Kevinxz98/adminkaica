@@ -132,6 +132,12 @@ input[type="range"]::-webkit-slider-thumb {
   min-height: 500px;
 }
 
+.avatar-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 /* Animaciones para los steps */
 .step-content {
   background: white;

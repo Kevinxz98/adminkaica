@@ -41,6 +41,7 @@ export class Wizard implements OnInit {
   totalSteps = 8;
   wizardForm!: FormGroup;
   public companyLogo: any = null;
+  avatarUrl: string | null = null;
 
   categorias = [
     'Ventas',
@@ -74,7 +75,7 @@ export class Wizard implements OnInit {
     { value: 'bottom-right', label: 'Esquina inferior derecha', icon: '⬊' },
     { value: 'bottom-left', label: 'Esquina inferior izquierda', icon: '⬋' },
     { value: 'top-right', label: 'Esquina superior derecha', icon: '⬈' },
-    { value: 'top-left', label: 'Esquina superior izquierda', icon: '⬉' }
+    { value: 'top-left', label: 'Esquina superior izquierda', icon: '⬉' },
   ];
 
   constructor(
@@ -88,7 +89,6 @@ export class Wizard implements OnInit {
     this.wizardForm = this.createForm();
     FilePond.registerPlugin(FilePondPluginImagePreview);
     this.slug = this.route.snapshot.paramMap.get('slug');
-
   }
 
   ngOnInit(): void {
@@ -117,7 +117,7 @@ export class Wizard implements OnInit {
 
   pondFiles: FilePond.FilePondOptions['files'] = [];
 
-  pondHandleInit() { }
+  pondHandleInit() {}
 
   pondHandleAddFile(event: any) {
     const file = event.file;
@@ -127,9 +127,15 @@ export class Wizard implements OnInit {
       ? file.getFileEncodeBase64String()
       : file.file;
 
+    if (file.getFileEncodeBase64String) {
+      this.avatarUrl = 'data:image/png;base64,' + this.companyLogo;
+    } else {
+
+      this.avatarUrl = URL.createObjectURL(this.companyLogo);
+    }
   }
 
-  pondHandleActivateFile(event: any) { }
+  pondHandleActivateFile(event: any) {}
 
   createForm(): FormGroup {
     return this.fb.group({
@@ -193,15 +199,14 @@ export class Wizard implements OnInit {
     return this.wizardForm.get('datosCapturar') as FormArray;
   }
 
-
   getIdiomaNombre(codigo: string): string {
     const idiomas: { [key: string]: string } = {
-      'es': 'Español',
-      'en': 'Inglés',
-      'fr': 'Francés',
-      'de': 'Alemán',
-      'pt': 'Portugués',
-      'it': 'Italiano'
+      es: 'Español',
+      en: 'Inglés',
+      fr: 'Francés',
+      de: 'Alemán',
+      pt: 'Portugués',
+      it: 'Italiano',
     };
     return idiomas[codigo] || codigo;
   }
@@ -213,7 +218,7 @@ export class Wizard implements OnInit {
       '#FF9800': 'Naranja',
       '#9C27B0': 'Púrpura',
       '#F44336': 'Rojo',
-      '#607D8B': 'Gris'
+      '#607D8B': 'Gris',
     };
     return colores[hexColor] || 'Personalizado';
   }
@@ -223,7 +228,7 @@ export class Wizard implements OnInit {
       'bottom-right': 'Esquina inferior derecha',
       'bottom-left': 'Esquina inferior izquierda',
       'top-right': 'Esquina superior derecha',
-      'top-left': 'Esquina superior izquierda'
+      'top-left': 'Esquina superior izquierda',
     };
     return posiciones[posicion] || posicion;
   }
@@ -242,7 +247,9 @@ export class Wizard implements OnInit {
 
   probarChatbotDemo(): void {
     // Abre una ventana de demo interactiva
-    alert('🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)');
+    alert(
+      '🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)'
+    );
   }
 
   descargarConfiguracion(): void {
@@ -259,7 +266,8 @@ export class Wizard implements OnInit {
 
   generateWelcomeMessage(): void {
     const nombre = this.wizardForm.get('nombre')?.value || 'Chatbot';
-    const nombreEmpresa = this.wizardForm.get('nombreEmpresa')?.value || 'con nosotros';
+    const nombreEmpresa =
+      this.wizardForm.get('nombreEmpresa')?.value || 'con nosotros';
     const mensaje = `¡Hola! Soy ${nombre}, tu asistente virtual. ¿En qué puedo ayudarte hoy? 😊`;
     const mensajeNoDisponible = `¡Hola! Gracias por contactarnos. En este momento estamos fuera de la oficina. Te responderemos lo antes posible durante nuestro próximo horario de atención`;
     const mensajeAusencia = `¿Todavía estás disponible para continuar la conversación? Si necesitas más ayuda, no dudes en escribirme nuevamente. ¡Estoy aquí para ayudarte cuando lo necesites!`;
@@ -346,15 +354,16 @@ export class Wizard implements OnInit {
       case 2:
         return !!this.wizardForm.get('nombreEmpresa')?.valid;
       case 3:
-        return (
-          !!this.wizardForm.get('estilo')?.valid
-        );
+        return !!this.wizardForm.get('estilo')?.valid;
       case 4:
         return !!this.wizardForm.get('mensajeBienvenida')?.valid;
       case 5:
-        return !!this.wizardForm.get('canales')?.valid;
+        !!this.wizardForm.get('color')?.setValue('#2196F3');
+        return true;
       case 6:
         return !!this.wizardForm.get('objetivoPrincipal')?.valid;
+      case 7:
+        return true;
       case 8:
         return !!this.wizardForm.get('estadoActivacion')?.valid;
       default:

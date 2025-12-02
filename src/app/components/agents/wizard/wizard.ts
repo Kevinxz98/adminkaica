@@ -42,6 +42,7 @@ export class Wizard implements OnInit {
   wizardForm!: FormGroup;
   public companyLogo: any = null;
   avatarUrl: string | null = null;
+  isChatOpen = true;
 
   categorias = [
     'Ventas',
@@ -117,7 +118,7 @@ export class Wizard implements OnInit {
 
   pondFiles: FilePond.FilePondOptions['files'] = [];
 
-  pondHandleInit() {}
+  pondHandleInit() { }
 
   pondHandleAddFile(event: any) {
     const file = event.file;
@@ -135,7 +136,7 @@ export class Wizard implements OnInit {
     }
   }
 
-  pondHandleActivateFile(event: any) {}
+  pondHandleActivateFile(event: any) { }
 
   createForm(): FormGroup {
     return this.fb.group({
@@ -163,9 +164,7 @@ export class Wizard implements OnInit {
       mensajeAusencia: ['', Validators.required],
       respuestasRapidas: this.fb.array([]),
 
-      // Step 5
-      canales: this.fb.array([], Validators.required),
-      color: ['#2196F3'],
+      color: ['', Validators.required],
       posicion: ['bottom-right'],
       mostrarAvatar: [false],
       sonidoNotificacion: [false],
@@ -243,6 +242,65 @@ export class Wizard implements OnInit {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  closeChat(): void {
+    this.isChatOpen = false;
+
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+
+    if (widget) {
+      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
+      setTimeout(() => {
+        widget.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  openChat(): void {
+    console.log('click');
+    this.isChatOpen = true;
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    // Animación de apertura si quieres
+    if (widget) {
+      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
+      setTimeout(() => {
+        widget.style.display = 'flex';
+      }, 300);
+    }
+  }
+
+  toggleChat(): void {
+    this.isChatOpen = !this.isChatOpen;
+
+    if (this.isChatOpen) {
+      this.animarAperturaChat();
+    } else {
+      this.animarCierreChat();
+    }
+  }
+
+  private animarCierreChat(): void {
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement;
+    if (widget) {
+      widget.style.transform = 'translateY(100%) scale(0.8)';
+      widget.style.opacity = '0';
+      setTimeout(() => {
+        widget.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  private animarAperturaChat(): void {
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    if (widget) {
+      console.log('abierto');
+      widget.style.display = 'flex';
+      setTimeout(() => {
+        widget.style.transform = 'translateY(0) scale(1)';
+        widget.style.opacity = '1';
+      }, 10);
+    }
   }
 
   probarChatbotDemo(): void {
@@ -342,6 +400,36 @@ export class Wizard implements OnInit {
       this.wizardForm.patchValue({ avatar: file });
     }
   }
+  getCamposFaltantes(): string {
+    const camposFaltantes: string[] = [];
+
+    // Step 1
+    if (!this.wizardForm.get('nombre')?.valid) camposFaltantes.push('Nombre del chatbot');
+    if (!this.wizardForm.get('categoria')?.valid) camposFaltantes.push('Categoría');
+
+    // Step 2
+    if (!this.wizardForm.get('estilo')?.valid) camposFaltantes.push('Estilo de comunicación');
+    if (!this.wizardForm.get('usoEmojis')?.valid) camposFaltantes.push('Uso de emojis');
+
+    // Step 3
+    if (!this.wizardForm.get('nombreEmpresa')?.valid) camposFaltantes.push('Nombre de la empresa');
+    if (!this.wizardForm.get('descripcionEmpresa')?.valid) camposFaltantes.push('Descripción de la empresa');
+
+    // Step 5
+    if (!this.wizardForm.get('mensajeBienvenida')?.valid) camposFaltantes.push('Mensaje de bienvenida');
+
+    // Step 6
+    if (!this.wizardForm.get('objetivoPrincipal')?.valid) camposFaltantes.push('Objetivo principal');
+
+    // Step 8
+    if (!this.wizardForm.get('estadoActivacion')?.valid) camposFaltantes.push('Estado de activación');
+
+    if (camposFaltantes.length === 0) {
+      return 'Todos los campos están completos ✅';
+    }
+
+    return `Campos requeridos faltantes:\n${camposFaltantes.join('\n')}`;
+  }
 
   // Getters para validación
   isStepValid(step: number): boolean {
@@ -358,8 +446,7 @@ export class Wizard implements OnInit {
       case 4:
         return !!this.wizardForm.get('mensajeBienvenida')?.valid;
       case 5:
-        !!this.wizardForm.get('color')?.setValue('#2196F3');
-        return true;
+        return !!this.wizardForm.get('color')?.valid;
       case 6:
         return !!this.wizardForm.get('objetivoPrincipal')?.valid;
       case 7:

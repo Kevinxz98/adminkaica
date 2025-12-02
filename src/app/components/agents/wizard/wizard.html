@@ -48,6 +48,7 @@
           [files]="companyLogo ? [{ source: companyLogo, options: { type: 'local' }}] : []" (oninit)="pondHandleInit()"
           (onaddfile)="pondHandleAddFile($event)" (onactivatefile)="pondHandleActivateFile($event)">
         </file-pond>
+        <small>Consejo: No uses tu logo de avatar</small>
       </div>
     </div>
     <!-- STEP 3: Informacion de la empresa -->
@@ -163,7 +164,7 @@
       <hr>
       <div class="form-group">
         <label>Color del widget del chatbot:</label>
-        <input type="color" value="#2196F3" formControlName="color" class="form-control form-control-color"  />
+        <input type="color" value="#2196F3" formControlName="color" class="form-control form-control-color" />
       </div>
       <div class="form-group">
         <label>Posición del widget en la pantalla:</label>
@@ -240,25 +241,20 @@
 
     <!-- STEP 6: Vista previa del chatbot -->
     <!-- STEP 7: Vista previa detallada del chatbot -->
-    <div *ngIf="currentStep === 7" class="step-content">
-      <h2>🟦 STEP 7 — Vista Previa del Chatbot</h2>
-
-      <div class="preview-wrapper">
+    <div *ngIf="currentStep === 7" class="step-content p-0">
+      <hr>
+      <h2 class="text-center">Vista Previa del Chatbot</h2>
+      <hr>
+      <div class="preview-wrapper p-0">
         <!-- Preview principal del chatbot -->
-        <div class="chatbot-preview-container">
-          <p>Así se verá tu chatbot en tu sitio web:</p>
+        <div class="chatbot-preview-container p-0">
 
-          <div class="website-simulator">
+
+          <div class="website-simulator mt-0">
 
             <div class="website-header">
               <div class="website-navbar">
                 <div class="website-logo">🌐 {{wizardForm.get('nombreEmpresa')?.value || 'Mi Empresa'}}</div>
-                <div class="website-menu">
-                  <span>Inicio</span>
-                  <span>Productos</span>
-                  <span>Servicios</span>
-                  <span>Contacto</span>
-                </div>
               </div>
               <div class="website-hero">
                 <h1>Bienvenido a {{wizardForm.get('nombreEmpresa')?.value || 'nuestra empresa'}}</h1>
@@ -267,13 +263,11 @@
             </div>
 
             <!-- Widget del Chatbot -->
-            <div class="chatbot-widget"
-              [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+            <div class="chatbot-widget" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
               <!-- Cabecera del chat -->
               <div class="chat-header">
                 <div class="chat-avatar">
-                  <div class="avatar-circle"
-                    [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+                  <div class="avatar-circle" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
                     <span *ngIf="!wizardForm.get('avatar')?.value">{{wizardForm.get('nombre')?.value?.charAt(0) ||
                       'B'}}</span>
                     <img *ngIf="wizardForm.get('avatar')?.value" [src]="getAvatarUrl()" alt="Avatar">
@@ -283,7 +277,7 @@
                     <span class="chat-status">● En línea</span>
                   </div>
                 </div>
-                <button class="chat-close">×</button>
+                <button (click)="closeChat()" class="chat-close">×</button>
               </div>
 
               <!-- Cuerpo del chat -->
@@ -298,7 +292,7 @@
 
                 <!-- Ejemplo de conversación -->
                 <div class="message-user">
-                  <div class="message-content" [style.background]=" wizardForm.get('color')?.value || '#2196F3'" >
+                  <div class="message-content" [style.background]=" wizardForm.get('color')?.value || '#2196F3'">
                     <p>¿Cuáles son sus horarios de atención?</p>
                     <span class="message-time">Hace 1 min</span>
                   </div>
@@ -330,14 +324,11 @@
             <!-- Posición del widget -->
             <div class="widget-position-indicator"
               [class]="'position-' + (wizardForm.get('posicion')?.value || 'bottom-right')">
-              <div class="widget-bubble"
-                [style.background]="wizardForm.get('color')?.value || '#2196F3'">
-                <div class="widget-icon">
-                  <ng-container >
-                    <img *ngIf="avatarUrl && wizardForm.get('mostrarAvatar')?.value"
-                    [src]="avatarUrl"
-                    alt="Avatar"
-                    class="avatar-preview" />
+              <div class="widget-bubble" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
+                <div class="widget-icon" (click)="openChat()">
+                  <ng-container>
+                    <img *ngIf="avatarUrl && wizardForm.get('mostrarAvatar')?.value" [src]="avatarUrl" alt="Avatar"
+                      class="avatar-preview" />
                   </ng-container>
 
                   <ng-container *ngIf="!avatarUrl && wizardForm.get('mostrarAvatar')?.value">
@@ -347,8 +338,7 @@
                     💬
                   </ng-container>
                 </div>
-                <span class="widget-notification"
-                  *ngIf="wizardForm.get('sonidoNotificacion')?.value">1</span>
+                <span class="widget-notification" *ngIf="wizardForm.get('sonidoNotificacion')?.value">1</span>
               </div>
             </div>
           </div>
@@ -356,12 +346,12 @@
 
         <!-- Panel de configuración -->
         <div class="configuration-panel">
-          <h3>📋 Configuración Aplicada</h3>
+          <h3>Configuración Aplicada</h3>
 
           <div class="config-sections">
             <!-- Identidad -->
             <div class="config-section">
-              <h4>🆔 Identidad</h4>
+              <h4>Identidad</h4>
               <div class="config-item">
                 <strong>Nombre del chatbot:</strong>
                 <span>{{wizardForm.get('nombre')?.value || 'No definido'}}</span>
@@ -378,11 +368,10 @@
 
             <!-- Apariencia -->
             <div class="config-section">
-              <h4>🎨 Apariencia</h4>
+              <h4>Apariencia</h4>
               <div class="config-item">
                 <strong>Color principal:</strong>
-                <span class="color-preview"
-                  [style.background]="wizardForm.get('color')?.value || '#2196F3'"></span>
+                <span class="color-preview" [style.background]="wizardForm.get('color')?.value || '#2196F3'"></span>
                 <span>{{getColorNombre(wizardForm.get('color')?.value)}}</span>
               </div>
               <div class="config-item">
@@ -402,7 +391,7 @@
 
             <!-- Comportamiento -->
             <div class="config-section">
-              <h4>🤖 Comportamiento</h4>
+              <h4>Comportamiento</h4>
               <div class="config-item">
                 <strong>Estilo de comunicación:</strong>
                 <span>{{wizardForm.get('estilo')?.value || 'No definido'}}</span>
@@ -422,7 +411,7 @@
 
             <!-- Mensajes -->
             <div class="config-section">
-              <h4>💬 Mensajes</h4>
+              <h4>Mensajes</h4>
               <div class="message-preview">
                 <p><strong>Bienvenida:</strong> "{{wizardForm.get('mensajeBienvenida')?.value || 'No definido'}}"</p>
                 <p><strong>No disponible:</strong> "{{wizardForm.get('mensajeNoDisponible')?.value || 'No definido'}}"
@@ -435,13 +424,13 @@
           <!-- Acciones -->
           <div class="preview-actions">
             <button type="button" (click)="goToStep(1)" class="btn-edit">
-              ✏️ Editar Configuración
+              Editar Configuración
             </button>
             <button type="button" (click)="probarChatbotDemo()" class="btn-test">
-              🚀 Probar Demo Interactiva
+              Probar Demo Interactiva
             </button>
             <button type="button" (click)="descargarConfiguracion()" class="btn-download">
-              📥 Descargar Configuración
+              Descargar Configuración
             </button>
           </div>
 
@@ -455,7 +444,7 @@
 
     <!-- STEP 7: Confirmación y Activación -->
     <div *ngIf="currentStep === 8" class="step-content">
-      <h2>🟦 STEP 7 — Confirmación y Activación</h2>
+      <h2>Confirmación y Activación</h2>
 
       <div class="form-group">
         <label>¿Deseas guardar y activar tu chatbot ahora?</label>
@@ -473,6 +462,7 @@
           Finalizar Configuración
         </button>
       </div>
+
     </div>
 
     <!-- Navigation Buttons -->

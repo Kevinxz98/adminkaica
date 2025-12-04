@@ -1,10 +1,32 @@
 import { Injectable } from '@angular/core';
 import { ChatbotConfig } from '../../components/agents/wizard/wizard.model';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+interface AuthResponse {
+  message: string;
+  token: string;
+  user: any;
+  roles: string[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class ChatbotService {
+  private apiUrl = 'http://localhost:8000/api';
+  private tokenKey = 'auth_token';
+  private currentUserSubject = new BehaviorSubject<any>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(private http: HttpClient) {}
+
+  private handleAuthResponse(response: AuthResponse) {
+    localStorage.setItem(this.tokenKey, response.token);
+    this.currentUserSubject.next(response.user);
+  }
+
   private config: ChatbotConfig = {
     nombre: '',
     categoria: '',
@@ -44,8 +66,12 @@ export class ChatbotService {
     this.config = { ...this.config, ...updates };
   }
 
-  saveConfig(): void {
-    // Aquí iría la lógica para guardar en backend
-    console.log('Configuración guardada:', this.config);
+  saveChatbot(formData: FormData): Observable<any> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+
+    return this.http.post(`${this.apiUrl}/chatbot`, formData, {headers});
   }
+
 }

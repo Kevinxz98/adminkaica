@@ -25,7 +25,7 @@ export interface Service {
   providedIn: 'root',
 })
 export class Servicios {
-  private apiUrl = 'https://backend.kaica.co/public/api/services';
+  private apiUrl = 'http://localhost:8000/api/services';
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.currentUserSubject.asObservable();

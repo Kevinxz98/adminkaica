@@ -13,7 +13,7 @@ interface AuthResponse {
   providedIn: 'root',
 })
 export class AgentService {
-  private apiUrl = 'https://backend.kaica.co/public/api/agents';
+  private apiUrl = 'http://localhost:8000/api/agents';
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.currentUserSubject.asObservable();

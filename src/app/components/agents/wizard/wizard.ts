@@ -4,6 +4,7 @@ import {
   ViewChild,
   ElementRef,
   Renderer2,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -13,17 +14,16 @@ import {
   FormArray,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { SharedModule } from '../../../shared/shared.module';
 import { ChatbotConfig } from './wizard.model';
 import { ChatbotService } from '../../../shared/services/chatbot-service.service';
+import { AgentService } from '../../../shared/services/agent-service.service';
 import { FilePondComponent, FilePondModule } from 'ngx-filepond';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import * as FilePond from 'filepond';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 import * as prismCodeData from '../../../shared/prismData/forms/file_uploads';
-import * as FilePond from 'filepond';
-import { AgentService } from '../../../shared/services/agent-service.service';
-import { ActivatedRoute } from '@angular/router';
-import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-wizard',
@@ -32,18 +32,25 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './wizard.scss',
 })
 export class Wizard implements OnInit {
-  prismCode = prismCodeData;
+  // Propiedades del componente
   @ViewChild('myPond') myPond!: FilePondComponent;
-
+  
+  // Configuración y estado
+  prismCode = prismCodeData;
   slug: string | null = null;
   agentName: string = '';
   currentStep = 1;
   totalSteps = 8;
   wizardForm!: FormGroup;
-  public companyLogo: any = null;
+  companyLogo: any = null;
   avatarUrl: string | null = null;
   isChatOpen = true;
+  isSubmitting = false;
+  submitError = '';
+  submitSuccess = false;
+  chatbotId: number | null = null;
 
+  // Opciones de formulario
   categorias = [
     'Ventas',
     'Soporte',
@@ -71,13 +78,22 @@ export class Wizard implements OnInit {
   ];
   datosCapturarOptions = ['Nombre', 'Teléfono', 'Email', 'Otro campo'];
   estadosActivacion = ['Activar', 'Solo guardar', 'Guardar como borrador'];
-
   posicionesWidget = [
     { value: 'bottom-right', label: 'Esquina inferior derecha', icon: '⬊' },
     { value: 'bottom-left', label: 'Esquina inferior izquierda', icon: '⬋' },
-    { value: 'top-right', label: 'Esquina superior derecha', icon: '⬈' },
-    { value: 'top-left', label: 'Esquina superior izquierda', icon: '⬉' },
   ];
+
+  // Configuración de FilePond
+  pondOptions: FilePond.FilePondOptions = {
+    allowMultiple: true,
+    labelIdle: 'Drop files here to Upload...',
+  };
+  singlepondOptions: FilePond.FilePondOptions = {
+    allowMultiple: false,
+    stylePanelLayout: 'compact circle',
+    labelIdle: 'Drop files here to Upload...',
+  };
+  pondFiles: FilePond.FilePondOptions['files'] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -92,93 +108,24 @@ export class Wizard implements OnInit {
     this.slug = this.route.snapshot.paramMap.get('slug');
   }
 
+  // ==================== LIFECYCLE METHODS ====================
   ngOnInit(): void {
     this.loadExistingData();
     this.getNameAgent();
   }
 
-  getNameAgent() {
-    if (this.slug) {
-      this.agentService.getAgentBySlug(this.slug).subscribe((agent) => {
+  // ==================== INICIALIZACIÓN ====================
+  getNameAgent(): void {
+    if (!this.slug) return;
+    
+    this.agentService.getAgentBySlug(this.slug).subscribe({
+      next: (agent) => {
         this.agentName = agent.name;
         this.cdr.detectChanges();
-      });
-    }
-  }
-
-  pondOptions: FilePond.FilePondOptions = {
-    allowMultiple: true,
-    labelIdle: 'Drop files here to Upload...',
-  };
-  singlepondOptions: FilePond.FilePondOptions = {
-    allowMultiple: false,
-    stylePanelLayout: 'compact circle',
-    labelIdle: 'Drop files here to Upload...',
-  };
-
-  pondFiles: FilePond.FilePondOptions['files'] = [];
-
-  pondHandleInit() { }
-
-  pondHandleAddFile(event: any) {
-    const file = event.file;
-
-    // si subes al backend al instante
-    this.companyLogo = file.getFileEncodeBase64String
-      ? file.getFileEncodeBase64String()
-      : file.file;
-
-    if (file.getFileEncodeBase64String) {
-      this.avatarUrl = 'data:image/png;base64,' + this.companyLogo;
-    } else {
-
-      this.avatarUrl = URL.createObjectURL(this.companyLogo);
-    }
-  }
-
-  pondHandleActivateFile(event: any) { }
-
-  createForm(): FormGroup {
-    return this.fb.group({
-      // Step 1
-      nombre: ['', Validators.required],
-      categoria: ['', Validators.required],
-      idioma: ['es', Validators.required],
-      avatar: [null],
-
-      //step 3
-      nombreEmpresa: ['', Validators.required],
-      sitioWeb: [''],
-      descripcionEmpresa: [''],
-      horarioAtencion: [''],
-      informacionAdicional: [''],
-
-      // Step 2
-      estilo: ['', Validators.required],
-      nivelTecnico: [50],
-      usoEmojis: ['', Validators.required],
-
-      // Step 4
-      mensajeBienvenida: ['', Validators.required],
-      mensajeNoDisponible: ['', Validators.required],
-      mensajeAusencia: ['', Validators.required],
-      respuestasRapidas: this.fb.array([]),
-
-      color: ['', Validators.required],
-      posicion: ['bottom-right'],
-      mostrarAvatar: [false],
-      sonidoNotificacion: [false],
-      tamanoWidget: [''],
-      whatsappBusiness: [''],
-
-      // Step 6
-      objetivoPrincipal: ['', Validators.required],
-      preguntasFrecuentes: [''],
-      temasExcluidos: [''],
-      datosCapturar: this.fb.array([]),
-
-      // Step 8
-      estadoActivacion: ['', Validators.required],
+      },
+      error: (error) => {
+        console.error('Error al obtener el agente:', error);
+      }
     });
   }
 
@@ -186,6 +133,40 @@ export class Wizard implements OnInit {
     const existingData = this.chatbotService.getConfig();
     this.wizardForm.patchValue(existingData);
   }
+
+  // ==================== CREACIÓN DE FORMULARIO ====================
+  createForm(): FormGroup {
+    return this.fb.group({
+      nombre: ['', Validators.required],
+      categoria: ['', Validators.required],
+      idioma: ['es', Validators.required],
+      avatar: [null],
+      nombreEmpresa: ['', Validators.required],
+      sitioWeb: [''],
+      descripcionEmpresa: [''],
+      horarioAtencion: [''],
+      informacionAdicional: [''],
+      estilo: ['', Validators.required],
+      nivelTecnico: [50],
+      usoEmojis: ['', Validators.required],
+      mensajeBienvenida: ['', Validators.required],
+      mensajeNoDisponible: ['', Validators.required],
+      mensajeAusencia: ['', Validators.required],
+      respuestasRapidas: this.fb.array([]),
+      color: ['', Validators.required],
+      posicion: ['bottom-right'],
+      mostrarAvatar: [false],
+      sonidoNotificacion: [false],
+      tamanoWidget: [''],
+      objetivoPrincipal: ['', Validators.required],
+      preguntasFrecuentes: [''],
+      temasExcluidos: [''],
+      datosCapturar: this.fb.array([]),
+      estadoActivacion: ['', Validators.required],
+    });
+  }
+
+  // ==================== GETTERS DE FORMARRAY ====================
   get respuestasRapidas(): FormArray {
     return this.wizardForm.get('respuestasRapidas') as FormArray;
   }
@@ -198,6 +179,37 @@ export class Wizard implements OnInit {
     return this.wizardForm.get('datosCapturar') as FormArray;
   }
 
+  // ==================== MANEJO DE ARCHIVOS ====================
+  pondHandleInit(): void {
+    // Inicialización de FilePond
+  }
+
+  pondHandleAddFile(event: any): void {
+    const file = event.file;
+
+    this.companyLogo = file.getFileEncodeBase64String
+      ? file.getFileEncodeBase64String()
+      : file.file;
+
+    if (file.getFileEncodeBase64String) {
+      this.avatarUrl = 'data:image/png;base64,' + this.companyLogo;
+    } else {
+      this.avatarUrl = URL.createObjectURL(this.companyLogo);
+    }
+  }
+
+  pondHandleActivateFile(event: any): void {
+    // Activación de archivo
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.wizardForm.patchValue({ avatar: file });
+    }
+  }
+
+  // ==================== MANEJO DE DATOS ====================
   getIdiomaNombre(codigo: string): string {
     const idiomas: { [key: string]: string } = {
       es: 'Español',
@@ -226,8 +238,6 @@ export class Wizard implements OnInit {
     const posiciones: { [key: string]: string } = {
       'bottom-right': 'Esquina inferior derecha',
       'bottom-left': 'Esquina inferior izquierda',
-      'top-right': 'Esquina superior derecha',
-      'top-left': 'Esquina superior izquierda',
     };
     return posiciones[posicion] || posicion;
   }
@@ -244,96 +254,7 @@ export class Wizard implements OnInit {
     return index;
   }
 
-  closeChat(): void {
-    this.isChatOpen = false;
-
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
-
-    if (widget) {
-      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
-      setTimeout(() => {
-        widget.style.display = 'none';
-      }, 300);
-    }
-  }
-
-  openChat(): void {
-    console.log('click');
-    this.isChatOpen = true;
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
-    // Animación de apertura si quieres
-    if (widget) {
-      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
-      setTimeout(() => {
-        widget.style.display = 'flex';
-      }, 300);
-    }
-  }
-
-  toggleChat(): void {
-    this.isChatOpen = !this.isChatOpen;
-
-    if (this.isChatOpen) {
-      this.animarAperturaChat();
-    } else {
-      this.animarCierreChat();
-    }
-  }
-
-  private animarCierreChat(): void {
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement;
-    if (widget) {
-      widget.style.transform = 'translateY(100%) scale(0.8)';
-      widget.style.opacity = '0';
-      setTimeout(() => {
-        widget.style.display = 'none';
-      }, 300);
-    }
-  }
-
-  private animarAperturaChat(): void {
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
-    if (widget) {
-      console.log('abierto');
-      widget.style.display = 'flex';
-      setTimeout(() => {
-        widget.style.transform = 'translateY(0) scale(1)';
-        widget.style.opacity = '1';
-      }, 10);
-    }
-  }
-
-  probarChatbotDemo(): void {
-    // Abre una ventana de demo interactiva
-    alert(
-      '🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)'
-    );
-  }
-
-  descargarConfiguracion(): void {
-    const config = this.wizardForm.value;
-    const configStr = JSON.stringify(config, null, 2);
-    const blob = new Blob([configStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `config-chatbot-${config.nombre || 'mi-chatbot'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  generateWelcomeMessage(): void {
-    const nombre = this.wizardForm.get('nombre')?.value || 'Chatbot';
-    const nombreEmpresa =
-      this.wizardForm.get('nombreEmpresa')?.value || 'con nosotros';
-    const mensaje = `¡Hola! Soy ${nombre}, tu asistente virtual. ¿En qué puedo ayudarte hoy? 😊`;
-    const mensajeNoDisponible = `¡Hola! Gracias por contactarnos. En este momento estamos fuera de la oficina. Te responderemos lo antes posible durante nuestro próximo horario de atención`;
-    const mensajeAusencia = `¿Todavía estás disponible para continuar la conversación? Si necesitas más ayuda, no dudes en escribirme nuevamente. ¡Estoy aquí para ayudarte cuando lo necesites!`;
-    this.wizardForm.patchValue({ mensajeBienvenida: mensaje });
-    this.wizardForm.patchValue({ mensajeNoDisponible: mensajeNoDisponible });
-    this.wizardForm.patchValue({ mensajeAusencia: mensajeAusencia });
-  }
-
+  // ==================== MANEJO DE RESPUESTAS RÁPIDAS ====================
   addRespuestaRapida(): void {
     this.respuestasRapidas.push(this.fb.control(''));
   }
@@ -342,13 +263,16 @@ export class Wizard implements OnInit {
     this.respuestasRapidas.removeAt(index);
   }
 
+  // ==================== MANEJO DE CHECKBOXES ====================
   onCanalChange(canal: string, isChecked: boolean): void {
     const canalesArray = this.canalesArray;
     if (isChecked) {
       canalesArray.push(this.fb.control(canal));
     } else {
       const index = canalesArray.controls.findIndex((x) => x.value === canal);
-      canalesArray.removeAt(index);
+      if (index !== -1) {
+        canalesArray.removeAt(index);
+      }
     }
   }
 
@@ -358,11 +282,27 @@ export class Wizard implements OnInit {
       datosArray.push(this.fb.control(dato));
     } else {
       const index = datosArray.controls.findIndex((x) => x.value === dato);
-      datosArray.removeAt(index);
+      if (index !== -1) {
+        datosArray.removeAt(index);
+      }
     }
   }
 
-  // Navegación
+  // ==================== GENERACIÓN DE MENSAJES ====================
+  generateWelcomeMessage(): void {
+    const nombre = this.wizardForm.get('nombre')?.value || 'Chatbot';
+    const mensaje = `¡Hola! Soy ${nombre}, tu asistente virtual. ¿En qué puedo ayudarte hoy? 😊`;
+    const mensajeNoDisponible = `¡Hola! Gracias por contactarnos. En este momento estamos fuera de la oficina. Te responderemos lo antes posible durante nuestro próximo horario de atención`;
+    const mensajeAusencia = `¿Todavía estás disponible para continuar la conversación? Si necesitas más ayuda, no dudes en escribirme nuevamente. ¡Estoy aquí para ayudarte cuando lo necesites!`;
+    
+    this.wizardForm.patchValue({ 
+      mensajeBienvenida: mensaje,
+      mensajeNoDisponible: mensajeNoDisponible,
+      mensajeAusencia: mensajeAusencia 
+    });
+  }
+
+  // ==================== NAVEGACIÓN ====================
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
@@ -386,20 +326,159 @@ export class Wizard implements OnInit {
     this.chatbotService.updateConfig(this.wizardForm.value);
   }
 
-  onSubmit(): void {
-    if (this.wizardForm.valid) {
-      this.chatbotService.updateConfig(this.wizardForm.value);
-      this.chatbotService.saveConfig();
-      alert('Chatbot configurado exitosamente!');
+  // ==================== MANEJO DEL CHAT ====================
+  closeChat(): void {
+    this.isChatOpen = false;
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+
+    if (widget) {
+      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
+      setTimeout(() => {
+        widget.style.display = 'none';
+      }, 300);
     }
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.wizardForm.patchValue({ avatar: file });
+  openChat(): void {
+    this.isChatOpen = true;
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    
+    if (widget) {
+      widget.style.animation = 'widgetClose 0.3s ease-out forwards';
+      setTimeout(() => {
+        widget.style.display = 'flex';
+      }, 300);
     }
   }
+
+  toggleChat(): void {
+    this.isChatOpen = !this.isChatOpen;
+
+    if (this.isChatOpen) {
+      this.animarAperturaChat();
+    } else {
+      this.animarCierreChat();
+    }
+  }
+
+  private animarCierreChat(): void {
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement;
+    if (widget) {
+      widget.style.transform = 'translateY(100%) scale(0.8)';
+      widget.style.opacity = '0';
+      widget.style.display = 'none';
+    }
+  }
+
+  private animarAperturaChat(): void {
+    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    if (widget) {
+      widget.style.display = 'flex';
+      widget.style.transform = 'translateY(0) scale(1)';
+      widget.style.opacity = '1';
+    }
+  }
+
+  // ==================== SUBMIT Y PREPARACIÓN DE DATOS ====================
+  onSubmit(): void {
+    if (this.wizardForm.valid) {
+      this.isSubmitting = true;
+      this.submitError = '';
+      const formData = this.prepareFormData();
+      
+      this.chatbotService.updateConfig(this.wizardForm.value);
+      this.sendToBackend(formData);
+    }
+  }
+
+  private prepareFormData(): FormData {
+    const formData = new FormData();
+    const formValue = this.wizardForm.value;
+
+    // Información básica
+    formData.append('nombre', formValue.nombre || '');
+    formData.append('categoria', formValue.categoria || '');
+    formData.append('idioma', formValue.idioma || 'es');
+    
+    // Avatar
+    if (formValue.avatar instanceof File) {
+      formData.append('avatar', formValue.avatar);
+    } else if (typeof formValue.avatar === 'string') {
+      formData.append('avatar_url', formValue.avatar);
+    }
+
+    // Configuración de estilo
+    formData.append('estilo', formValue.estilo || '');
+    formData.append('nivelTecnico', formValue.nivelTecnico?.toString() || '50');
+    formData.append('usoEmojis', formValue.usoEmojis || '');
+
+    // Información de la empresa
+    formData.append('nombreEmpresa', formValue.nombreEmpresa || '');
+    formData.append('sitioWeb', formValue.sitioWeb || '');
+    formData.append('descripcionEmpresa', formValue.descripcionEmpresa || '');
+    formData.append('horarioAtencion', formValue.horarioAtencion || '');
+    formData.append('informacionAdicional', formValue.informacionAdicional || '');
+
+    // Mensajes
+    formData.append('mensajeBienvenida', formValue.mensajeBienvenida || '');
+    formData.append('mensajeNoDisponible', formValue.mensajeNoDisponible || '');
+    formData.append('mensajeAusencia', formValue.mensajeAusencia || '');
+
+    // Respuestas rápidas
+    if (formValue.respuestasRapidas && Array.isArray(formValue.respuestasRapidas)) {
+      const respuestasFiltradas = (formValue.respuestasRapidas as string[]).filter((r: string) => r);
+      formData.append('respuestasRapidas', JSON.stringify(respuestasFiltradas));
+    }
+
+    // Configuración del widget
+    formData.append('color', formValue.configuracionWidget?.colorPrimario || '#2196F3');
+    formData.append('posicion', formValue.configuracionWidget?.posicion || 'bottom-right');
+    formData.append('mostrarAvatar', formValue.configuracionWidget?.mostrarAvatar ? '1' : '0');
+    formData.append('sonidoNotificacion', formValue.configuracionWidget?.sonidoNotificacion ? '1' : '0');
+    formData.append('tamanoWidget', formValue.tamanoWidget || 'mediano');
+
+    // Configuración avanzada
+    formData.append('objetivoPrincipal', formValue.objetivoPrincipal || '');
+    formData.append('preguntasFrecuentes', formValue.preguntasFrecuentes || '');
+    formData.append('temasExcluidos', formValue.temasExcluidos || '');
+
+    // Datos a capturar
+    if (formValue.datosCapturar && formValue.datosCapturar.length) {
+      formValue.datosCapturar.forEach((dato: string, index: number) => {
+        formData.append(`datosCapturar[${index}]`, dato);
+      });
+    }
+    
+    formData.append('estadoActivacion', formValue.estadoActivacion || '');
+    
+    return formData;
+  }
+
+  sendToBackend(formData: FormData): void {
+    this.chatbotService.saveChatbot(formData).subscribe({
+      next: (response) => {
+        this.handleSuccess(response);
+        this.chatbotId = response.data?.id || null;
+      },
+      error: (error) => {
+        this.handleError(error);
+      }
+    });
+  }
+
+  private handleSuccess(response: any): void {
+    this.isSubmitting = false;
+    this.submitSuccess = true;
+    alert('Chatbot creado correctamente');
+  }
+
+  private handleError(error: any): void {
+    this.isSubmitting = false;
+    this.submitError = 'Error al guardar el chatbot';
+    console.error('Error al guardar el chatbot:', error);
+  }
+
+  // ==================== VALIDACIONES ====================
   getCamposFaltantes(): string {
     const camposFaltantes: string[] = [];
 
@@ -431,7 +510,6 @@ export class Wizard implements OnInit {
     return `Campos requeridos faltantes:\n${camposFaltantes.join('\n')}`;
   }
 
-  // Getters para validación
   isStepValid(step: number): boolean {
     switch (step) {
       case 1:
@@ -456,5 +534,22 @@ export class Wizard implements OnInit {
       default:
         return true;
     }
+  }
+
+  // ==================== UTILIDADES ====================
+  probarChatbotDemo(): void {
+    alert('🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)');
+  }
+
+  descargarConfiguracion(): void {
+    const config = this.wizardForm.value;
+    const configStr = JSON.stringify(config, null, 2);
+    const blob = new Blob([configStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `config-chatbot-${config.nombre || 'mi-chatbot'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

@@ -34,7 +34,7 @@ import * as prismCodeData from '../../../shared/prismData/forms/file_uploads';
 export class Wizard implements OnInit {
   // Propiedades del componente
   @ViewChild('myPond') myPond!: FilePondComponent;
-  
+
   // Configuración y estado
   prismCode = prismCodeData;
   slug: string | null = null;
@@ -117,7 +117,7 @@ export class Wizard implements OnInit {
   // ==================== INICIALIZACIÓN ====================
   getNameAgent(): void {
     if (!this.slug) return;
-    
+
     this.agentService.getAgentBySlug(this.slug).subscribe({
       next: (agent) => {
         this.agentName = agent.name;
@@ -125,7 +125,7 @@ export class Wizard implements OnInit {
       },
       error: (error) => {
         console.error('Error al obtener el agente:', error);
-      }
+      },
     });
   }
 
@@ -183,9 +183,13 @@ export class Wizard implements OnInit {
   pondHandleInit(): void {
     // Inicialización de FilePond
   }
+  
 
   pondHandleAddFile(event: any): void {
     const file = event.file;
+    const fileObject = file.file;
+
+    this.wizardForm.patchValue({ avatar: fileObject });
 
     this.companyLogo = file.getFileEncodeBase64String
       ? file.getFileEncodeBase64String()
@@ -242,14 +246,6 @@ export class Wizard implements OnInit {
     return posiciones[posicion] || posicion;
   }
 
-  getAvatarUrl(): string {
-    const avatar = this.wizardForm.get('avatar')?.value;
-    if (avatar && typeof avatar !== 'string') {
-      return URL.createObjectURL(avatar);
-    }
-    return avatar || '';
-  }
-
   trackByIndex(index: number): number {
     return index;
   }
@@ -294,11 +290,11 @@ export class Wizard implements OnInit {
     const mensaje = `¡Hola! Soy ${nombre}, tu asistente virtual. ¿En qué puedo ayudarte hoy? 😊`;
     const mensajeNoDisponible = `¡Hola! Gracias por contactarnos. En este momento estamos fuera de la oficina. Te responderemos lo antes posible durante nuestro próximo horario de atención`;
     const mensajeAusencia = `¿Todavía estás disponible para continuar la conversación? Si necesitas más ayuda, no dudes en escribirme nuevamente. ¡Estoy aquí para ayudarte cuando lo necesites!`;
-    
-    this.wizardForm.patchValue({ 
+
+    this.wizardForm.patchValue({
       mensajeBienvenida: mensaje,
       mensajeNoDisponible: mensajeNoDisponible,
-      mensajeAusencia: mensajeAusencia 
+      mensajeAusencia: mensajeAusencia,
     });
   }
 
@@ -329,7 +325,9 @@ export class Wizard implements OnInit {
   // ==================== MANEJO DEL CHAT ====================
   closeChat(): void {
     this.isChatOpen = false;
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    const widget = document.querySelector(
+      '.chatbot-widget'
+    ) as HTMLElement | null;
 
     if (widget) {
       widget.style.animation = 'widgetClose 0.3s ease-out forwards';
@@ -341,8 +339,10 @@ export class Wizard implements OnInit {
 
   openChat(): void {
     this.isChatOpen = true;
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
-    
+    const widget = document.querySelector(
+      '.chatbot-widget'
+    ) as HTMLElement | null;
+
     if (widget) {
       widget.style.animation = 'widgetClose 0.3s ease-out forwards';
       setTimeout(() => {
@@ -371,7 +371,9 @@ export class Wizard implements OnInit {
   }
 
   private animarAperturaChat(): void {
-    const widget = document.querySelector('.chatbot-widget') as HTMLElement | null;
+    const widget = document.querySelector(
+      '.chatbot-widget'
+    ) as HTMLElement | null;
     if (widget) {
       widget.style.display = 'flex';
       widget.style.transform = 'translateY(0) scale(1)';
@@ -384,10 +386,11 @@ export class Wizard implements OnInit {
     if (this.wizardForm.valid) {
       this.isSubmitting = true;
       this.submitError = '';
+
       const formData = this.prepareFormData();
-      
-      this.chatbotService.updateConfig(this.wizardForm.value);
-      this.sendToBackend(formData);
+      console.log(formData.get('avatar'));
+      //this.chatbotService.updateConfig(this.wizardForm.value);
+      //this.sendToBackend(formData);
     }
   }
 
@@ -399,7 +402,7 @@ export class Wizard implements OnInit {
     formData.append('nombre', formValue.nombre || '');
     formData.append('categoria', formValue.categoria || '');
     formData.append('idioma', formValue.idioma || 'es');
-    
+
     // Avatar
     if (formValue.avatar instanceof File) {
       formData.append('avatar', formValue.avatar);
@@ -417,7 +420,10 @@ export class Wizard implements OnInit {
     formData.append('sitioWeb', formValue.sitioWeb || '');
     formData.append('descripcionEmpresa', formValue.descripcionEmpresa || '');
     formData.append('horarioAtencion', formValue.horarioAtencion || '');
-    formData.append('informacionAdicional', formValue.informacionAdicional || '');
+    formData.append(
+      'informacionAdicional',
+      formValue.informacionAdicional || ''
+    );
 
     // Mensajes
     formData.append('mensajeBienvenida', formValue.mensajeBienvenida || '');
@@ -425,16 +431,33 @@ export class Wizard implements OnInit {
     formData.append('mensajeAusencia', formValue.mensajeAusencia || '');
 
     // Respuestas rápidas
-    if (formValue.respuestasRapidas && Array.isArray(formValue.respuestasRapidas)) {
-      const respuestasFiltradas = (formValue.respuestasRapidas as string[]).filter((r: string) => r);
+    if (
+      formValue.respuestasRapidas &&
+      Array.isArray(formValue.respuestasRapidas)
+    ) {
+      const respuestasFiltradas = (
+        formValue.respuestasRapidas as string[]
+      ).filter((r: string) => r);
       formData.append('respuestasRapidas', JSON.stringify(respuestasFiltradas));
     }
 
     // Configuración del widget
-    formData.append('color', formValue.configuracionWidget?.colorPrimario || '#2196F3');
-    formData.append('posicion', formValue.configuracionWidget?.posicion || 'bottom-right');
-    formData.append('mostrarAvatar', formValue.configuracionWidget?.mostrarAvatar ? '1' : '0');
-    formData.append('sonidoNotificacion', formValue.configuracionWidget?.sonidoNotificacion ? '1' : '0');
+    formData.append(
+      'color',
+      formValue.configuracionWidget?.colorPrimario || '#2196F3'
+    );
+    formData.append(
+      'posicion',
+      formValue.configuracionWidget?.posicion || 'bottom-right'
+    );
+    formData.append(
+      'mostrarAvatar',
+      formValue.configuracionWidget?.mostrarAvatar ? '1' : '0'
+    );
+    formData.append(
+      'sonidoNotificacion',
+      formValue.configuracionWidget?.sonidoNotificacion ? '1' : '0'
+    );
     formData.append('tamanoWidget', formValue.tamanoWidget || 'mediano');
 
     // Configuración avanzada
@@ -448,9 +471,9 @@ export class Wizard implements OnInit {
         formData.append(`datosCapturar[${index}]`, dato);
       });
     }
-    
+
     formData.append('estadoActivacion', formValue.estadoActivacion || '');
-    
+
     return formData;
   }
 
@@ -462,7 +485,7 @@ export class Wizard implements OnInit {
       },
       error: (error) => {
         this.handleError(error);
-      }
+      },
     });
   }
 
@@ -483,25 +506,34 @@ export class Wizard implements OnInit {
     const camposFaltantes: string[] = [];
 
     // Step 1
-    if (!this.wizardForm.get('nombre')?.valid) camposFaltantes.push('Nombre del chatbot');
-    if (!this.wizardForm.get('categoria')?.valid) camposFaltantes.push('Categoría');
+    if (!this.wizardForm.get('nombre')?.valid)
+      camposFaltantes.push('Nombre del chatbot');
+    if (!this.wizardForm.get('categoria')?.valid)
+      camposFaltantes.push('Categoría');
 
     // Step 2
-    if (!this.wizardForm.get('estilo')?.valid) camposFaltantes.push('Estilo de comunicación');
-    if (!this.wizardForm.get('usoEmojis')?.valid) camposFaltantes.push('Uso de emojis');
+    if (!this.wizardForm.get('estilo')?.valid)
+      camposFaltantes.push('Estilo de comunicación');
+    if (!this.wizardForm.get('usoEmojis')?.valid)
+      camposFaltantes.push('Uso de emojis');
 
     // Step 3
-    if (!this.wizardForm.get('nombreEmpresa')?.valid) camposFaltantes.push('Nombre de la empresa');
-    if (!this.wizardForm.get('descripcionEmpresa')?.valid) camposFaltantes.push('Descripción de la empresa');
+    if (!this.wizardForm.get('nombreEmpresa')?.valid)
+      camposFaltantes.push('Nombre de la empresa');
+    if (!this.wizardForm.get('descripcionEmpresa')?.valid)
+      camposFaltantes.push('Descripción de la empresa');
 
     // Step 5
-    if (!this.wizardForm.get('mensajeBienvenida')?.valid) camposFaltantes.push('Mensaje de bienvenida');
+    if (!this.wizardForm.get('mensajeBienvenida')?.valid)
+      camposFaltantes.push('Mensaje de bienvenida');
 
     // Step 6
-    if (!this.wizardForm.get('objetivoPrincipal')?.valid) camposFaltantes.push('Objetivo principal');
+    if (!this.wizardForm.get('objetivoPrincipal')?.valid)
+      camposFaltantes.push('Objetivo principal');
 
     // Step 8
-    if (!this.wizardForm.get('estadoActivacion')?.valid) camposFaltantes.push('Estado de activación');
+    if (!this.wizardForm.get('estadoActivacion')?.valid)
+      camposFaltantes.push('Estado de activación');
 
     if (camposFaltantes.length === 0) {
       return 'Todos los campos están completos ✅';
@@ -538,7 +570,9 @@ export class Wizard implements OnInit {
 
   // ==================== UTILIDADES ====================
   probarChatbotDemo(): void {
-    alert('🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)');
+    alert(
+      '🚀 Demo interactiva del chatbot (en una implementación real, esto abriría una ventana de prueba)'
+    );
   }
 
   descargarConfiguracion(): void {

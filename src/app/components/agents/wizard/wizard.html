@@ -266,7 +266,7 @@
                   <div class="avatar-circle" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
                     <span *ngIf="!wizardForm.get('avatar')?.value">{{wizardForm.get('nombre')?.value?.charAt(0) ||
                       'B'}}</span>
-                    <img *ngIf="wizardForm.get('avatar')?.value" [src]="getAvatarUrl()" alt="Avatar">
+                    <img *ngIf="wizardForm.get('avatar')?.value" [src]="avatarUrl" alt="Avatar">
                   </div>
                   <div class="chat-info">
                     <h4>{{wizardForm.get('nombre')?.value || 'Mi Chatbot'}}</h4>

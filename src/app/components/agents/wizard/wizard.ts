@@ -183,7 +183,6 @@ export class Wizard implements OnInit {
   pondHandleInit(): void {
     // Inicialización de FilePond
   }
-  
 
   pondHandleAddFile(event: any): void {
     const file = event.file;
@@ -388,7 +387,7 @@ export class Wizard implements OnInit {
       this.submitError = '';
 
       const formData = this.prepareFormData();
-      console.log(formData.get('avatar'));
+      console.log(formData.get('color'));
       //this.chatbotService.updateConfig(this.wizardForm.value);
       //this.sendToBackend(formData);
     }
@@ -429,6 +428,7 @@ export class Wizard implements OnInit {
     formData.append('mensajeBienvenida', formValue.mensajeBienvenida || '');
     formData.append('mensajeNoDisponible', formValue.mensajeNoDisponible || '');
     formData.append('mensajeAusencia', formValue.mensajeAusencia || '');
+    formData.append('color', formValue.color || '#2196F3');
 
     // Respuestas rápidas
     if (
@@ -441,22 +441,11 @@ export class Wizard implements OnInit {
       formData.append('respuestasRapidas', JSON.stringify(respuestasFiltradas));
     }
 
-    // Configuración del widget
-    formData.append(
-      'color',
-      formValue.configuracionWidget?.colorPrimario || '#2196F3'
-    );
-    formData.append(
-      'posicion',
-      formValue.configuracionWidget?.posicion || 'bottom-right'
-    );
-    formData.append(
-      'mostrarAvatar',
-      formValue.configuracionWidget?.mostrarAvatar ? '1' : '0'
-    );
+    formData.append('posicion', formValue.posicion || 'bottom-right');
+    formData.append('mostrarAvatar', formValue.mostrarAvatar ? '1' : '0');
     formData.append(
       'sonidoNotificacion',
-      formValue.configuracionWidget?.sonidoNotificacion ? '1' : '0'
+      formValue.sonidoNotificacion ? '1' : '0'
     );
     formData.append('tamanoWidget', formValue.tamanoWidget || 'mediano');
 

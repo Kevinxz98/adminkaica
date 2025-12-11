@@ -17,6 +17,10 @@ const routes: Routes = [
         path: 'agents/:slug/wizard',
         loadComponent: () => import('./wizard/wizard').then((m) => m.Wizard),
       },
+      {
+        path: 'agents/my-agents',
+        loadComponent: () => import('./my-agents/my-agents').then((m) => m.MyAgents),
+      },
     ],
   },
 ];

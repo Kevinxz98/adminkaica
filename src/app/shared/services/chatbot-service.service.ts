@@ -74,4 +74,11 @@ export class ChatbotService {
     return this.http.post(`${this.apiUrl}/chatbot`, formData, {headers});
   }
 
+  loadMyAgents(): Observable<any[]> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+    return this.http.get<any[]>(`${this.apiUrl}/my-agents`, { headers });
+  }
+
 }

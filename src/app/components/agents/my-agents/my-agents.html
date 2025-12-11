@@ -1,0 +1,135 @@
+<!-- Start::row-2 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between border-bottom-1">
+        <!-- Search Bar -->
+        <div class="products-search-input mb-sm-0 mb-1">
+          <input
+            class="form-control"
+            type="search"
+            (input)="onTableWithSearchChange($event)"
+            id="search-input"
+            placeholder="Search Product"
+            aria-label="search-product"
+          />
+        </div>
+      </div>
+      <!-- Table inside the card-body -->
+      <div class="card-body p-0">
+        <div id="product-table" class="grid-card-table table-responsive">
+          <ng-template #selectAllTemplate2 let-changeEvent>
+            <label class="ngx-form-checkbox">
+              <input
+                type="checkbox"
+                [checked]="allSelected"
+                (click)="changeEvent()"
+              />
+              <i
+                class="ngx-form-icon custom-checkbox-color"
+                id="selectAllCheckbox2"
+              ></i>
+            </label>
+          </ng-template>
+          @if (agentes$ | async; as agentes) {
+          <ngx-table
+            #table
+            [configuration]="configuration"
+            [data]="agentes"
+            [columns]="columns"
+            [selectAllTemplate]="selectAllTemplate2"
+            (event)="tableEventEmitted($event)"
+          >
+            <ng-template let-row>
+              <td>
+                <label class="ngx-form-checkbox">
+                  <input type="checkbox" [(ngModel)]="row.selected" />
+                  <i class="ngx-form-icon custom-checkbox-color"></i>
+                </label>
+              </td>
+
+              <td class="product-name-column">
+                <a [routerLink]="['/dashboards/ecommerce/productdetails']">
+                  <div
+                    class="d-flex align-items-center gap-3 position-relative"
+                  >
+                    <div class="lh-1">
+                      <span class="avatar avatar-lg bg-light">
+                        <!-- Si hay avatar, mostrar imagen -->
+                         @if(row.avatar){
+                            <img
+                            [src]="row.avatar"
+                            alt="Avatar del agente"
+                            />
+                         }@else {
+                            <span class="avatar avatar-lg" [ngStyle]="{ 'background': row.color || '#6c757d'}">
+                                {{ row.nombre.charAt(0).toUpperCase() }}
+                            </span>
+                         }
+                      </span>
+                    </div>
+                    <div>
+                      <span class="d-block fw-semibold">{{ row.nombre }}</span>
+                      <span class="text-muted fs-13"
+                        >{{ row.objetivoPrincipal }}</span
+                      >
+                    </div>
+                  </div>
+                </a>
+              </td>
+
+              <td><span>{{ row.nombreEmpresa }}</span></td>
+              <td>
+                <span class="text-success">{{ row.estadoActivacion }}</span>
+              </td>
+
+              <td>
+                <spk-dropdowns
+                  [Customclass]="'dropdown '"
+                  [Icon]="true"
+                  [IconClass]="'fe fe-more-vertical'"
+                  [class]="'btn btn-icon btn-sm btn-primary-light border no-caret'"
+                  [Menuclass]="'dropdown-menu '"
+                >
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/services/edit-service', row.Id]"
+                    >
+                      <i class="ri-pencil-line me-2"></i> Editar
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item btn-delete">
+                      <i class="ri-delete-bin-line me-2"></i> Eliminar
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item btn-delete">
+                      <i class="ri-shut-down-line me-2"></i>
+                      {{ row.Status === 'Publicado' ? 'Desactivar' : 'Activar'
+                      }}
+                    </a>
+                  </li>
+                </spk-dropdowns>
+              </td>
+            </ng-template>
+          </ngx-table>
+          } @else {
+          <div class="text-center p-5">
+            <div
+              class="spinner-border text-primary"
+              role="status"
+              style="width: 3rem; height: 3rem"
+            >
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-3 fw-semibold">Cargando servicios...</p>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End::row-2 -->

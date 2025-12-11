@@ -566,7 +566,16 @@ export class NavService implements OnDestroy {
             active: false,
             selected: false,
             path: '/agents/view-agents',
-          }],
+          },
+          {
+            title: 'Mis Agentes',
+            dirchange: false,
+            type: 'link',
+            active: false,
+            selected: false,
+            path: '/agents/my-agents',
+          },
+        ],
       },
       //Title
       {headTitle:'Admin Services'},

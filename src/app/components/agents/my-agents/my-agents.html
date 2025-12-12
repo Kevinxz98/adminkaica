@@ -32,6 +32,7 @@
             </label>
           </ng-template>
           @if (agentes$ | async; as agentes) {
+            <div class="desktop-table d-none d-md-block">
           <ngx-table
             #table
             [configuration]="configuration"
@@ -48,24 +49,24 @@
                 </label>
               </td>
 
-              <td class="product-name-column">
-                <a [routerLink]="['/dashboards/ecommerce/productdetails']">
+              <td>
+                <a>
                   <div
                     class="d-flex align-items-center gap-3 position-relative"
                   >
                     <div class="lh-1">
                       <span class="avatar avatar-lg bg-light">
                         <!-- Si hay avatar, mostrar imagen -->
-                         @if(row.avatar){
-                            <img
-                            [src]="row.avatar"
-                            alt="Avatar del agente"
-                            />
-                         }@else {
-                            <span class="avatar avatar-lg" [ngStyle]="{ 'background': row.color || '#6c757d'}">
-                                {{ row.nombre.charAt(0).toUpperCase() }}
-                            </span>
-                         }
+                        @if(row.avatar){
+                        <img [src]="row.avatar" alt="Avatar del agente" />
+                        }@else {
+                        <span
+                          class="avatar avatar-lg"
+                          [ngStyle]="{ 'background': row.color || '#6c757d', 'color': textColor(row.color)}"
+                        >
+                          {{ row.nombre.charAt(0).toUpperCase() }}
+                        </span>
+                        }
                       </span>
                     </div>
                     <div>
@@ -80,7 +81,9 @@
 
               <td><span>{{ row.nombreEmpresa }}</span></td>
               <td>
-                <span class="text-success">{{ row.estadoActivacion }}</span>
+                <span [class]="statusLabel(row.Status).color">
+                  {{ statusLabel(row.Status).text }}
+                </span>
               </td>
 
               <td>
@@ -115,6 +118,62 @@
               </td>
             </ng-template>
           </ngx-table>
+          </div>  
+          <div class="d-md-none mobile-agent-cards">
+            <div *ngFor="let row of agentes$ | async" class="agent-card">
+              <!-- HEADER -->
+              <div class="agent-card-header">
+                <div class="avatar-wrapper">
+                  @if(row.avatar){
+                  <img [src]="row.avatar" alt="Avatar" />
+                  }@else{
+                  <span
+                    class="avatar-initial"
+                    [ngStyle]="{ 'background': row.color || '#6c757d', 'color': textColor(row.color)}"
+                  >
+                    {{ row.nombre.charAt(0).toUpperCase() }}
+                  </span>
+                  }
+                </div>
+
+                <div class="agent-info">
+                  <div class="agent-name">{{ row.nombre }}</div>
+                  <div class="agent-company">{{ row.nombreEmpresa }}</div>
+                </div>
+
+                <div
+                  class="agent-status"
+                  [class]="statusLabel(row.Status).color"
+                >
+                  {{ statusLabel(row.Status).text }}
+                </div>
+              </div>
+
+              <!-- BODY -->
+              <div class="agent-card-body">
+                <div class="label">Objetivo principal</div>
+                <div class="value">
+                  {{ row.objetivoPrincipal || 'No definido' }}
+                </div>
+              </div>
+
+              <!-- FOOTER -->
+              <div class="agent-card-actions">
+                <button
+                  class="btn-edit"
+                  [routerLink]="['/services/edit-service', row.Id]"
+                >
+                  Editar
+                </button>
+
+                <button class="btn-delete">Eliminar</button>
+
+                <button class="btn-toggle">
+                  {{ row.Status === 'Publicado' ? 'Desactivar' : 'Activar' }}
+                </button>
+              </div>
+            </div>
+          </div>
           } @else {
           <div class="text-center p-5">
             <div

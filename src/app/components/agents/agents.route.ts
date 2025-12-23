@@ -21,6 +21,14 @@ const routes: Routes = [
         path: 'agents/my-agents',
         loadComponent: () => import('./my-agents/my-agents').then((m) => m.MyAgents),
       },
+      {
+        path: 'agents/my-agents/:public_key/edit',
+        loadComponent: () => import('./wizard/wizard').then((m) => m.Wizard),
+      },
+      {
+        path: 'agents/my-agents/:public_key/statistics',
+        loadComponent: () => import('./view-agent-statistics/view-agent-statistics').then((m) => m.ViewAgentStatistics),
+      },
     ],
   },
 ];

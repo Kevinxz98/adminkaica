@@ -1,0 +1,27 @@
+.color-preview {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+}
+
+/* Opcional: Agregar estilos adicionales */
+:host {
+  display: block;
+}
+
+#apiKeyInput {
+  background-color: #f8f9fa;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+.btn-outline-secondary, .btn-outline-primary {
+  padding: 0.25rem 0.5rem;
+}
+
+.input-group {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

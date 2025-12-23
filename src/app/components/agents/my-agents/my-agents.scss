@@ -19,24 +19,25 @@
   height: 100%;
 }
 
+.grid-card-table{
+  min-height: 210px;
+}
+
 /* --- PREMIUM MOBILE AGENTS --- */
 
-.mobile-agent-cards {
-  padding: 10px;
-}
 
 .agent-card {
   background: #fff;
   border-radius: 16px;
   padding: 18px;
   margin-bottom: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  box-shadow: 0px 4px 3px 1px #0000003a;
   border: 1px solid #f1f1f1;
   transition: 0.2s ease;
+  margin: 7px;
 }
 
 .agent-card:hover {
-  transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
@@ -48,10 +49,10 @@
 }
 
 .avatar-wrapper img {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: scale-down;
 }
 
 .avatar-initial {
@@ -149,9 +150,24 @@
   color: #d92d20;
 }
 
-.btn-toggle {
+.btn-probar{
+  background: #fffade;
+  color: #d9b720;
+}
+
+.btn-Activo{
+  background: #ffecec;
+  color: #d92d20;
+}
+
+.btn-Inactivo{
   background: #eaf9ef;
   color: #14833b;
+}
+
+.btn-ver{
+  background: #e2fffc;
+  color: #27d3f5;
 }
 
 button:hover {
@@ -169,5 +185,19 @@ button:hover {
 .desktop-table {
   @media (max-width: 767px) {
     display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .card{
+    border: none;
+    background: transparent;
+  }
+  ::ng-deep .app-content .main-body-container {
+    background: transparent !important;
+    border: none;
+  }
+  .grid-card-table{
+    margin: 0;
   }
 }

@@ -30,6 +30,7 @@ export class Mixedcharts {
       });
       i++;
     }
+    console.log(series);
     return series;
   }
 
@@ -47,6 +48,7 @@ export class Mixedcharts {
       });
       i++;
     }
+    console.log(series);
     return series;
   }
 }

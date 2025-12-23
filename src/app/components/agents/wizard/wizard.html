@@ -226,11 +226,15 @@
         <label>¿Quieres que el bot capture datos?</label>
         <div class="checkboxes-group">
           <div *ngFor="let dato of datosCapturarOptions" class="checkbox-item">
-            <label>
-              <input type="checkbox" [value]="dato" (change)="onDatoCapturarChange(dato, $event.target.checked)" />
-              {{dato}}
-            </label>
-          </div>
+        <label>
+          <input
+            type="checkbox"
+            [checked]="datosCapturarArray.value.includes(dato)"
+            (change)="onDatoCapturarChange(dato, $event.target.checked)"
+          />
+          {{ dato }}
+        </label>
+      </div>
         </div>
       </div>
     </div>

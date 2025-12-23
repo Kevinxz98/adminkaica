@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { routesGuard } from '../../shared/guards/routes-guard';
 
 export const admin: Routes = [
  {path:'dashboards',children:[ 
   {
   path: 'main',
+  canActivate: [routesGuard],
   loadComponent: () =>
     import('./main/main').then((m) => m.Main),
 },{

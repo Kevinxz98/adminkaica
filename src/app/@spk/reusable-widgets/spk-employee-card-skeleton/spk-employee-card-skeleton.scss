@@ -1,0 +1,53 @@
+.skeleton {
+  overflow: hidden;
+}
+
+.skeleton-box {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 25%,
+    #f3f4f6 37%,
+    #e5e7eb 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+/* Shapes */
+.skeleton-box.circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.skeleton-box.line-sm {
+  height: 12px;
+  width: 90px;
+}
+
+.skeleton-box.line-lg {
+  height: 26px;
+  width: 120px;
+}
+
+.skeleton-box.line-xs {
+  height: 10px;
+  width: 60px;
+}
+
+.skeleton-box.badge {
+  height: 18px;
+  width: 70px;
+  border-radius: 999px;
+}
+
+/* Animation */
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}

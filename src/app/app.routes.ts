@@ -20,4 +20,9 @@ export const routes: Routes = [
   },
   { path: '', component: FullLayout, children: Full_Content_Routes, canActivate: [authGuard] },
   { path: '', component: AuthenticationLayout, children: Authentication_ROUTES },
+  {
+    path: 'agents/test-agent/:public_key',
+    loadComponent: () => import('../app/components/agents/test-agent/test-agent').then((m) => m.TestAgent),
+  },
+  
 ];

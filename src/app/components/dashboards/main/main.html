@@ -1,14 +1,89 @@
-<app-breadcrumb title="Pages" [subtitle]="false" active_item="Main"></app-breadcrumb>
-
-<!-- Start::row-1 -->
-<div class="row">
-    <div class="col-xl-12">
-        <div class="card custom-card">
-            <div class="card-body">
-                <h6 class="mb-0">Empty Card</h6>
-               
-            </div>
-        </div>
+<!-- Start::page-header -->
+<div
+  class="d-flex align-items-center justify-content-between mb-3 page-header-breadcrumb flex-wrap gap-2"
+>
+  <div>
+    <h1 class="page-title fw-medium fs-20 mb-0">Dashboard</h1>
+  </div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="form-group">
+      <spk-flatpickr
+        [placeholder]="'2025-06-01 to 2025-12-30'"
+        [class]="''"
+        class="breadcrumb-input active"
+        [mode]="'range'"
+        [altInput]="false"
+        [convertModelValue]="true"
+        [enableTime]="false"
+        [dateFormat]="'Y-m-d'"
+      ></spk-flatpickr>
     </div>
+    <div class="btn-list">
+      <button class="btn btn-icon btn-primary btn-wave me-2">
+        <i class="ri-refresh-line"></i>
+      </button>
+      <button class="btn btn-icon btn-primary btn-wave me-0">
+        <i class="ri-filter-3-line"></i>
+      </button>
+    </div>
+  </div>
 </div>
-<!--End::row-1 -->
+<!-- End::page-header -->
+
+<div class="row row-cols-1 row-cols-xxl-3 row-cols-xl-3 row-cols-md-3">
+  @if (isLoading) { @for (i of [1,2, 3]; track i) {
+  <div class="col">
+    <app-spk-employee-card-skeleton />
+  </div>
+  } }@else{ @for(widget of Agentsdata;track $index){
+  <div class="col">
+    <spk-employee-card [widget]="widget"></spk-employee-card>
+  </div>
+  } }
+</div>
+
+<div class="col-xl-12">
+  <div class="card custom-card podcast-banner-card border-0 shadow-none">
+    <div class="card-body">
+      <div class="podcast-banner-card-background">
+        <img src="./assets/images/media/backgrounds/6.png" alt="" />
+      </div>
+      <div class="row">
+        <div class="col-xl-8">
+          <span class="badge bg-primary rounded-pill">Ultimas noticias</span>
+          <h2 class="fw-semibold mt-2">Disfruta de nuestros chatbot GRATIS</h2>
+          <p class="fs-16 mb-3">
+            Accede a nuestros chatbots sin costo alguno y experimenta la
+            inteligencia artificial en su máxima expresión. ¡Comienza a chatear
+            ahora y descubre un mundo de posibilidades!
+            <br />
+            Recuerda que estamos en fase beta, por lo que es posible que
+            encuentres algunos errores o limitaciones. Agradecemos tu 
+            paciencia y comprensión mientras trabajamos para mejorar la
+            experiencia. ¡Gracias por ser parte de esta emocionante etapa!
+          </p>
+          <div class="fw-medium text-primary mb-4">
+            <i class="ri-robot-2-line"></i> 1 Agents deployed
+            <span class="ms-2 text-default fs-12 op-8"
+              ><i class="ri-user-community-fill"></i> +99 Users </span
+            >
+          </div>
+          <div class="btn-list">
+            <a (click)="goToCreateAgent('chatbot-ai-web'); $event.stopPropagation()" class="btn btn-lg btn-primary btn-w-lg">Empezar Ahora</a>
+            <!--<button class="btn btn-lg btn-primary-ghost btn-w-lg">
+              Try Premium
+            </button>-->
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <img
+            src="./assets/images/media/imagenBot.png"
+            alt=""
+            class="podcast-banner-img img-fluid d-md-block d-none"
+            style="max-height: 350px;"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

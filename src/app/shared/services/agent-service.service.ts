@@ -39,4 +39,6 @@ export class AgentService {
     });
     return this.http.get<any>(`${this.apiUrl}/${slug}`, { headers });
   }
+
+  
 }

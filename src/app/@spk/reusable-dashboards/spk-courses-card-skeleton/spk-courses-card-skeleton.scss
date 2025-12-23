@@ -1,0 +1,62 @@
+/* Estilos para el skeleton loading */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.skeleton-text {
+    height: 16px;
+    border-radius: 4px;
+}
+
+.skeleton-badge {
+    height: 24px;
+}
+
+/* Animación del skeleton */
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Para temas oscuros */
+@media (prefers-color-scheme: dark) {
+    .skeleton {
+        background: linear-gradient(90deg, #2a2a2a 25%, #333333 50%, #2a2a2a 75%);
+        background-size: 200% 100%;
+    }
+}
+
+/* Clases de utilidad para variaciones */
+.skeleton-sm {
+    height: 12px;
+}
+
+.skeleton-md {
+    height: 16px;
+}
+
+.skeleton-lg {
+    height: 20px;
+}
+
+.skeleton-xl {
+    height: 24px;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+}

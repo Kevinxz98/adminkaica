@@ -1,0 +1,75 @@
+<div class="row row-cols-1 row-cols-xxl-3 row-cols-xl-3 row-cols-md-3">
+  @if (isLoading) { @for (i of [1,2, 3]; track i) {
+  <div class="col">
+    <app-spk-employee-card-skeleton />
+  </div>
+  } }@else{ @for(widget of Agentdata;track $index){
+  <div class="col">
+    <spk-employee-card [widget]="widget"></spk-employee-card>
+  </div>
+  } }
+</div>
+
+@if (isLoading){
+<app-spk-agent-details-card-skeleton></app-spk-agent-details-card-skeleton>
+}@else{ @for (card of AgentDetails; track $index) {
+<div class="col-md-12 col-lg-12 col-xl-12 mb-4">
+  <app-spk-agent-details-card
+    [avatar]="card.avatar ?? ''"
+    [name]="card.nombre"
+    [estadoClass]="card.estadoClass?? ''"
+    [estadoActivacion]="card.estadoActivacion"
+    [categoria]="card.categoria"
+    [nombreEmpresa]="card.nombreEmpresa"
+    [sitioWeb]="card.sitioWeb?? ''"
+    [openaiModel]="card.openaiModel"
+    [color]="card.color"
+    [createdAt]="card.created_at"
+    [statusClass]="card.statusClass?? ''"
+    [status]="card.status == '1' ? 'Activo' : 'Inactivo'"
+    [apiKey]="card.public_key ?? ''"
+    (edit)="editBot(card.public_key ?? '')"
+    (test)="testBot(card.public_key ?? '')"
+    (disable)="disableBot(card.public_key ?? '')"
+  >
+    >
+  </app-spk-agent-details-card>
+</div>
+} } @if(chatbotStats && !isLoading){
+<app-chart-agent [chatbotStats]="chatbotStats"></app-chart-agent>
+}
+
+<app-showcode-card
+  [classbody]="'pb-3'"
+  [title]="'Basic Usage'"
+  [prism]="agentCode"
+>
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Hola {{ userName }}!</strong>
+    <div *ngIf="userState$ | async as state">
+      <div *ngIf="state.isLoading">Cargando usuario...</div>
+      <div *ngIf="!state.isLoading">
+        <div *ngIf="state.user">
+          <strong>Hola {{ state.user.name }}!</strong>
+        </div>
+        <div *ngIf="!state.user && state.isLoggedIn">
+          Error cargando usuario
+        </div>
+        <div *ngIf="!state.user && !state.isLoggedIn">
+          Por favor inicia sesión
+        </div>
+      </div>
+    </div>
+    Copia y pega el siguiente código justo antes de cerrar la etiqueta
+    <code>&lt;/body&gt;</code> de tu sitio web.
+
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    >
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+</app-showcode-card>

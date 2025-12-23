@@ -1,7 +1,14 @@
+<app-breadcrumb
+  title="Agentes"
+  [subtitle]="false"
+  active_item="Mis Agentes"
+></app-breadcrumb>
+<hr class="d-md-none">
 <!-- Start::row-2 -->
 <div class="row">
-  <div class="col-xl-12">
+  <div class="col-xl-12 p-0 p-md-3">
     <div class="card custom-card">
+      <div class="desktop-table d-none d-md-block">
       <div class="card-header justify-content-between border-bottom-1">
         <!-- Search Bar -->
         <div class="products-search-input mb-sm-0 mb-1">
@@ -10,14 +17,16 @@
             type="search"
             (input)="onTableWithSearchChange($event)"
             id="search-input"
-            placeholder="Search Product"
+            placeholder="Search Agent"
             aria-label="search-product"
           />
         </div>
       </div>
+      </div>
       <!-- Table inside the card-body -->
       <div class="card-body p-0">
         <div id="product-table" class="grid-card-table table-responsive">
+          
           <ng-template #selectAllTemplate2 let-changeEvent>
             <label class="ngx-form-checkbox">
               <input
@@ -31,6 +40,7 @@
               ></i>
             </label>
           </ng-template>
+        
           @if (agentes$ | async; as agentes) {
             <div class="desktop-table d-none d-md-block">
           <ngx-table
@@ -50,7 +60,9 @@
               </td>
 
               <td>
-                <a>
+                <a
+                [routerLink]="['/agents/my-agents', row.public_key, 'statistics']"
+                >
                   <div
                     class="d-flex align-items-center gap-3 position-relative"
                   >
@@ -72,7 +84,7 @@
                     <div>
                       <span class="d-block fw-semibold">{{ row.nombre }}</span>
                       <span class="text-muted fs-13"
-                        >{{ row.objetivoPrincipal }}</span
+                        >{{ row.objetivoPrincipal === 'Todos los anteriores' ? 'Todos los servicios' : row.objetivoPrincipal }}</span
                       >
                     </div>
                   </div>
@@ -96,24 +108,34 @@
                 >
                   <li>
                     <a
+                    [routerLink]="['/agents/test-agent', row.public_key]"
                       class="dropdown-item"
-                      [routerLink]="['/services/edit-service', row.Id]"
+                    >
+                      <i class="bi bi-arrow-up-right-square me-2"></i> Probar
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      class="dropdown-item"
+                      [routerLink]="['/agents/my-agents', row.public_key, 'edit']"
                     >
                       <i class="ri-pencil-line me-2"></i> Editar
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item btn-delete">
-                      <i class="ri-delete-bin-line me-2"></i> Eliminar
+                    <a class="dropdown-item btn-{{row.Status}}"
+                    (click)="toggleServiceStatus(row.public_key, row.Status)"
+                    >
+                      <i class="ri-shut-down-line me-2"></i>
+                      {{ row.Status === 'Activo' ? 'Desactivar' : 'Activar'}}
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item btn-delete">
-                      <i class="ri-shut-down-line me-2"></i>
-                      {{ row.Status === 'Publicado' ? 'Desactivar' : 'Activar'
-                      }}
+                    <a class="dropdown-item btn-delete" (click)="deleteAgent(row.public_key)">
+                      <i class="ri-delete-bin-line me-2"></i> Eliminar
                     </a>
                   </li>
+                  
                 </spk-dropdowns>
               </td>
             </ng-template>
@@ -123,6 +145,11 @@
             <div *ngFor="let row of agentes$ | async" class="agent-card">
               <!-- HEADER -->
               <div class="agent-card-header">
+                <button (click)="deleteAgent(row.public_key)" 
+                  class="btn btn-sm btn-danger position-absolute" 
+                  style="right: 5px; top: 4px;">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
                 <div class="avatar-wrapper">
                   @if(row.avatar){
                   <img [src]="row.avatar" alt="Avatar" />
@@ -153,7 +180,7 @@
               <div class="agent-card-body">
                 <div class="label">Objetivo principal</div>
                 <div class="value">
-                  {{ row.objetivoPrincipal || 'No definido' }}
+                  {{ row.objetivoPrincipal === 'Todos los anteriores' ? 'Todos los servicios' : row.objetivoPrincipal }}
                 </div>
               </div>
 
@@ -161,15 +188,20 @@
               <div class="agent-card-actions">
                 <button
                   class="btn-edit"
-                  [routerLink]="['/services/edit-service', row.Id]"
+                  [routerLink]="['/agents/my-agents', row.public_key, 'edit']"
                 >
                   Editar
                 </button>
 
-                <button class="btn-delete">Eliminar</button>
+                <button 
+                [routerLink]="['/agents/my-agents', row.public_key, 'statistics']"
+                class="btn-ver" >Ver</button>
+                <button class="btn-probar" >Probar</button>
 
-                <button class="btn-toggle">
-                  {{ row.Status === 'Publicado' ? 'Desactivar' : 'Activar' }}
+                <button class="btn-toggle btn-{{row.Status}}"
+                (click)="toggleServiceStatus(row.public_key, row.Status)"
+                >
+                  {{ row.Status === 'Activo' ? 'Desactivar' : 'Activar' }}
                 </button>
               </div>
             </div>

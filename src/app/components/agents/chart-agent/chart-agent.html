@@ -1,0 +1,64 @@
+<!-- chatbot-stats-chart-apex.component.html -->
+<div class="chart-container">
+  <div *ngIf="chatbotStats?.data.daily_stats?.length > 0; else noData">
+    <div id="chart">
+      <apx-chart 
+        [series]="chartOptions.series || []"
+        [chart]="chartOptions.chart || { type: 'bar' }"
+        [xaxis]="chartOptions.xaxis || {}"
+        [yaxis]="chartOptions.yaxis || {}"
+        [plotOptions]="chartOptions.plotOptions || {}"
+        [dataLabels]="chartOptions.dataLabels || {}"
+        [stroke]="chartOptions.stroke || {}"
+        [colors]="chartOptions.colors || []"
+        [tooltip]="chartOptions.tooltip || {}"
+        [grid]="chartOptions.grid || {}"
+        [legend]="chartOptions.legend || {}"
+        class="chart">
+      </apx-chart>
+    </div>
+    
+    <!-- Información adicional (igual que antes) -->
+    <div class="stats-summary mt-4">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body text-center">
+              <h6 class="card-title text-muted">Total Interacciones</h6>
+              <p class="card-text display-6 text-primary">
+                {{ getTotalInteractions() | number }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body text-center">
+              <h6 class="card-title text-muted">Total Tokens</h6>
+              <p class="card-text display-6 text-success">
+                {{ getTotalTokens() | number }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body text-center">
+              <h6 class="card-title text-muted">Período</h6>
+              <p class="card-text text-secondary">
+                {{ getPeriodRange() }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template #noData>
+    <div class="alert alert-info text-center p-4">
+      <i class="bi bi-bar-chart me-2"></i>
+      <span>No hay datos disponibles para mostrar.</span>
+    </div>
+  </ng-template>
+</div>

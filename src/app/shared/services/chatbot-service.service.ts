@@ -81,4 +81,31 @@ export class ChatbotService {
     return this.http.get<any[]>(`${this.apiUrl}/my-agents`, { headers });
   }
 
+  deleteAgent(public_key: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+    return this.http.post<any>(`${this.apiUrl}/my-agents/${public_key}`, { headers });
+  }
+
+  toggleAgentStatus(public_key: string, formData: FormData): Observable<any> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+    return this.http.post<any>(`${this.apiUrl}/my-agents/toggle-status/${public_key}`,formData, { headers });
+  }
+
+  getChatbotByPublicKey(public_key: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+    return this.http.get<any>(`${this.apiUrl}/chatbot/${public_key}`, { headers });
+  }   
+
+  updateChatbot(public_key: string, formData: FormData): Observable<any> {
+    const headers = new HttpHeaders({
+      Accept: 'application/json',
+    });
+    return this.http.post<any>(`${this.apiUrl}/chatbot/update/${public_key}`, formData, { headers });
+  }
 }

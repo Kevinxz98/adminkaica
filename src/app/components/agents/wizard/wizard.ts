@@ -49,6 +49,8 @@ export class Wizard implements OnInit {
   submitError = '';
   submitSuccess = false;
   chatbotId: number | null = null;
+  isEdit = false;
+  publicKey: string | null = null;
 
   // Opciones de formulario
   categorias = [
@@ -92,6 +94,16 @@ export class Wizard implements OnInit {
     allowMultiple: false,
     stylePanelLayout: 'compact circle',
     labelIdle: 'Drop files here to Upload...',
+    server: {
+    load: (source: string, load, error, progress, abort) => {
+      fetch(source)
+        .then(res => res.blob())
+        .then(blob => {
+          load(blob);
+        })
+        .catch(() => error('Error cargando imagen'));
+    }
+  }
   };
   pondFiles: FilePond.FilePondOptions['files'] = [];
 
@@ -106,15 +118,71 @@ export class Wizard implements OnInit {
     this.wizardForm = this.createForm();
     FilePond.registerPlugin(FilePondPluginImagePreview);
     this.slug = this.route.snapshot.paramMap.get('slug');
+    this.publicKey = this.route.snapshot.paramMap.get('public_key');
   }
 
   // ==================== LIFECYCLE METHODS ====================
   ngOnInit(): void {
     this.loadExistingData();
     this.getNameAgent();
+
+    if (this.publicKey) {
+      this.isEdit = true;
+      this.loadChatbot(this.publicKey);
+    }
+  }
+
+  loadChatbot(publicKey: string): void {
+    this.chatbotService.getChatbotByPublicKey(publicKey).subscribe({
+      next: (chatbot) => {
+        this.wizardForm.patchValue({
+          nombre: chatbot.nombre,
+          categoria: chatbot.categoria,
+          idioma: chatbot.idioma,
+          estilo: chatbot.estilo,
+          nivelTecnico: chatbot.nivelTecnico,
+          usoEmojis: chatbot.usoEmojis,
+          nombreEmpresa: chatbot.nombreEmpresa,
+          sitioWeb: chatbot.sitioWeb,
+          descripcionEmpresa: chatbot.descripcionEmpresa,
+          horarioAtencion: chatbot.horarioAtencion,
+          informacionAdicional: chatbot.informacionAdicional,
+          mensajeBienvenida: chatbot.mensajeBienvenida,
+          mensajeNoDisponible: chatbot.mensajeNoDisponible,
+          mensajeAusencia: chatbot.mensajeAusencia,
+          respuestasRapidas: chatbot.respuestasRapidas || [],
+          canales: chatbot.canales || [],
+          color: chatbot.color,
+          posicion: chatbot.posicion,
+          mostrarAvatar: chatbot.mostrarAvatar,
+          sonidoNotificacion: chatbot.sonidoNotificacion,
+          tamanoWidget: chatbot.tamanoWidget,
+          objetivoPrincipal: chatbot.objetivoPrincipal,
+          preguntasFrecuentes: chatbot.preguntasFrecuentes,
+          temasExcluidos: chatbot.temasExcluidos,
+          estadoActivacion: chatbot.estadoActivacion,
+        });
+        if (chatbot.avatar) {
+          this.avatarUrl =  `http://localhost:8000/chatbots/avatar/${chatbot.avatar}`;
+          this.companyLogo = `http://localhost:8000/chatbots/avatar/${chatbot.avatar}`;
+        }
+        this.cdr.detectChanges();
+        this.agentName = chatbot.nombre;
+        
+        this.datosCapturarArray.clear();
+
+        if (chatbot.datosCapturar?.length) {
+          chatbot.datosCapturar.forEach((dato: string) => {
+            this.datosCapturarArray.push(this.fb.control(dato));
+          });
+        }
+      },
+    });
   }
 
   // ==================== INICIALIZACIÓN ====================
+
+  
   getNameAgent(): void {
     if (!this.slug) return;
 
@@ -179,26 +247,19 @@ export class Wizard implements OnInit {
     return this.wizardForm.get('datosCapturar') as FormArray;
   }
 
+  
+
   // ==================== MANEJO DE ARCHIVOS ====================
   pondHandleInit(): void {
     // Inicialización de FilePond
   }
 
   pondHandleAddFile(event: any): void {
-    const file = event.file;
-    const fileObject = file.file;
+    const fileObject = event.file.file;
 
     this.wizardForm.patchValue({ avatar: fileObject });
 
-    this.companyLogo = file.getFileEncodeBase64String
-      ? file.getFileEncodeBase64String()
-      : file.file;
-
-    if (file.getFileEncodeBase64String) {
-      this.avatarUrl = 'data:image/png;base64,' + this.companyLogo;
-    } else {
-      this.avatarUrl = URL.createObjectURL(this.companyLogo);
-    }
+    this.companyLogo = fileObject;
   }
 
   pondHandleActivateFile(event: any): void {
@@ -388,8 +449,14 @@ export class Wizard implements OnInit {
 
       const formData = this.prepareFormData();
       console.log(formData.get('color'));
-      //this.chatbotService.updateConfig(this.wizardForm.value);
-      //this.sendToBackend(formData);
+      this.chatbotService.updateConfig(this.wizardForm.value);
+
+      if (this.isEdit) {
+        this.sendToUpdate(formData);
+      }else{
+        this.sendToCreate(formData);
+      }
+      
     }
   }
 
@@ -466,13 +533,29 @@ export class Wizard implements OnInit {
     return formData;
   }
 
-  sendToBackend(formData: FormData): void {
+  sendToCreate(formData: FormData): void {
     this.chatbotService.saveChatbot(formData).subscribe({
       next: (response) => {
         this.handleSuccess(response);
         this.chatbotId = response.data?.id || null;
       },
       error: (error) => {
+        this.handleError(error);
+      },
+    });
+  }
+
+  sendToUpdate(formData: FormData): void {
+    if (this.publicKey === null) {
+      this.handleError('Slug del agente no proporcionado para actualización.');
+      return;
+    }
+    this.chatbotService.updateChatbot(this.publicKey, formData).subscribe({
+      next: (response) => {
+        this.handleSuccess(response);
+        this.chatbotId = response.data?.id || null;
+      }
+      ,error: (error) => {
         this.handleError(error);
       },
     });

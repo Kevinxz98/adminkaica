@@ -7,6 +7,7 @@ import {
   DefaultConfig,
   TableModule
 } from 'ngx-easy-table';
+import { SharedModule } from '../../../shared/shared.module';
 
 import { FormsModule } from '@angular/forms';
 
@@ -30,6 +31,7 @@ import { CommonModule } from '@angular/common';
     RouterModule,
     AsyncPipe,
     CommonModule,
+    SharedModule
   ],
   templateUrl: './my-agents.html',
   styleUrl: './my-agents.scss',
@@ -58,7 +60,6 @@ export class MyAgents {
       { key: 'Actions', title: 'Acciones' },
     ];
     this.loadMyAgents();
-    console.log(this.router.url);
   }
 
   rowSelected(): void {
@@ -110,15 +111,74 @@ export class MyAgents {
 
   statusLabel(status: string): { text: string, color: string } {
     switch (status) {
-      case 'Activar':
+      case 'Activo':
         return { text: 'Activo', color: 'text-success' };
-      case 'Solo guardar':
+      case 'Guardado':
         return { text: 'Guardado', color: 'text-warning' };
-      case 'Guardar como borrador':
+      case 'Borrador':
         return { text: 'Borrador', color: 'text-warning' };
       default:
         return { text: 'Inactivo', color: 'text-danger' };
     }
 }
+
+  deleteAgent(public_key: string) {
+    Swal.fire({
+      title: 'Estas seguro?',
+      text: '¡No podrás revertir esto!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: '¡Sí, bórralo!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.chatbotServices.deleteAgent(public_key).subscribe({
+          next: (result) => {
+            Swal.fire('Éxito', result.message, 'success');
+            this.loadMyAgents();
+            this.cdr.detectChanges();
+          },
+          error: (error) => {
+            console.error('Error eliminando el servicio:', error);
+          },
+        });
+      }
+    });
+  }
+
+  toggleServiceStatus(public_key: string, currentStatus: string) {
+      const newStatus = currentStatus === 'Activo' ? 'Inactivo' : 'Activo';
+      const actionText = newStatus === 'Activo' ? 'Activar' : 'Desactivar';
+      Swal.fire({
+        title: `¿Estás seguro de que deseas ${actionText} este servicio?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Sí, ${actionText}lo`,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const formData = new FormData();
+          formData.append('estadoActivacion', newStatus);
+          this.chatbotServices
+            .toggleAgentStatus(public_key, formData)
+            .subscribe({
+              next: (res) => {
+                Swal.fire(
+                  'Éxito',
+                  `El servicio ha sido ${newStatus === 'Activo' ? 'activado' : 'desactivado'}.`,
+                  'success'
+                );
+                this.loadMyAgents();
+                this.cdr.detectChanges();
+              },
+              error: (err) => {
+                console.error('Error al actualizar el estado del servicio:', err);
+              },
+            }); 
+        }
+      });
+    }
 
 }

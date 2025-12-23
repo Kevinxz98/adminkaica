@@ -10,21 +10,33 @@ import { SpkSalesCard } from '../../../@spk/reusable-dashboards/spk-sales-card/s
 import { SpkApexChart } from '../../../@spk/spk-reusable-plugins/reusable-charts/spk-apex-charts/spk-apex-charts';
 import { SpkDropdowns } from '../../../@spk/reusable-ui-elements/spk-dropdowns/spk-dropdowns';
 import { SpkReusableTables } from '../../../@spk/spk-reusable-tables/spk-reusable-tables';
-import *as sales from "../../../shared/data/dashboard/sales"
+import * as sales from '../../../shared/data/dashboard/sales';
 
 @Component({
   selector: 'app-sales',
-  imports: [SharedModule, CommonModule,NgbModule,RouterModule,SpkFlatpickr,SpkSalesCard,SpkApexChart,SpkDropdowns,CommonModule,SpkReusableTables,
-    FormsModule, ReactiveFormsModule],
-  providers:[FlatpickrDefaults],
+  imports: [
+    SharedModule,
+    CommonModule,
+    NgbModule,
+    RouterModule,
+    SpkFlatpickr,
+    SpkSalesCard,
+    SpkApexChart,
+    SpkDropdowns,
+    CommonModule,
+    SpkReusableTables,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
+  providers: [FlatpickrDefaults],
   templateUrl: './sales.html',
-  styleUrl: './sales.scss'
+  styleUrl: './sales.scss',
 })
 export class Sales {
-  salesData: any = sales
+  salesData: any = sales;
 
   inlineDatePicker: boolean = false;
-  weekNumbers!: true
+  weekNumbers!: true;
   flatpickrOptions: any = {
     inline: true,
   };
@@ -32,7 +44,7 @@ export class Sales {
   constructor(private cdr: ChangeDetectorRef) {}
   rangeValue: { from: Date; to: Date } = {
     from: new Date(),
-    to: (new Date() as any)['fp_incr'](10)
+    to: (new Date() as any)['fp_incr'](10),
   };
 
   ngOnInit() {
@@ -40,13 +52,13 @@ export class Sales {
   }
 
   allTasksChecked!: boolean;
-toggleSelectAll(event: Event) {
-  this.allTasksChecked = (event.target as HTMLInputElement).checked;
+  toggleSelectAll(event: Event) {
+    this.allTasksChecked = (event.target as HTMLInputElement).checked;
+  }
+  handleToggleSelectAll(checked: boolean) {
+    this.salesData.orders.forEach((order: any) => (order.checked = checked));
+    this.allTasksChecked = checked;
+  }
+  
+  
 }
-handleToggleSelectAll(checked: boolean) {
-  this.salesData.orders.forEach((order:any) => order.checked = checked);
-  this.allTasksChecked = checked;
-}
-
-}
-

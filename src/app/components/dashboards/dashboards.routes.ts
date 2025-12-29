@@ -5,7 +5,7 @@ import { routesGuard } from '../../shared/guards/routes-guard';
 export const admin: Routes = [
  {path:'dashboards',children:[ 
   {
-  path: 'main',
+  path: '',
   canActivate: [routesGuard],
   loadComponent: () =>
     import('./main/main').then((m) => m.Main),

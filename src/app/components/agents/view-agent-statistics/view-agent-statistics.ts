@@ -105,26 +105,24 @@ export class ViewAgentStatistics implements OnInit {
 
   ngOnInit(): void {
     const publicKey = this.route.snapshot.paramMap.get('public_key')!;
+    this.me();
     this.loadBasicStats(publicKey);
     this.loadSevenDaysStats(publicKey);
     this.loadAgentStatistics(publicKey);
+  }
 
-    //get value of current user
-    this.userState$ = combineLatest([
-      this.authService.currentUser$,
-      this.authService.loading$
-    ]).pipe(
-      map(([user, isLoading]) => ({
-        isLoggedIn: this.authService.isLoggedIn(),
-        user,
-        isLoading
-      }))
-    );
-    
-    // Si hay token pero no usuario, forzar carga
-    if (this.authService.isLoggedIn() && !this.authService.getCurrentUser()) {
-      this.authService.loadUser();
-    }
+  me(): void {
+    this.authService.me().subscribe({
+      next: (user) => { 
+        this.userName = user.user.name; // <- asi es como se asigna el nombre
+        console.log('Usuario actual:', user.user.name);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error obteniendo usuario actual:', error); 
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadBasicStats(publicKey: string): void {
@@ -182,7 +180,7 @@ export class ViewAgentStatistics implements OnInit {
         {
           public_key: this.route.snapshot.paramMap.get('public_key')!,
           user_id: this.statisticData?.stats.user_id ?? 0,
-          avatar: `http://localhost:8000/chatbots/avatar/${this.statisticData?.stats.avatar}`,
+          avatar: `https://backend.kaica.co/public/chatbots/avatar/${this.statisticData?.stats.avatar}`,
           nombre: this.statisticData?.stats.nombre ?? '',
           estadoActivacion: this.statisticData?.stats.estadoActivacion ?? '',
           estadoClass: this.getEstadoClass(

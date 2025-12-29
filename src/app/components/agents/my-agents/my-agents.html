@@ -196,7 +196,7 @@
                 <button 
                 [routerLink]="['/agents/my-agents', row.public_key, 'statistics']"
                 class="btn-ver" >Ver</button>
-                <button class="btn-probar" >Probar</button>
+                <button [routerLink]="['/agents/test-agent', row.public_key]" class="btn-probar" >Probar</button>
 
                 <button class="btn-toggle btn-{{row.Status}}"
                 (click)="toggleServiceStatus(row.public_key, row.Status)"

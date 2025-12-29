@@ -128,47 +128,14 @@ export class AppStateService {
     html?.removeAttribute('data-vertical-style');
   }
   private applyLayoutStylesSpecificChanges(layoutStyles: string) {
-    let html = document.querySelector('html');
-    html?.setAttribute('data-vertical-style', layoutStyles);
-    html?.removeAttribute('data-nav-style');
-    switch (layoutStyles) {
-      case 'default':
-        html?.setAttribute('data-vertical-style', 'overlay');
-        html?.setAttribute('data-toggled', '');
-        // html?.setAttribute('data-toggled', window.innerWidth <= 992 ? 'close' : '');
+    const html = document.documentElement;
 
-        break;
-      case 'closed':
-        html?.setAttribute('data-toggled', 'close-menu-close');
-        break;
-      case 'icontext':
-        html?.setAttribute('data-toggled', 'icon-text-close');
-        break;
-      case 'overlay':
-        html?.setAttribute('data-toggled', 'icon-overlay-close');
-        break;
-      case 'detached':
-        html?.setAttribute('data-toggled', 'detached-close');
-        break;
-        case 'doublemenu':
-          html?.setAttribute('data-toggled', 'double-menu-open');
+    if (layoutStyles === 'default-menu') {
+      html.setAttribute('data-vertical-style', 'default-menu');
+      html.setAttribute('data-toggled', '');
+      return;
+    }
 
-          setTimeout(() => {
-            if (!document.querySelector(".main-menu .slide.active ul")) {
-              html?.setAttribute('data-toggled', 'double-menu-close');
-            }
-            else{
-              html?.setAttribute('data-toggled', 'double-menu-open');
-            }
-          }, 100);
-          break;
-    }
-    if (layoutStyles === 'icon-text') {
-      html?.setAttribute('icon-text', 'open');
-    } else {
-      // If not 'icon-text', remove the icon-text attribute
-      html?.removeAttribute('icon-text');
-    }
   }
   private applypageStylesSpecificChanges(pageStyles: string) {
     let html = document.querySelector('html');
@@ -223,7 +190,7 @@ export class AppStateService {
     }
     html?.removeAttribute('data-bg-img');
 
-    html?.setAttribute('data-vertical-style','doublemenu');
+    html?.setAttribute('data-vertical-style','default-menu');
     this.stateSubject.next(this.initialState);
     this.updateStateAndEmit(this.initialState);
     localStorage.clear();

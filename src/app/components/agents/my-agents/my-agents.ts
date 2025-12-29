@@ -89,7 +89,7 @@ export class MyAgents {
           ...item,
           nombre: item.nombre,
           avatar: item.avatar
-            ? `http://localhost:8000/storage/${item.avatar}`
+            ? `https://backend.kaica.co/public/storage/${item.avatar}`
             : null,
           nombreEmpresa: item.nombreEmpresa,
           Status: item.estadoActivacion,

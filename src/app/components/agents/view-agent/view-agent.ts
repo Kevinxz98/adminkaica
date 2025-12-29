@@ -29,7 +29,7 @@ export class ViewAgent {
         next: (agent) => {
           this.agent = agent;
           //show title in console
-          agent.image  = `http://localhost:8000/storage/${agent.image}`
+          agent.image  = `https://backend.kaica.co/public/storage/${agent.image}`
           this.loading = false;
           console.log('Agent Data:', agent);
           this.cdr.detectChanges();
@@ -52,7 +52,7 @@ export class ViewAgent {
         console.log('Agents fetched:', agents);
         this.agentCards = agents.map((a: any) => ({
           imageUrl: a.image
-            ? `http://localhost:8000/storage/${a.image}`
+            ? `https://backend.kaica.co/public/storage/${a.image}`
             : 'assets/default-agent.png',
           title: a.name,
           lead: a.lead,

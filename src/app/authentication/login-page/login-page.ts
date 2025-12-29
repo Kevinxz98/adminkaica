@@ -258,7 +258,7 @@ export class LoginPage implements OnInit {
     this.authServiceApi.login(this.loginForm.value).subscribe({
       next: (response) => {
         console.log('Usuario logueado:', response);
-        this.router.navigate(['/dashboards/main']); 
+        this.router.navigate(['/dashboards']); 
         this.toastr.success('login successful', 'Kaica', {
           timeOut: 3000,
           positionClass: 'toast-top-right',

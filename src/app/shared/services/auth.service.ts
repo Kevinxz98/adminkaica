@@ -27,7 +27,7 @@ interface AuthResponse {
 })
 export class Auth {
   private sessionChecked = false;
-  private apiUrl = 'http://localhost:8000/api/auth'; // Replace with your API URL
+  private apiUrl = 'https://backend.kaica.co/public/api/auth'; // Replace with your API URL
   private tokenKey = 'auth_token';
   private currentUserSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.currentUserSubject.asObservable();
@@ -69,6 +69,11 @@ export class Auth {
         this.loadingSubject.next(false);
       }
     });
+  }
+
+  me(): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<any>(`${this.apiUrl}/me`, { headers });
   }
 
   register(data: RegisterData): Observable<AuthResponse> {
@@ -123,7 +128,7 @@ export class Auth {
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem('auth_token');
-    return !!token; // true si hay token, false si no
+    return !!token; 
   }
 
   checkSession() {

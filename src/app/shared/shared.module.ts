@@ -22,6 +22,7 @@ import { FullLayout } from './layouts/full-layout/full-layout';
 import { SvgReplaceDirective } from './directives/svgReplace.directive';
 import { AuthenticationLayout } from './layouts/authentication-layout/authentication-layout';
 import { FullscreenDirective } from './directives/fullscreen.directive';
+import { MaterialModuleModule } from "../materialModule/material-module/material-module.module";
 
 @NgModule({
 
@@ -39,18 +40,16 @@ import { FullscreenDirective } from './directives/fullscreen.directive';
     ],
 
     imports: [
-        CommonModule,
-        RouterModule,
-        NgbModule,
-        FormsModule,
-        ReactiveFormsModule,
-
-        OverlayscrollbarsModule,
-        NgbNavModule,
-
-
-        ColorPickerDirective,
-    ],
+    CommonModule,
+    RouterModule,
+    NgbModule,
+    FormsModule,
+    ReactiveFormsModule,
+    OverlayscrollbarsModule,
+    NgbNavModule,
+    ColorPickerDirective,
+    MaterialModuleModule
+],
     exports: [
         CommonModule,
         Breadcrumb,

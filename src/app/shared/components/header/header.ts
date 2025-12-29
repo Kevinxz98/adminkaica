@@ -18,6 +18,7 @@ import { AppStateService } from '../../services/app-state.service';
 import { NotificationSidebar } from '../notification-sidebar/notification-sidebar';
 import { Auth } from '../../services/auth.service';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { ChangeDetectorRef } from '@angular/core';
 
 interface Item {
   id: number;
@@ -36,11 +37,14 @@ interface Item {
 })
 export class Header implements OnInit {
   cartItemCount: number = 5;
-  notificationCount: number = 5;
+  notificationCount: number = 1;
   public isCollapsed = true;
   collapse: any;
   closeResult = '';
   themeType: string | undefined;
+  userName = '';
+  firstLetter = '';
+  userMail = '';
 
   selectedItem: string | null = 'selectedItem';
   isOpen: boolean = false;
@@ -54,9 +58,11 @@ export class Header implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private authService: Auth,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {
     this.localStorageBackUp();
+    this.me();
   }
 
   private offcanvasService = inject(NgbOffcanvas);
@@ -66,22 +72,35 @@ export class Header implements OnInit {
     this.isOpen = !this.isOpen;
   }
 
+  me(): void {
+    this.authService.me().subscribe({
+      next: (user) => { 
+        this.userName = user.user.name; // <- asi es como se asigna el nombre
+        this.firstLetter = this.userName.charAt(0).toUpperCase();
+        this.userMail = user.user.email;
+        console.log('Usuario actual:', user.user.name);
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error obteniendo usuario actual:', error); 
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   closeDropdown() {
     this.isOpen = false;
   }
+
+  
 
   handleItemClick(title: string) {
     this.selectedItem = title;
     this.isOpen = false;
     localStorage.setItem('selectedItem', title);
   }
-  open() {
-    this.offcanvasService.open(Switcher, {
-      position: 'end',
-      scroll: true,
-      panelClass: 'switcher-canvas-width',
-    });
-  }
+
+
   toggleSidebarNotification() {
     this.offcanvasService1.open(NotificationSidebar, {
       position: 'end',
@@ -127,6 +146,17 @@ export class Header implements OnInit {
   openSearch(search: any) {
     // this.modalService.open(search);
   }
+
+  private closeMenuOnNavigation(): void {
+    const html = document.documentElement;
+
+    if (window.innerWidth <= 992) {
+      html.setAttribute('data-toggled', 'close');
+    } else {
+      html.removeAttribute('data-toggled');
+    }
+  }
+
   toggleSidebar() {
     let html = document.querySelector('html')!;
 
@@ -187,48 +217,6 @@ export class Header implements OnInit {
     }
   }
 
-  updateTheme(theme: string) {
-    this.appStateService.updateState({
-      theme,
-      menuColor: theme,
-      headerColor: theme,
-    });
-    if (theme == 'light') {
-      this.appStateService.updateState({
-        theme,
-        themeBackground: '',
-        headerColor: 'transparent',
-        menuColor: 'transparent',
-      });
-      let html = document.querySelector('html');
-      html?.style.removeProperty('--body-bg-rgb');
-      html?.style.removeProperty('--body-bg-rgb2');
-      html?.style.removeProperty('--light-rgb');
-      html?.style.removeProperty('--form-control-bg');
-      html?.style.removeProperty('--input-border');
-      if (window.innerWidth <= 992) {
-        html?.setAttribute('data-toggled', 'close');
-      }
-    }
-    if (theme == 'dark') {
-      this.appStateService.updateState({
-        theme,
-        themeBackground: '',
-        headerColor: 'transparent',
-        menuColor: 'transparent',
-      });
-      let html = document.querySelector('html');
-      html?.style.removeProperty('--body-bg-rgb');
-      html?.style.removeProperty('--body-bg-rgb2');
-      html?.style.removeProperty('--light-rgb');
-      html?.style.removeProperty('--form-control-bg');
-      html?.style.removeProperty('--input-border');
-      if (window.innerWidth <= 992) {
-        html?.setAttribute('data-toggled', 'close');
-      }
-    }
-  }
-
   localStorageBackUp() {
     let styleId = document.querySelector('#style');
 
@@ -259,6 +247,7 @@ export class Header implements OnInit {
     }
     this.notificationCount--;
     this.isNotifyEmpty = this.notificationCount === 0;
+    console.log(this.notificationCount);
   }
 
   // Search
@@ -289,6 +278,7 @@ export class Header implements OnInit {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => {
         this.updateSelectedItem();
+        this.closeMenuOnNavigation();
       });
   }
 
@@ -404,81 +394,9 @@ export class Header implements OnInit {
   // toggleSidebarNotification() {
   //   this.sidebarRightservice.emitSidebarNotifyChange(true);
   // }
-  isFullscreen: boolean = false;
-  toggleFullscreen() {
-    this.isFullscreen = !this.isFullscreen;
-  }
-  cartItems = [
-    {
-      id: '1',
-      name: 'Urban Chic Satchel',
-      image: './assets/images/ecommerce/png/13.png',
-      quantity: 1,
-      price: 120,
-      OfferPrice: '25',
-      originalPrice: 90,
-      subname: 'Sleek, stylish, and perfect for daily use',
-    },
-    {
-      id: '2',
-      name: 'TrailBlaze Runners',
-      image: './assets/images/ecommerce/png/15.png',
-      quantity: 1,
-      price: 80,
-      OfferPrice: '25',
-      originalPrice: 60,
-      subname: 'Lightweight and built for comfort',
-    },
-    {
-      id: '3',
-      name: 'VisionTech SLR',
-      image: './assets/images/ecommerce/png/19.png',
-      quantity: 1,
-      price: 500,
-      OfferPrice: '25',
-      originalPrice: 375,
-      subname: 'High-quality shots with every click',
-    },
-    {
-      id: '4',
-      name: 'FlexiSeat Office Chair',
-      image: './assets/images/ecommerce/png/6.png',
-      quantity: 5,
-      price: 200,
-      OfferPrice: '25',
-      originalPrice: 150,
-      subname: 'Comfortable support for long hours',
-    },
 
-    {
-      id: '5',
-      name: 'DecoDial Classic',
-      image: './assets/images/ecommerce/png/11.png',
-      quantity: 2,
-      price: 50,
-      OfferPrice: '30',
-      originalPrice: 35,
-      subname: 'A bold, colorful timepiece for any room',
-    },
-  ];
   handleCardClick(event: MouseEvent) {
     event.stopPropagation();
-  }
-
-  removeCart(id: string) {
-    const rowElement = document.getElementById(id);
-    if (rowElement) {
-      rowElement.remove();
-    }
-    this.cartItemCount--;
-    this.isCartEmpty = this.cartItemCount === 0;
-  }
-
-  updateQuantity(id: string, change: number) {
-    const item = this.cartItems.find((item) => item.id === id);
-    if (item) {
-      item.quantity = Math.max(1, item.quantity + change); // Prevent quantity from being less than 1
-    }
   }
 
   logout() {

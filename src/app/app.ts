@@ -17,6 +17,12 @@ export class App {
   public isSpinner = true;
 
   ngOnInit(): void {
+
+    this.appState.updateState({
+      navigationStyles: 'vertical',
+      layoutStyles: 'default-menu',
+    });
+
     setTimeout(() => {
       this.isSpinner = false;
     },1000)

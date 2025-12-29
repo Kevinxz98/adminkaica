@@ -3,21 +3,27 @@ import {
   ViewEncapsulation,
   HostListener,
   Renderer2,
+  OnInit,
+  OnDestroy,
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Menu, NavService } from '../../services/nav.service';
 import { fromEvent, Subscription } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AppStateService } from '../../services/app-state.service';
+import { Auth } from '../../services/auth.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
-    selector: 'app-sidebar',
-    templateUrl: './sidebar.html',
-    styleUrls: ['./sidebar.scss'],
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'app-sidebar',
+  templateUrl: './sidebar.html',
+  styleUrls: ['./sidebar.scss'],
+  encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
-export class Sidebar {
+export class Sidebar implements OnInit, OnDestroy {
+  userRole: string = '';
+  isLoading: boolean = false;
   eventTriggered: boolean = false;
   screenWidth!: number;
   public localdata = localStorage;
@@ -31,43 +37,61 @@ export class Sidebar {
     public renderer: Renderer2,
     private sanitizer: DomSanitizer,
     private appStateService: AppStateService,
-  ) { }
+    public authService: Auth,
+    private cdr: ChangeDetectorRef
+  ) {}
   isDoubleMenu(): boolean {
-    const htmlElement = document.querySelector('[data-vertical-style="doublemenu"]');
+    const htmlElement = document.querySelector(
+      '[data-vertical-style="doublemenu"]'
+    );
     return htmlElement !== null;
   }
 
-// Method to determine if tooltip should be shown
-shouldShowTooltip(menuItem: any): boolean {
-  return this.isDoubleMenu() && menuItem.title !== '';
-}
-updateTheme(theme: string) {
-  this.appStateService.updateState({ theme , menuColor:theme, headerColor: theme });
-  if(theme=='light'){
-    this.appStateService.updateState({ theme,themeBackground : '',headerColor:'transparent',menuColor:'transparent' });
-    let html = document.querySelector('html');
-      html?.style.removeProperty( '--body-bg-rgb');
-      html?.style.removeProperty( '--body-bg-rgb2');
-      html?.style.removeProperty( '--light-rgb');
-      html?.style.removeProperty( '--form-control-bg');
-      html?.style.removeProperty( '--input-border' );
+  // Method to determine if tooltip should be shown
+  shouldShowTooltip(menuItem: any): boolean {
+    return this.isDoubleMenu() && menuItem.title !== '';
+  }
+  updateTheme(theme: string) {
+    this.appStateService.updateState({
+      theme,
+      menuColor: theme,
+      headerColor: theme,
+    });
+    if (theme == 'light') {
+      this.appStateService.updateState({
+        theme,
+        themeBackground: '',
+        headerColor: 'transparent',
+        menuColor: 'transparent',
+      });
+      let html = document.querySelector('html');
+      html?.style.removeProperty('--body-bg-rgb');
+      html?.style.removeProperty('--body-bg-rgb2');
+      html?.style.removeProperty('--light-rgb');
+      html?.style.removeProperty('--form-control-bg');
+      html?.style.removeProperty('--input-border');
       if (window.innerWidth <= 992) {
         html?.setAttribute('data-toggled', 'close');
       }
     }
-  if(theme=='dark'){
-    this.appStateService.updateState({ theme,themeBackground : '',headerColor:'transparent',menuColor:'transparent' });
-    let html = document.querySelector('html');
-      html?.style.removeProperty( '--body-bg-rgb');
-      html?.style.removeProperty( '--body-bg-rgb2');
-      html?.style.removeProperty( '--light-rgb');
-      html?.style.removeProperty( '--form-control-bg');
-      html?.style.removeProperty( '--input-border' );
+    if (theme == 'dark') {
+      this.appStateService.updateState({
+        theme,
+        themeBackground: '',
+        headerColor: 'transparent',
+        menuColor: 'transparent',
+      });
+      let html = document.querySelector('html');
+      html?.style.removeProperty('--body-bg-rgb');
+      html?.style.removeProperty('--body-bg-rgb2');
+      html?.style.removeProperty('--light-rgb');
+      html?.style.removeProperty('--form-control-bg');
+      html?.style.removeProperty('--input-border');
       if (window.innerWidth <= 992) {
         html?.setAttribute('data-toggled', 'close');
       }
+    }
   }
-}
 
   clearNavDropdown() {
     this.menuItems?.forEach((a: any) => {
@@ -81,15 +105,31 @@ updateTheme(theme: string) {
     });
   }
 
-
   ngOnInit() {
-  let bodyElement: any = document.querySelector('.main-content');
-  bodyElement.onclick = () => {
-        if (localStorage.getItem('layoutStyles') == 'icontext' ||   localStorage.getItem('layoutStyles') == 'icon-hover' ) {
-          document.querySelector('html')?.removeAttribute('data-icon-text')
-        }
+    let bodyElement: any = document.querySelector('.main-content');
+    bodyElement.onclick = () => {
+      if (
+        localStorage.getItem('layoutStyles') == 'icontext' ||
+        localStorage.getItem('layoutStyles') == 'icon-hover'
+      ) {
+        document.querySelector('html')?.removeAttribute('data-icon-text');
+      }
+    };
 
-  };
+    this.isLoading = true;
+    this.authService.me().subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        const role = res?.user?.roles?.[0]?.name ?? '';
+        this.navServices.setMenuByRole(role);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.navServices.setMenuByRole('');
+        this.cdr.detectChanges();
+      },
+    });
 
     this.menuitemsSubscribe$ = this.navServices.items.subscribe((items) => {
       this.menuItems = items;
@@ -111,41 +151,52 @@ updateTheme(theme: string) {
       });
     }
 
-    if (document.querySelector('html')?.getAttribute('data-nav-layout') == 'horizontal' && window.innerWidth >= 992) { this.clearNavDropdown(); }
+    if (
+      document.querySelector('html')?.getAttribute('data-nav-layout') ==
+        'horizontal' &&
+      window.innerWidth >= 992
+    ) {
+      this.clearNavDropdown();
+    }
   }
+
+
   // Start of Set menu Active event
-  setNavActive(event:any, currentPath: string, menuData = this.menuItems) {
-    if(event){
+  setNavActive(event: any, currentPath: string, menuData = this.menuItems) {
+    if (event) {
       if (event?.ctrlKey) {
         return;
       }
     }
     let html = document.documentElement;
     //if (html.getAttribute('data-nav-style') != "icon-hover" && html.getAttribute('data-nav-style') != "menu-hover") {
-      // if (!event?.ctrlKey) {
-      for (const item of menuData) {
-        if (item.path === currentPath) {
-          item.active = true;
-          item.selected = true;
-          this.setMenuAncestorsActive(item);
-        } else if (!item.active && !item.selected) {
-          item.active = false; // Set active to false for items not matching the target
-          item.selected = false; // Set active to false for items not matching the target
-        } else {
-          this.removeActiveOtherMenus(item);
-        }
-        if (item.children && item.children.length > 0) {
-          this.setNavActive(event, currentPath, item.children);
-        }
+    // if (!event?.ctrlKey) {
+    for (const item of menuData) {
+      if (item.path === currentPath) {
+        item.active = true;
+        item.selected = true;
+        this.setMenuAncestorsActive(item);
+      } else if (!item.active && !item.selected) {
+        item.active = false; // Set active to false for items not matching the target
+        item.selected = false; // Set active to false for items not matching the target
+      } else {
+        this.removeActiveOtherMenus(item);
       }
-      // }
+      if (item.children && item.children.length > 0) {
+        this.setNavActive(event, currentPath, item.children);
+      }
+    }
+    // }
     //}
   }
 
   getParentObject(obj: any, childObject: Menu) {
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
-        if (typeof obj[key] === 'object' && JSON.stringify(obj[key]) === JSON.stringify(childObject)) {
+        if (
+          typeof obj[key] === 'object' &&
+          JSON.stringify(obj[key]) === JSON.stringify(childObject)
+        ) {
           return obj; // Return the parent object
         }
         if (typeof obj[key] === 'object') {
@@ -173,17 +224,16 @@ updateTheme(theme: string) {
       parent.selected = true;
       this.hasParentLevel += 1;
       this.setMenuAncestorsActive(parent);
-    }
-    else if (!this.hasParent) {
+    } else if (!this.hasParent) {
       this.hasParentLevel = 0;
       if (html.getAttribute('data-vertical-style') == 'doublemenu') {
         if (window.innerWidth < 992) {
           html.setAttribute('data-toggled', 'close');
-      } else {
+        } else {
           html.setAttribute('data-toggled', 'double-menu-close');
+        }
       }
-      }
-    }else{
+    } else {
       this.hasParentLevel = 0;
       this.hasParent = false;
     }
@@ -202,187 +252,246 @@ updateTheme(theme: string) {
       if (item.children && item.children.length > 0) {
         this.removeActiveOtherMenus(item.children);
       }
-    }
-    else {
+    } else {
       return;
     }
   }
 
-   // Start of Toggle menu event
-   toggleNavActive(event:any, targetObject:Menu, menuData = this.menuItems, state?:any) {
+  // Start of Toggle menu event
+  toggleNavActive(
+    event: any,
+    targetObject: Menu,
+    menuData = this.menuItems,
+    state?: any
+  ) {
     let html = document.documentElement;
     let element = event.target;
-    if (html.getAttribute('data-nav-style') != "icon-hover" && html.getAttribute('data-nav-style') != "menu-hover" || (window.innerWidth < 992) || (html.getAttribute('data-nav-layout')!= "horizontal") && (html.getAttribute('data-nav-style') != "icon-hover-closed" && html.getAttribute('data-nav-style') != "menu-hover-closed")) {
-        for (const item of menuData) {
-            if (item === targetObject) {
-                if (html.getAttribute('data-vertical-style') == 'doublemenu' && item.active && window.innerWidth > 992 && state) { return }
-                item.active = !item.active;
-                if (item.active) {
-                    this.closeOtherMenus(menuData, item);
-                }
-                this.setAncestorsActive(menuData, item);
-
-            } else if (!item.active) {
-                if (html.getAttribute('data-vertical-style') != 'doublemenu') {
-                    item.active = false; // Set active to false for items not matching the target
-                }
-            }
-            if (item.children && item.children.length > 0) {
-                this.toggleNavActive(event, targetObject, item.children);
-            }
-        }
-        if (targetObject?.children && targetObject.active) {
-            if (html.getAttribute('data-vertical-style') == 'doublemenu' && html.getAttribute('data-toggled') != 'double-menu-open') {
-                html.setAttribute('data-toggled', 'double-menu-open');
-            }
-        }
-
-        if (element && html.getAttribute("data-nav-layout") == 'horizontal' && (html.getAttribute("data-nav-style") == 'menu-click' || html.getAttribute("data-nav-style") == 'icon-click')) {
-            const listItem = element.closest("li");
-            if (listItem) {
-                // Find the first sibling <ul> element
-                const siblingUL = listItem.querySelector("ul");
-                let outterUlWidth = 0;
-                let listItemUL = listItem.closest('ul:not(.main-menu)');
-                while (listItemUL) {
-                    listItemUL = listItemUL.parentElement.closest('ul:not(.main-menu)');
-                    if (listItemUL) {
-                        outterUlWidth += listItemUL.clientWidth;
-                    }
-                }
-                if (siblingUL) {
-                    // You've found the sibling <ul> element
-                    let siblingULRect = listItem.getBoundingClientRect();
-                    if (html.getAttribute('dir') == 'rtl') {
-                        if ((siblingULRect.left - siblingULRect.width - outterUlWidth + 150 < 0 && outterUlWidth < window.innerWidth) && (outterUlWidth + siblingULRect.width + siblingULRect.width < window.innerWidth)) {
-                            targetObject.dirchange = true;
-                        } else {
-                            targetObject.dirchange = false;
-                        }
-                    } else {
-                        if ((outterUlWidth + siblingULRect.right + siblingULRect.width + 50 > window.innerWidth && siblingULRect.right >= 0) && (outterUlWidth + siblingULRect.width + siblingULRect.width < window.innerWidth)) {
-                            targetObject.dirchange = true;
-                        } else {
-                            targetObject.dirchange = false;
-                        }
-                    }
-                }
-                setTimeout(() => {
-                    let computedValue = siblingUL.getBoundingClientRect();
-                    if ((computedValue.bottom) > window.innerHeight) {
-                        siblingUL.style.height = (window.innerHeight - computedValue.top - 8) + 'px !important';
-                        siblingUL.style.overflow = 'auto !important';
-                    }
-                }, 100);
-            }
-        }
-    }else {
+    if (
+      (html.getAttribute('data-nav-style') != 'icon-hover' &&
+        html.getAttribute('data-nav-style') != 'menu-hover') ||
+      window.innerWidth < 992 ||
+      (html.getAttribute('data-nav-layout') != 'horizontal' &&
+        html.getAttribute('data-nav-style') != 'icon-hover-closed' &&
+        html.getAttribute('data-nav-style') != 'menu-hover-closed')
+    ) {
       for (const item of menuData) {
         if (item === targetObject) {
-            if (html.getAttribute('data-vertical-style') == 'doublemenu' && item.active && window.innerWidth > 992 && state) { return }
-            item.active = !item.active;
-            if (item.active) {
-                this.closeOtherMenus(menuData, item);
-            }
-            this.setAncestorsActive(menuData, item);
-        }
-      }
+          if (
+            html.getAttribute('data-vertical-style') == 'doublemenu' &&
+            item.active &&
+            window.innerWidth > 992 &&
+            state
+          ) {
+            return;
           }
-
-    if (html.getAttribute('data-vertical-style') == 'icontext') {
-      document.querySelector('html')?.setAttribute('data-icon-text','open')
-    }else{
-      document.querySelector('html')?.removeAttribute('data-icon-text')
-    }
-
-}
-
-
-setAncestorsActive(menuData:Menu[], targetObject:Menu) {
-  let html = document.documentElement;
-  const parent = this.findParent(menuData, targetObject);
-
-  if (parent) {
-      parent.active = true;
-      if (parent.active) {
-          html.setAttribute('data-toggled', 'double-menu-open');
-      }
-      this.setAncestorsActive(menuData, parent);
-  }
-}
-closeOtherMenus(menuData:Menu[], targetObject:Menu) {
-    for (const item of menuData) {
-        if (item !== targetObject) {
-            item.active = false;
-            if (item.children && item.children.length > 0) {
-                this.closeOtherMenus(item.children, targetObject);
-            }
-        }
-    }
-}
-findParent(menuData:Menu[], targetObject:Menu) {
-    for (const item of menuData) {
-        if (item.children && item.children.includes(targetObject)) {
-            return item;
+          item.active = !item.active;
+          if (item.active) {
+            this.closeOtherMenus(menuData, item);
+          }
+          this.setAncestorsActive(menuData, item);
+        } else if (!item.active) {
+          if (html.getAttribute('data-vertical-style') != 'doublemenu') {
+            item.active = false; // Set active to false for items not matching the target
+          }
         }
         if (item.children && item.children.length > 0) {
-            const parent:any = this.findParent(item.children, targetObject);
-            if (parent) {
-                return parent;
-            }
+          this.toggleNavActive(event, targetObject, item.children);
         }
+      }
+      if (targetObject?.children && targetObject.active) {
+        if (
+          html.getAttribute('data-vertical-style') == 'doublemenu' &&
+          html.getAttribute('data-toggled') != 'double-menu-open'
+        ) {
+          html.setAttribute('data-toggled', 'double-menu-open');
+        }
+      }
+
+      if (
+        element &&
+        html.getAttribute('data-nav-layout') == 'horizontal' &&
+        (html.getAttribute('data-nav-style') == 'menu-click' ||
+          html.getAttribute('data-nav-style') == 'icon-click')
+      ) {
+        const listItem = element.closest('li');
+        if (listItem) {
+          // Find the first sibling <ul> element
+          const siblingUL = listItem.querySelector('ul');
+          let outterUlWidth = 0;
+          let listItemUL = listItem.closest('ul:not(.main-menu)');
+          while (listItemUL) {
+            listItemUL = listItemUL.parentElement.closest('ul:not(.main-menu)');
+            if (listItemUL) {
+              outterUlWidth += listItemUL.clientWidth;
+            }
+          }
+          if (siblingUL) {
+            // You've found the sibling <ul> element
+            let siblingULRect = listItem.getBoundingClientRect();
+            if (html.getAttribute('dir') == 'rtl') {
+              if (
+                siblingULRect.left - siblingULRect.width - outterUlWidth + 150 <
+                  0 &&
+                outterUlWidth < window.innerWidth &&
+                outterUlWidth + siblingULRect.width + siblingULRect.width <
+                  window.innerWidth
+              ) {
+                targetObject.dirchange = true;
+              } else {
+                targetObject.dirchange = false;
+              }
+            } else {
+              if (
+                outterUlWidth + siblingULRect.right + siblingULRect.width + 50 >
+                  window.innerWidth &&
+                siblingULRect.right >= 0 &&
+                outterUlWidth + siblingULRect.width + siblingULRect.width <
+                  window.innerWidth
+              ) {
+                targetObject.dirchange = true;
+              } else {
+                targetObject.dirchange = false;
+              }
+            }
+          }
+          setTimeout(() => {
+            let computedValue = siblingUL.getBoundingClientRect();
+            if (computedValue.bottom > window.innerHeight) {
+              siblingUL.style.height =
+                window.innerHeight - computedValue.top - 8 + 'px !important';
+              siblingUL.style.overflow = 'auto !important';
+            }
+          }, 100);
+        }
+      }
+    } else {
+      for (const item of menuData) {
+        if (item === targetObject) {
+          if (
+            html.getAttribute('data-vertical-style') == 'doublemenu' &&
+            item.active &&
+            window.innerWidth > 992 &&
+            state
+          ) {
+            return;
+          }
+          item.active = !item.active;
+          if (item.active) {
+            this.closeOtherMenus(menuData, item);
+          }
+          this.setAncestorsActive(menuData, item);
+        }
+      }
+    }
+
+    if (html.getAttribute('data-vertical-style') == 'icontext') {
+      document.querySelector('html')?.setAttribute('data-icon-text', 'open');
+    } else {
+      document.querySelector('html')?.removeAttribute('data-icon-text');
+    }
+  }
+
+  setAncestorsActive(menuData: Menu[], targetObject: Menu) {
+    let html = document.documentElement;
+    const parent = this.findParent(menuData, targetObject);
+
+    if (parent) {
+      parent.active = true;
+      if (parent.active) {
+        html.setAttribute('data-toggled', 'double-menu-open');
+      }
+      this.setAncestorsActive(menuData, parent);
+    }
+  }
+  closeOtherMenus(menuData: Menu[], targetObject: Menu) {
+    for (const item of menuData) {
+      if (item !== targetObject) {
+        item.active = false;
+        if (item.children && item.children.length > 0) {
+          this.closeOtherMenus(item.children, targetObject);
+        }
+      }
+    }
+  }
+  findParent(menuData: Menu[], targetObject: Menu) {
+    for (const item of menuData) {
+      if (item.children && item.children.includes(targetObject)) {
+        return item;
+      }
+      if (item.children && item.children.length > 0) {
+        const parent: any = this.findParent(item.children, targetObject);
+        if (parent) {
+          return parent;
+        }
+      }
     }
     return null;
-}
-// End of Toggle menu event
-HoverToggleInnerMenuFn(event:Event, item:Menu) {
+  }
+  // End of Toggle menu event
+  HoverToggleInnerMenuFn(event: Event, item: Menu) {
     let html = document.documentElement;
     let element = event.target as HTMLElement;
-    if (element && html.getAttribute("data-nav-layout") == 'horizontal' && (html.getAttribute("data-nav-style") == 'menu-hover' || html.getAttribute("data-nav-style") == 'icon-hover')) {
-        const listItem = element.closest("li");
-        if (listItem) {
-            // Find the first sibling <ul> element
-            const siblingUL = listItem.querySelector("ul");
-            let outterUlWidth = 0;
-            let listItemUL:any = listItem.closest('ul:not(.main-menu)');
-            while (listItemUL) {
-                listItemUL = listItemUL.parentElement?.closest('ul:not(.main-menu)');
-                if (listItemUL) {
-                    outterUlWidth += listItemUL.clientWidth;
-                }
-            }
-            if (siblingUL) {
-                // You've found the sibling <ul> element
-                let siblingULRect = listItem.getBoundingClientRect();
-                if (html.getAttribute('dir') == 'rtl') {
-                    if ((siblingULRect.left - siblingULRect.width - outterUlWidth + 150 < 0 && outterUlWidth < window.innerWidth) && (outterUlWidth + siblingULRect.width + siblingULRect.width < window.innerWidth)) {
-                        item.dirchange = true;
-                    } else {
-                        item.dirchange = false;
-                    }
-                } else {
-                    if ((outterUlWidth + siblingULRect.right + siblingULRect.width + 50 > window.innerWidth && siblingULRect.right >= 0) && (outterUlWidth + siblingULRect.width + siblingULRect.width < window.innerWidth)) {
-                        item.dirchange = true;
-                    } else {
-                        item.dirchange = false;
-                    }
-                }
-            }
+    if (
+      element &&
+      html.getAttribute('data-nav-layout') == 'horizontal' &&
+      (html.getAttribute('data-nav-style') == 'menu-hover' ||
+        html.getAttribute('data-nav-style') == 'icon-hover')
+    ) {
+      const listItem = element.closest('li');
+      if (listItem) {
+        // Find the first sibling <ul> element
+        const siblingUL = listItem.querySelector('ul');
+        let outterUlWidth = 0;
+        let listItemUL: any = listItem.closest('ul:not(.main-menu)');
+        while (listItemUL) {
+          listItemUL = listItemUL.parentElement?.closest('ul:not(.main-menu)');
+          if (listItemUL) {
+            outterUlWidth += listItemUL.clientWidth;
+          }
         }
+        if (siblingUL) {
+          // You've found the sibling <ul> element
+          let siblingULRect = listItem.getBoundingClientRect();
+          if (html.getAttribute('dir') == 'rtl') {
+            if (
+              siblingULRect.left - siblingULRect.width - outterUlWidth + 150 <
+                0 &&
+              outterUlWidth < window.innerWidth &&
+              outterUlWidth + siblingULRect.width + siblingULRect.width <
+                window.innerWidth
+            ) {
+              item.dirchange = true;
+            } else {
+              item.dirchange = false;
+            }
+          } else {
+            if (
+              outterUlWidth + siblingULRect.right + siblingULRect.width + 50 >
+                window.innerWidth &&
+              siblingULRect.right >= 0 &&
+              outterUlWidth + siblingULRect.width + siblingULRect.width <
+                window.innerWidth
+            ) {
+              item.dirchange = true;
+            } else {
+              item.dirchange = false;
+            }
+          }
+        }
+      }
     }
-}
+  }
 
-ngAfterViewInit(): void {
-  //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
-  //Add 'implements AfterViewInit' to the class.
-  // checkHoriMenu();
-
-}
+  ngAfterViewInit(): void {
+    //Called after ngAfterContentInit when the component's view has been initialized. Applies to components only.
+    //Add 'implements AfterViewInit' to the class.
+    // checkHoriMenu();
+  }
 
   ngOnDestroy() {
     this.menuitemsSubscribe$.unsubscribe();
     this.windowSubscribe$.unsubscribe();
-    document.querySelector('html')?.setAttribute('data-vertical-style', 'doublemenu');
+    document.documentElement.setAttribute('data-vertical-style', 'default-menu');
     document.querySelector('html')?.setAttribute('data-nav-layout', 'vertical');
   }
 
@@ -393,11 +502,19 @@ ngAfterViewInit(): void {
     let slideRight = document.querySelector('.slide-right') as HTMLElement;
     let menuNav = document.querySelector('.main-menu') as HTMLElement;
     let mainContainer1 = document.querySelector('.main-sidebar') as HTMLElement;
-    let marginRightValue = Math.ceil(Number(window.getComputedStyle(menuNav).marginInlineStart.split('px')[0]));
+    let marginRightValue = Math.ceil(
+      Number(window.getComputedStyle(menuNav).marginInlineStart.split('px')[0])
+    );
     let mainContainer1Width = mainContainer1.offsetWidth;
     if (menuNav.scrollWidth > mainContainer1.offsetWidth) {
-      if (marginRightValue < 0 && !(Math.abs(marginRightValue) < mainContainer1Width)) {
-        menuNav.style.marginInlineStart = Number(menuNav.style.marginInlineStart.split('px')[0]) + Math.abs(mainContainer1Width) + 'px';
+      if (
+        marginRightValue < 0 &&
+        !(Math.abs(marginRightValue) < mainContainer1Width)
+      ) {
+        menuNav.style.marginInlineStart =
+          Number(menuNav.style.marginInlineStart.split('px')[0]) +
+          Math.abs(mainContainer1Width) +
+          'px';
         slideRight.classList.remove('d-none');
       } else if (marginRightValue >= 0) {
         menuNav.style.marginInlineStart = '0px';
@@ -408,19 +525,22 @@ ngAfterViewInit(): void {
         slideLeft.classList.add('d-none');
         slideRight.classList.remove('d-none');
       }
-    }
-    else {
-      menuNav.style.marginInlineStart = "0px";
+    } else {
+      menuNav.style.marginInlineStart = '0px';
       slideLeft.classList.add('d-none');
     }
 
-    let element = document.querySelector(".main-menu > .slide.open") as HTMLElement;
-    let element1 = document.querySelector(".main-menu > .slide.open >ul") as HTMLElement;
+    let element = document.querySelector(
+      '.main-menu > .slide.open'
+    ) as HTMLElement;
+    let element1 = document.querySelector(
+      '.main-menu > .slide.open >ul'
+    ) as HTMLElement;
     if (element) {
-      element.classList.remove("open")
+      element.classList.remove('open');
     }
     if (element1) {
-      element1.style.display = "none"
+      element1.style.display = 'none';
     }
   }
   rightArrowFn() {
@@ -430,27 +550,38 @@ ngAfterViewInit(): void {
     let slideRight = document.querySelector('.slide-right') as HTMLElement;
     let menuNav = document.querySelector('.main-menu') as HTMLElement;
     let mainContainer1 = document.querySelector('.main-sidebar') as HTMLElement;
-    let marginRightValue = Math.ceil(Number(window.getComputedStyle(menuNav).marginInlineStart.split('px')[0]));
+    let marginRightValue = Math.ceil(
+      Number(window.getComputedStyle(menuNav).marginInlineStart.split('px')[0])
+    );
     let check = menuNav.scrollWidth - mainContainer1.offsetWidth;
     let mainContainer1Width = mainContainer1.offsetWidth;
     if (menuNav.scrollWidth > mainContainer1.offsetWidth) {
       if (Math.abs(check) > Math.abs(marginRightValue)) {
-        if (!(Math.abs(check) > Math.abs(marginRightValue) + mainContainer1Width)) {
+        if (
+          !(Math.abs(check) > Math.abs(marginRightValue) + mainContainer1Width)
+        ) {
           mainContainer1Width = Math.abs(check) - Math.abs(marginRightValue);
           slideRight.classList.add('d-none');
         }
-        menuNav.style.marginInlineStart = Number(menuNav.style.marginInlineStart.split('px')[0]) - Math.abs(mainContainer1Width) + 'px';
+        menuNav.style.marginInlineStart =
+          Number(menuNav.style.marginInlineStart.split('px')[0]) -
+          Math.abs(mainContainer1Width) +
+          'px';
         slideLeft.classList.remove('d-none');
       }
     }
 
-    let element = document.querySelector(".main-menu > .slide.open") as HTMLElement
-    let element1 = document.querySelector(".main-menu > .slide.open >ul") as HTMLElement
+    let element = document.querySelector(
+      '.main-menu > .slide.open'
+    ) as HTMLElement;
+    let element1 = document.querySelector(
+      '.main-menu > .slide.open >ul'
+    ) as HTMLElement;
     if (element) {
-      element.classList.remove("open")
+      element.classList.remove('open');
     }
     if (element1) {
-      element1.style.display = "none"
+      element1.style.display = 'none';
     }
   }
 
@@ -496,8 +627,7 @@ ngAfterViewInit(): void {
 
     // Check if the event hasn't been triggered and the screen width is less than or equal to your breakpoint
     if (!this.eventTriggered && this.screenWidth <= 992) {
-      document.documentElement?.setAttribute('data-toggled', 'close')
-
+      document.documentElement?.setAttribute('data-toggled', 'close');
 
       // Trigger your event or perform any action here
       this.eventTriggered = true; // Set the flag to true to prevent further triggering
@@ -539,33 +669,36 @@ ngAfterViewInit(): void {
   //}
   menuResizeFn(): void {
     this.WindowPreSize.push(window.innerWidth);
-    if (this.WindowPreSize.length > 2) { this.WindowPreSize.shift() }
+    if (this.WindowPreSize.length > 2) {
+      this.WindowPreSize.shift();
+    }
     if (this.WindowPreSize.length > 1) {
       const html = document.documentElement;
-      if ((this.WindowPreSize[this.WindowPreSize.length - 1] < 992) && (this.WindowPreSize[this.WindowPreSize.length - 2] >= 992)) {
+      if (
+        this.WindowPreSize[this.WindowPreSize.length - 1] < 992 &&
+        this.WindowPreSize[this.WindowPreSize.length - 2] >= 992
+      ) {
         // less than 992;
         html.setAttribute('data-toggled', 'close');
       }
 
-      if ((this.WindowPreSize[this.WindowPreSize.length - 1] >= 992) && (this.WindowPreSize[this.WindowPreSize.length - 2] < 992)) {
+      if (
+        this.WindowPreSize[this.WindowPreSize.length - 1] >= 992 &&
+        this.WindowPreSize[this.WindowPreSize.length - 2] < 992
+      ) {
         if (html.getAttribute('data-vertical-style') === 'doublemenu') {
-          const doublemenuactive = document.querySelectorAll(".double-menu-active .active");
+          const doublemenuactive = document.querySelectorAll(
+            '.double-menu-active .active'
+          );
           if (doublemenuactive.length > 0) {
             html.setAttribute('data-toggled', 'double-menu-open');
           } else {
             html.setAttribute('data-toggled', 'double-menu-close');
           }
-        }
-        else {
+        } else {
           html.setAttribute('data-toggled', '');
         }
       }
-
     }
-    }
-
+  }
 }
-
-
-
-

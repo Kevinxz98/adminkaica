@@ -92,7 +92,7 @@ export class EditService implements OnInit {
     this.serviciosService.getServiceById(this.serviceId).subscribe({
       next: (res) => {
         // Guarda la URL actual de la imagen
-        this.currentImage = `http://localhost:8000/storage/${res.image}`;
+        this.currentImage = `https://backend.kaica.co/public/storage/${res.image}`;
 
         this.serviceForm.patchValue({
           name: res.name,

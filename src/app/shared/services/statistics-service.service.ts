@@ -14,7 +14,7 @@ interface AuthResponse {
   providedIn: 'root',
 })
 export class StatisticsService {
-   private apiUrl = 'http://localhost:8000/api';
+   private apiUrl = 'https://backend.kaica.co/public/api';
     private tokenKey = 'auth_token';
     private currentUserSubject = new BehaviorSubject<any>(null);
     currentUser$ = this.currentUserSubject.asObservable();

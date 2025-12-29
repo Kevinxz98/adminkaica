@@ -163,8 +163,8 @@ export class Wizard implements OnInit {
           estadoActivacion: chatbot.estadoActivacion,
         });
         if (chatbot.avatar) {
-          this.avatarUrl =  `http://localhost:8000/chatbots/avatar/${chatbot.avatar}`;
-          this.companyLogo = `http://localhost:8000/chatbots/avatar/${chatbot.avatar}`;
+          this.avatarUrl =  `https://backend.kaica.co/public/avatar/${chatbot.avatar}`;
+          this.companyLogo = `https://backend.kaica.co/public/avatar/${chatbot.avatar}`;
         }
         this.cdr.detectChanges();
         this.agentName = chatbot.nombre;

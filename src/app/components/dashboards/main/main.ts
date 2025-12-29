@@ -4,7 +4,6 @@ import { SharedModule } from '../../../shared/shared.module';
 import { SpkEmployeeCard } from '../../../@spk/reusable-widgets/spk-employee-card/spk-employee-card';
 import { SpkEmployeeCardSkeleton } from '../../../@spk/reusable-widgets/spk-employee-card-skeleton/spk-employee-card-skeleton';
 import { FlatpickrDefaults } from 'angularx-flatpickr';
-import { SpkFlatpickr } from '../../../@spk/spk-reusable-plugins/spk-flatpickr/spk-flatpickr';
 import { StatisticsService } from '../../../shared/services/statistics-service.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
@@ -28,7 +27,6 @@ interface WidgetData {
   imports: [
     SharedModule,
     SpkEmployeeCard,
-    SpkFlatpickr,
     SpkEmployeeCardSkeleton,
   ],
   providers: [FlatpickrDefaults],

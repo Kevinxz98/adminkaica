@@ -45,21 +45,7 @@
   [prism]="agentCode"
 >
   <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Hola {{ userName }}!</strong>
-    <div *ngIf="userState$ | async as state">
-      <div *ngIf="state.isLoading">Cargando usuario...</div>
-      <div *ngIf="!state.isLoading">
-        <div *ngIf="state.user">
-          <strong>Hola {{ state.user.name }}!</strong>
-        </div>
-        <div *ngIf="!state.user && state.isLoggedIn">
-          Error cargando usuario
-        </div>
-        <div *ngIf="!state.user && !state.isLoggedIn">
-          Por favor inicia sesión
-        </div>
-      </div>
-    </div>
+    <strong *ngIf="userName">Hola {{ userName }}!</strong>
     Copia y pega el siguiente código justo antes de cerrar la etiqueta
     <code>&lt;/body&gt;</code> de tu sitio web.
 

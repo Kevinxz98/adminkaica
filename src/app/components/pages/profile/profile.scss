@@ -26,6 +26,11 @@
     background-color: transparent !important;
 }
 
+.card-img-top{
+    max-height: 200px;
+    object-fit: cover;
+}
+
 
 ::ng-deep {
   .dropzone {
@@ -42,5 +47,8 @@
   }
   dropzone.flex>.dropzone.dz-wrapper.dz-multiple {
       justify-content: start !important;
+  }
+  .profile-card .avatar.avatar-xxl img{
+    object-fit: cover;
   }
 }

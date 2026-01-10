@@ -7,7 +7,7 @@
       <!-- Start::header-element -->
       <div class="header-element">
         <div class="horizontal-logo">
-          <a routerLink="/dashboards/sales" class="header-logo">
+          <a routerLink="/dashboards" class="header-logo">
             <img
               src="./assets/images/logos/logo-small.png"
               alt="logo"
@@ -281,9 +281,46 @@
           data-bs-auto-close="outside"
           aria-expanded="false"
         >
-          <div>
-              <i class="fa fa-user-circle header-link-icon" style="font-size: 23px !important;"></i>
+          @if(!isLoading) { @if(profile_image && profile_image !==
+          'assets/images/media/icons/user-icon.png') {
+          <div class="header-link-icon p-0">
+            <img
+              [src]="profile_image"
+              alt="Foto de perfil"
+              class="rounded-circle"
+              style="
+                width: 2.25rem;
+                height: 2.25rem;
+                object-fit: cover;
+              "
+            />
           </div>
+          } @else {
+          <div class="header-link-icon p-0">
+            <div
+              class="rounded-circle bg-primary d-flex align-items-center justify-content-center"
+              style="
+              width: 2.25rem; 
+              height: 2.25rem; 
+              "
+            >
+              @if(firstLetter) {
+              <span class="text-white fw-bold" style="font-size: 18px">
+                {{ firstLetter }}
+              </span>
+              } @else {
+              <i
+                class="fa fa-user-circle text-white"
+                style="font-size: 23px"
+              ></i>
+              }
+            </div>
+          </div>
+          } } @else {
+          <div class="spinner-grow text-light-custom" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          }
         </a>
         <!-- End::header-link|dropdown-toggle -->
         <div
@@ -310,8 +347,12 @@
                 </span>
               </div>
               <div>
-                <span *ngIf="userName" class="d-block fw-semibold lh-1">{{userName}}</span>
-                <span *ngIf="userMail" class="text-muted fs-12">{{userMail}}</span>
+                <span *ngIf="userName" class="d-block fw-semibold lh-1"
+                  >{{userName}}</span
+                >
+                <span *ngIf="userMail" class="text-muted fs-12"
+                  >{{userMail}}</span
+                >
               </div>
             </div>
           </div>

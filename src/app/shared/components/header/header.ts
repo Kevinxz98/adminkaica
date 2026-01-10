@@ -19,6 +19,8 @@ import { NotificationSidebar } from '../notification-sidebar/notification-sideba
 import { Auth } from '../../services/auth.service';
 import { ToastrModule, ToastrService } from 'ngx-toastr';
 import { ChangeDetectorRef } from '@angular/core';
+import { UserService } from '../../services/user-service.service';
+import { UserStateService } from '../../services/user-state.service';
 
 interface Item {
   id: number;
@@ -45,9 +47,16 @@ export class Header implements OnInit {
   userName = '';
   firstLetter = '';
   userMail = '';
+  userData: any;
+  profileData: any;
+  isLoading = false;
+  profile_image: string = 'assets/images/media/icons/user-icon.png';
 
   selectedItem: string | null = 'selectedItem';
   isOpen: boolean = false;
+
+  private subscriptions = new Subscription();
+
   constructor(
     private appStateService: AppStateService,
     private sidebarRightservice: SidebarRightService,
@@ -59,33 +68,133 @@ export class Header implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: Auth,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userService: UserService,
+    private userStateService: UserStateService,
   ) {
     this.localStorageBackUp();
-    this.me();
+    
   }
 
   private offcanvasService = inject(NgbOffcanvas);
   private offcanvasService1 = inject(NgbOffcanvas);
 
+  ngOnInit(): void {
+    
+    const storedSelectedItem = localStorage.getItem('selectedItem');
+    // this.updateSelectedItem();
+    // If there's no selected item stored, set a default one
+    if (!storedSelectedItem) {
+      this.selectedItem = 'Sales Dashboard'; // You can set any default item here
+      localStorage.setItem('selectedItem', this.selectedItem);
+    } else {
+      this.selectedItem = storedSelectedItem;
+    }
+    this.navServices.items.subscribe((menuItems) => {
+      this.items = menuItems;
+    });
+    // To clear and close the search field by clicking on body
+    document.querySelector('.main-content')?.addEventListener('click', () => {
+      this.clearSearch();
+    });
+    this.text = '';
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updateSelectedItem();
+        this.closeMenuOnNavigation();
+      });
+
+
+       // 1. Suscribirse a cambios en la imagen de perfil
+    this.subscriptions.add(
+      this.userStateService.profileImage$.subscribe(imageUrl => {
+        if (imageUrl) {
+          this.profile_image = imageUrl;
+        } else {
+          this.profile_image = 'assets/images/media/icons/user-icon.png';
+        }
+        this.cdr.detectChanges();
+      })
+    );
+    
+    // 2. Suscribirse a cambios en los datos del perfil
+    this.subscriptions.add(
+      this.userStateService.userProfile$.subscribe(profile => {
+        if (profile) {
+          this.updateProfileData(profile);
+        }
+      })
+    );
+
+    this.loadProfile();
+
+  }
+
   toggleDropdown() {
     this.isOpen = !this.isOpen;
   }
 
-  me(): void {
-    this.authService.me().subscribe({
-      next: (user) => { 
-        this.userName = user.user.name; // <- asi es como se asigna el nombre
-        this.firstLetter = this.userName.charAt(0).toUpperCase();
-        this.userMail = user.user.email;
-        console.log('Usuario actual:', user.user.name);
+  loadProfile() {
+    this.isLoading = true;
+    this.userService.getProfile().subscribe({
+      next: (user) => {
+        if (user.success) {
+          this.userData = user.data.user;
+          this.profileData = user.data.profile;
+          this.userName = user.data.user.name; 
+          this.userMail = user.data.user.email; 
+          this.firstLetter = this.userName.charAt(0).toUpperCase();
+
+         if (this.profileData.profile_image) {
+            const fullImageUrl = `https://backend.kaica.co/public/storage/${this.profileData.profile_image}`;
+            this.profile_image = fullImageUrl;
+            
+            // Actualizar el estado global
+            this.userStateService.updateProfileImage(fullImageUrl);
+          } else {
+            // Usar imagen por defecto
+            this.profile_image = 'assets/images/media/icons/user-icon.png';
+            this.userStateService.updateProfileImage(null);
+          }
+          
+          // Actualizar datos completos en el estado
+          this.userStateService.updateUserProfile(this.profileData);
+        }
+        this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Error obteniendo usuario actual:', error); 
+        console.error('Error fetching agent data:', error);
+        this.isLoading = false;
         this.cdr.detectChanges();
-      }
+      },
+
     });
+  }
+  
+  private updateProfileData(profile: any): void {
+    this.profileData = profile;
+    
+    // Actualizar imagen si existe en el perfil
+    if (profile?.profile_image) {
+      const fullImageUrl = `https://backend.kaica.co/public/storage/${profile.profile_image}`;
+      if (this.profile_image !== fullImageUrl) {
+        this.profile_image = fullImageUrl;
+      }
+    }
+    
+    this.cdr.detectChanges();
+  }
+  
+  // Método para manejar cuando se cambia la imagen desde otro componente
+  updateProfileImage(imageUrl: string | null): void {
+    if (imageUrl) {
+      this.profile_image = imageUrl;
+    } else {
+      this.profile_image = 'assets/images/media/icons/user-icon.png';
+    }
+    this.cdr.detectChanges();
   }
 
   closeDropdown() {
@@ -256,31 +365,7 @@ export class Header implements OnInit {
   public text!: string;
   public SearchResultEmpty: boolean = false;
 
-  ngOnInit(): void {
-    const storedSelectedItem = localStorage.getItem('selectedItem');
-    // this.updateSelectedItem();
-    // If there's no selected item stored, set a default one
-    if (!storedSelectedItem) {
-      this.selectedItem = 'Sales Dashboard'; // You can set any default item here
-      localStorage.setItem('selectedItem', this.selectedItem);
-    } else {
-      this.selectedItem = storedSelectedItem;
-    }
-    this.navServices.items.subscribe((menuItems) => {
-      this.items = menuItems;
-    });
-    // To clear and close the search field by clicking on body
-    document.querySelector('.main-content')?.addEventListener('click', () => {
-      this.clearSearch();
-    });
-    this.text = '';
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.updateSelectedItem();
-        this.closeMenuOnNavigation();
-      });
-  }
+  
 
   private updateSelectedItem() {
     const dashboard = this.activatedRoute.snapshot.firstChild?.url[0]?.path;

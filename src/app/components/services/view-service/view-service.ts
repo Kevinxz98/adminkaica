@@ -77,7 +77,7 @@ export class ViewService {
         servicios.map((item) => ({
           Id: item.id,
           productName: item.name,
-          Image: `http://localhost:8000/storage/${item.image}`,
+          Image: `https://backend.kaica.co/public/storage/${item.image}`,
           price: `$${item.price_monthly}`,
           Status: item.status == 'active' ? 'Publicado' : 'No Publicado',
           Date: item.created_at,

@@ -53,6 +53,7 @@ export class Main implements OnInit {
     this.isLoading = true;
     this.statisticsService.getStatisticsData().subscribe((data) => {
       this.staticsData = data;
+
       this.Agentsdata = [
         {
           title: 'Mensajes totales',

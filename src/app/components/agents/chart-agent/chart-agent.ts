@@ -142,13 +142,15 @@ export class ChartAgent implements OnChanges {
 
     // Formatear fechas para el eje X
     const categories = sortedStats.map((stat) => {
-      const date = new Date(stat.date);
-      return date.toLocaleDateString('es-ES', {
+      const [year, month, day] = stat.date.split('-').map(Number);
+
+      const date = new Date(year, month - 1, day); 
+
+      return date.toLocaleDateString('es-CO', {
         day: 'numeric',
         month: 'short',
       });
     });
-
     // Preparar las series de datos
     const interactions = sortedStats.map((stat) => stat.interactions);
     const uniqueDomains = sortedStats.map((stat) => stat.unique_domains);
@@ -172,8 +174,7 @@ export class ChartAgent implements OnChanges {
           name: 'Dominios Únicos',
           type: 'column',
           data: uniqueDomains,
-        }
-        
+        },
       ] as ApexAxisChartSeries,
       xaxis: {
         ...this.chartOptions.xaxis,

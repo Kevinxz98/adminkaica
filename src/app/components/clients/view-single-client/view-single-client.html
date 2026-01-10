@@ -1,0 +1,397 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <!-- Header -->
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-2 mb-1" (click)="goBack()">
+              <i class="ti ti-arrow-left"></i> Volver
+            </button>
+            <h3 class="card-title mb-0">Detalles del Usuario</h3>
+          </div>
+          <div class="hstack gap-2">
+            <button class="btn btn-sm btn-outline-primary" (click)="editUser()">
+              <i class="ti ti-edit"></i> Editar
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="deleteUser()">
+              <i class="ti ti-trash"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      @if (isLoading) {
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-3 text-muted">Cargando información del usuario...</p>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (error) {
+        <div class="card-body text-center py-5">
+          <div class="alert alert-danger">
+            <i class="ti ti-alert-circle fs-24"></i>
+            <h4 class="alert-heading mt-2">Usuario no encontrado</h4>
+            <p>{{ error }}</p>
+            <button class="btn btn-primary" (click)="goBack()">
+              <i class="ti ti-arrow-left"></i> Volver a la lista
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Contenido -->
+      @if (!isLoading && !error && user) {
+        <div class="card-body">
+          <div class="row">
+            <!-- Columna izquierda - Información principal -->
+            <div class="col-lg-8">
+              <!-- Perfil -->
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-4">
+                    <div class="me-3">
+                      <img 
+                        [src]="getAvatarUrl(user)" 
+                        [alt]="user.name"
+                        class="avatar avatar-xxl rounded-circle"
+                        onerror="this.src='./assets/images/faces/1.jpg'"
+                      />
+                    </div>
+                    <div>
+                      <h4 class="mb-1">{{ user.name }}</h4>
+                      <p class="text-muted mb-2">
+                        <i class="ti ti-mail me-1"></i>{{ user.email }}
+                      </p>
+                      <span [class]="'badge ' + getRoleBadgeClass(user.roles)">
+                        {{ getRoleDisplayName(user.roles) }}
+                      </span>
+                      @if (user.email_verified_at) {
+                        <span class="badge bg-success-transparent ms-2">
+                          <i class="ti ti-check me-1"></i>Verificado
+                        </span>
+                      } @else {
+                        <span class="badge bg-danger-transparent ms-2">
+                          <i class="ti ti-x me-1"></i>No verificado
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label text-muted">Teléfono</label>
+                        <p class="mb-0">
+                          <i class="ti ti-phone me-2"></i>
+                          {{ getPhoneNumber(user) }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label text-muted">Fecha de registro</label>
+                        <p class="mb-0">
+                          <i class="ti ti-calendar me-2"></i>
+                          {{ formatDate(user.created_at) }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bio -->
+                  @if (user.profile?.bio) {
+                    <div class="mb-3">
+                      <label class="form-label text-muted">Biografía</label>
+                      <p class="mb-0">{{ user.profile?.bio }}</p>
+                    </div>
+                  }
+
+                  <!-- Permisos -->
+                  @if (user.permissions && user.permissions.length > 0) {
+                    <div class="mb-3">
+                      <label class="form-label text-muted">Permisos</label>
+                      <div class="d-flex flex-wrap gap-1">
+                        @for (permission of user.permissions; track permission.id) {
+                          <span class="badge bg-info-transparent">
+                            {{ permission.name }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Agentes/Chatbots -->
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">
+                    <i class="ti ti-robot me-2"></i>
+                    Agentes ({{ user.chatbots?.length || 0 }})
+                  </h5>
+                  @if (user.chatbots && user.chatbots.length > 0) {
+                    <button class="btn btn-sm btn-outline-primary" (click)="toggleChatbotView()">
+                      <i class="ti ti-{{ showAsCards ? 'list' : 'grid' }} me-1"></i>
+                      {{ showAsCards ? 'Vista tabla' : 'Vista tarjetas' }}
+                    </button>
+                  }
+                </div>
+                
+                <div class="card-body p-0">
+                  @if (!user.chatbots || user.chatbots.length === 0) {
+                    <div class="text-center p-5">
+                      <div class="mb-3">
+                        <i class="ti ti-robot-off fs-48 text-muted"></i>
+                      </div>
+                      <p class="text-muted mb-0">Este usuario no tiene agentes configurados.</p>
+                    </div>
+                  } @else {
+                    <!-- Vista de tabla (escritorio) -->
+                    @if (!showAsCards) {
+                      <div class="table-responsive d-none d-md-block">
+                        <table class="table table-hover mb-0">
+                          <thead>
+                            <tr>
+                              <th width="50">#</th>
+                              <th>Nombre</th>
+                              <th>Empresa</th>
+                              <th>Objetivo</th>
+                              <th>Estado</th>
+                              <th>Creado</th>
+                              <th width="100">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (chatbot of user.chatbots; track chatbot.id; let i = $index) {
+                              <tr>
+                                <td>{{ i + 1 }}</td>
+                                <td>
+                                  <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm me-3">
+                                      @if (chatbot.avatar) {
+                                        <img [src]="getChatbotAvatar(chatbot)" [alt]="chatbot.nombre" class="rounded-circle">
+                                      } @else {
+                                        <span class="avatar-initial" [ngStyle]="{
+                                          'background-color': chatbot.color || '#6c757d',
+                                          'color': getContrastColor(chatbot.color || '#6c757d')
+                                        }">
+                                          {{ chatbot.nombre.charAt(0).toUpperCase() }}
+                                        </span>
+                                      }
+                                    </div>
+                                    <div>
+                                      <div class="fw-semibold">{{ chatbot.nombre }}</div>
+                                      <small class="text-muted">{{ chatbot.public_key }}</small>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>{{ chatbot.nombreEmpresa || 'No especificado' }}</td>
+                                <td>{{ chatbot.objetivoPrincipal || 'No especificado' }}</td>
+                                <td>
+                                  <span [class]="getChatbotStatusClass(chatbot.Status)">
+                                    {{ getChatbotStatusText(chatbot.Status) }}
+                                  </span>
+                                </td>
+                                <td>
+                                  <small class="text-muted">{{ formatDate(chatbot.created_at) }}</small>
+                                </td>
+                                <td>
+                                  <div class="hstack gap-1">
+                                    <button class="btn btn-icon btn-sm btn-outline-info" title="Probar agente">
+                                      <i class="ti ti-player-play"></i>
+                                    </button>
+                                    <button class="btn btn-icon btn-sm btn-outline-warning" title="Editar">
+                                      <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button 
+                                      class="btn btn-icon btn-sm btn-outline-{{ chatbot.Status === 'Activo' ? 'danger' : 'success' }}"
+                                      (click)="toggleChatbotStatus(chatbot)"
+                                      [title]="chatbot.Status === 'Activo' ? 'Desactivar' : 'Activar'"
+                                    >
+                                      <i class="ti ti-power"></i>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    }
+
+                    <!-- Vista de tarjetas (móvil y opcional) -->
+                    <div [class.d-md-none]="!showAsCards" [class.d-block]="showAsCards">
+                      <div class="row row-cols-1 row-cols-md-2 g-3 p-3">
+                        @for (chatbot of user.chatbots; track chatbot.id) {
+                          <div class="col">
+                            <div class="agent-card">
+                              <!-- Header -->
+                              <div class="agent-card-header">
+                                <button 
+                                  class="btn btn-sm btn-danger position-absolute" 
+                                  style="right: -15px; top: -20px; z-index: 1;"
+                                  (click)="deleteChatbot(chatbot)"
+                                >
+                                  <i class="ti ti-trash"></i>
+                                </button>
+                                
+                                <div class="avatar-wrapper">
+                                  @if (chatbot.avatar) {
+                                    <img [src]="getChatbotAvatar(chatbot)" [alt]="chatbot.nombre">
+                                  } @else {
+                                    <span 
+                                      class="avatar-initial"
+                                      [ngStyle]="{
+                                        'background-color': chatbot.color || '#6c757d',
+                                        'color': getContrastColor(chatbot.color || '#6c757d')
+                                      }"
+                                    >
+                                      {{ chatbot.nombre.charAt(0).toUpperCase() }}
+                                    </span>
+                                  }
+                                </div>
+
+                                <div class="agent-info">
+                                  <div class="agent-name">{{ chatbot.nombre }}</div>
+                                  <div class="agent-company">{{ chatbot.nombreEmpresa || 'Sin empresa' }}</div>
+                                </div>
+
+                                <div class="agent-status" [class]="getChatbotStatusClass(chatbot.Status)">
+                                  {{ getChatbotStatusText(chatbot.Status) }}
+                                </div>
+                              </div>
+
+                              <!-- Body -->
+                              <div class="agent-card-body">
+                                <div class="label">Objetivo principal</div>
+                                <div class="value">
+                                  {{ chatbot.objetivoPrincipal || 'No especificado' }}
+                                </div>
+                                <div class="label mt-2">ID Público</div>
+                                <div class="value small">
+                                  <code class="text-muted">{{ chatbot.public_key }}</code>
+                                </div>
+                              </div>
+
+                              <!-- Footer -->
+                              <div class="agent-card-actions">
+                                <button class="btn-edit" title="Editar agente">
+                                  <i class="ti ti-edit me-1"></i> Editar
+                                </button>
+                                <button class="btn-probar" title="Probar agente">
+                                  <i class="ti ti-player-play me-1"></i> Probar
+                                </button>
+                                <button 
+                                    [routerLink]="['/clients/agents/view-agent', chatbot.public_key, 'statistics']"
+                                    class="btn-ver" >Ver</button>
+                                <button 
+                                  class="btn-toggle"
+                                  [class]="chatbot.Status === 'Activo' ? 'btn-Activo' : 'btn-Inactivo'"
+                                  (click)="toggleChatbotStatus(chatbot)"
+                                  [title]="chatbot.Status === 'Activo' ? 'Desactivar' : 'Activar'"
+                                >
+                                  <i class="ti ti-power me-1"></i>
+                                  {{ chatbot.Status === 'Activo' ? 'Desactivar' : 'Activar' }}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna derecha - Información adicional -->
+            <div class="col-lg-4">
+              <!-- Estadísticas -->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Estadísticas</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Agentes activos</span>
+                    <span class="fw-semibold">{{ user.chatbots_count || 0 }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Última actualización</span>
+                    <span class="fw-semibold">{{ formatDate(user.updated_at) }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Estado</span>
+                    <span class="fw-semibold" [ngClass]="{
+                      'text-success': user.email_verified_at,
+                      'text-danger': !user.email_verified_at
+                    }">
+                      {{ user.email_verified_at ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración de perfil -->
+              @if (user.profile) {
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title mb-0">Configuración</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Idioma</span>
+                      <span class="fw-semibold">{{ user.profile.language || 'No configurado' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Zona horaria</span>
+                      <span class="fw-semibold">{{ user.profile.timezone || 'No configurado' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Notificaciones email</span>
+                      <span class="fw-semibold">
+                        <i class="ti ti-{{ user.profile.email_notifications ? 'check text-success' : 'x text-danger' }}"></i>
+                      </span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">2FA activado</span>
+                      <span class="fw-semibold">
+                        <i class="ti ti-{{ user.profile.is_two_factor_enabled ? 'check text-success' : 'x text-danger' }}"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- Acciones rápidas -->
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Acciones rápidas</h5>
+                </div>
+                <div class="card-body">
+                  <div class="vstack gap-2">
+                    <button class="btn btn-outline-primary" (click)="sendVerificationEmail()">
+                      <i class="ti ti-mail-forward"></i> Reenviar verificación
+                    </button>
+                    <button class="btn btn-outline-warning" (click)="resetPassword()">
+                      <i class="ti ti-key"></i> Resetear contraseña
+                    </button>
+                    <button class="btn btn-outline-info" (click)="impersonateUser()">
+                      <i class="ti ti-user-switch"></i> Suplantar usuario
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

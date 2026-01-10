@@ -130,6 +130,27 @@ export class NavService implements OnDestroy {
       active: false,
     },
     //Title
+
+    { headTitle: 'Perfil' },
+    {
+      path: '/pages/profile',
+      dirchange: false,
+      selected: false,
+      title: 'Mi Perfil',
+      icon: `<svg class="side-menu__icon" id="icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:none;}</style></defs><title/><path d="M12,4A5,5,0,1,1,7,9a5,5,0,0,1,5-5m0-2a7,7,0,1,0,7,7A7,7,0,0,0,12,2Z"/><path d="M22,30H20V25a5,5,0,0,0-5-5H9a5,5,0,0,0-5,5v5H2V25a7,7,0,0,1,7-7h6a7,7,0,0,1,7,7Z"/><rect height="2" width="10" x="22" y="4"/><rect height="2" width="10" x="22" y="9"/><rect height="2" width="7" x="22" y="14"/><rect class="cls-1" data-name="&lt;Transparent Rectangle&gt;" height="32" id="_Transparent_Rectangle_" width="32"/></svg>`,
+      type: 'link',
+      active: false,
+    },
+    {
+      path: '/pages/profile-settings',
+      dirchange: false,
+      selected: false,
+      title: 'Editar Perfil',
+      icon: `<svg class="side-menu__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><g id="_15_user-edit" data-name="15 user-edit"><path d="M14,17a7,7,0,1,0-7-7A7,7,0,0,0,14,17ZM14,5a5,5,0,1,1-5,5A5,5,0,0,1,14,5Z"/><path d="M12,21h2V19H12a9,9,0,0,0-9,9v1h8V27h-6A7,7,0,0,1,12,21Z"/><path d="M27.61,15.2a3.82,3.82,0,0,0-5.28-.13L14,22.66a3,3,0,0,0-1,2.22V29h4.23a3,3,0,0,0,2-.78l8.23-7.49a3.82,3.82,0,0,0,.13-5.53ZM26.2,16.61A1.85,1.85,0,0,1,26.73,18a1.77,1.77,0,0,1-.6,1.3l-.24.23-2.58-2.59.37-.34A1.83,1.83,0,0,1,26.2,16.61ZM17.9,26.74a1,1,0,0,1-.67.26H15V24.88a1,1,0,0,1,.33-.74l6.49-5.9,2.59,2.58Z"/></g></svg>`,
+      type: 'link',
+      active: false,
+    },
+    
     { headTitle: 'Admin Services', roles: ['admin'] },
     {
       title: 'Servicios',
@@ -158,6 +179,19 @@ export class NavService implements OnDestroy {
         },
       ],
     },
+
+    { headTitle: 'Admin Clientes', roles: ['admin'] },
+    {
+      path: '/clients/view-clients',
+      dirchange: false,
+      selected: false,
+      title: 'Usuarios actuales',
+      icon: `<svg class="side-menu__icon" fill="none" width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 13C0 6.373 5.373 1 12 1s12 5.373 12 12v8.657a.75.75 0 01-1.5 0V13c0-5.799-4.701-10.5-10.5-10.5S1.5 7.201 1.5 13v8.657a.75.75 0 01-1.5 0V13z"/><path d="M8 19.75a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5a.75.75 0 01-.75-.75z"/><path fill-rule="evenodd" d="M5.25 9.5a1.75 1.75 0 00-1.75 1.75v3.5c0 .966.784 1.75 1.75 1.75h13.5a1.75 1.75 0 001.75-1.75v-3.5a1.75 1.75 0 00-1.75-1.75H5.25zm.22 1.47a.75.75 0 011.06 0L9 13.44l2.47-2.47a.75.75 0 011.06 0L15 13.44l2.47-2.47a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0L12 12.56l-2.47 2.47a.75.75 0 01-1.06 0l-3-3a.75.75 0 010-1.06z"/></svg>`,
+      type: 'link',
+      active: false,
+      roles: ['admin'],
+    },
+
   ];
 
   items = new BehaviorSubject<Menu[]>(this.MENUITEMS);

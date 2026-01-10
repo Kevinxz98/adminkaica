@@ -6,18 +6,17 @@ import { SharedModule } from '../../../shared/shared.module';
 import { SpkEmployeeCard } from '../../../@spk/reusable-widgets/spk-employee-card/spk-employee-card';
 import { SpkEmployeeCardSkeleton } from '../../../@spk/reusable-widgets/spk-employee-card-skeleton/spk-employee-card-skeleton';
 import { ChangeDetectorRef } from '@angular/core';
-import { SpkCoursesCard } from '../../../@spk/reusable-dashboards/spk-courses-card/spk-courses-card';
-import { SpkCoursesCardSkeleton } from '../../../@spk/reusable-dashboards/spk-courses-card-skeleton/spk-courses-card-skeleton';
-import { SpkCustomCard } from '../../../@spk/reusable-ui-elements/spk-cards/spk-custom-card/spk-custom-card';
 import { SpkAgentDetailsCard } from '../../../@spk/reusable-ui-elements/spk-agent-details-card/spk-agent-details-card';
 import { SpkAgentDetailsCardSkeleton } from '../../../@spk/reusable-ui-elements/spk-agent-details-card-skeleton/spk-agent-details-card-skeleton';
-import { SpkApexChart } from '../../../@spk/spk-reusable-plugins/reusable-charts/spk-apex-charts/spk-apex-charts';
 import { ChartAgent } from '../chart-agent/chart-agent';
 import { ShowcodeCard } from '../../../shared/components/showcode-card/showcode-card';
 import { Auth } from '../../../shared/services/auth.service';
-import { Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { filter } from 'rxjs';
+import { Observable } from 'rxjs';
+import { ChatbotConversations } from '../chatbot-conversations/chatbot-conversations';
+import { number } from 'echarts';
+import { ChatService } from '../../../shared/services/chat-service.service';
+import { Router } from '@angular/router';
+
 
 interface WidgetData {
   title: string;
@@ -67,6 +66,7 @@ interface Chatbot {
     SpkAgentDetailsCardSkeleton,
     ChartAgent,
     ShowcodeCard,
+    ChatbotConversations
   ],
   templateUrl: './view-agent-statistics.html',
   styleUrl: './view-agent-statistics.scss',
@@ -94,13 +94,16 @@ export class ViewAgentStatistics implements OnInit {
   chartOptions: any = {};
   userName = '';
   isLoading = true;
+  chatbotId: any;
+  allchats: any[] = [];
 
   constructor(
     private statisticsService: StatisticsService,
     private route: ActivatedRoute,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
-    private authService: Auth
+    private authService: Auth,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -110,6 +113,7 @@ export class ViewAgentStatistics implements OnInit {
     this.loadSevenDaysStats(publicKey);
     this.loadAgentStatistics(publicKey);
   }
+
 
   me(): void {
     this.authService.me().subscribe({
@@ -225,11 +229,19 @@ export class ViewAgentStatistics implements OnInit {
   }
 
   editBot(public_key: string) {
-    console.log('Editar bot con key:', public_key);
+    this.router.navigate([
+      '/agents/my-agents',
+      public_key,
+      'edit'
+    ]);
   }
 
   testBot(public_key: string) {
-    console.log('Probar bot con key:', public_key);
+    this.router.navigate([
+      '/agents/test-agent',
+      public_key,
+    ]);
+
   }
 
   disableBot(public_key: string) {
@@ -252,8 +264,8 @@ export class ViewAgentStatistics implements OnInit {
     this.statisticsService.getSevenDaysStats(publicKey).subscribe({
       next: (data) => {
         this.chatbotStats = data;
+        this.chatbotId = this.chatbotStats.chatbot_info.id; //<- asignar el id del chatbot
         this.isLoading = false;
-        // Forzar detección de cambios después de asignar los datos
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -263,6 +275,10 @@ export class ViewAgentStatistics implements OnInit {
       },
     });
   }
+
+
+
+
 
   get agentCode(): string {
     const publicKey = this.route.snapshot.paramMap.get('public_key');

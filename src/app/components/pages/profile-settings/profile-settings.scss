@@ -1,0 +1,15 @@
+::ng-deep{
+    .back{
+        position: absolute;
+        right: 5px;
+        top: 10px;
+    }
+
+    .disabled{
+        background-color: #e9ecef;
+    }
+
+    .avatar img{
+        object-fit: cover;
+    }
+}

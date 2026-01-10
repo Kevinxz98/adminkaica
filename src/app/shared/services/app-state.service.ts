@@ -132,7 +132,7 @@ export class AppStateService {
 
     if (layoutStyles === 'default-menu') {
       html.setAttribute('data-vertical-style', 'default-menu');
-      html.setAttribute('data-toggled', '');
+      html.setAttribute('data-toggled', 'close');
       return;
     }
 

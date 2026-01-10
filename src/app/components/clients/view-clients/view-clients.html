@@ -1,0 +1,336 @@
+<div class="row row-cols-1 row-cols-xxl-4 row-cols-xl-4 row-cols-md-4">
+  @if (isLoading) { @for (i of [1, 2, 3, 4]; track i) {
+  <div class="col">
+    <app-spk-employee-card-skeleton />
+  </div>
+  } }@else{ @for(widget of clientsData; track widget.id){
+      <div class="col">
+        <div class="card custom-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <p class="mb-2 fs-12 op-7 text-muted">{{ widget.name }}</p>
+                <h4 class="mb-0 fw-semibold">{{ widget.value }}</h4>
+              </div>
+              <div class="bg-{{ widget.color }}-transparent text-{{ widget.color }} p-3 rounded">
+                <i class="ti ti-{{ widget.icon }} fs-20"></i>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between mt-3">
+              <div>
+                <span class="text-muted fs-12">{{ widget.description }}</span>
+              </div>
+              @if (widget.percentage) {
+                <div>
+                  <span class="badge bg-{{ widget.color }}-transparent text-{{ widget.color }}">
+                    {{ widget.percentage }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    } } 
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Gestión de Usuarios</h3>
+        <div class="card-actions">
+        <button 
+          class="btn btn-sm btn-outline-secondary me-2 mobile-hide-text mb-2"
+          (click)="refreshData()"
+          [disabled]="isRefreshing"
+          title="Actualizar datos"
+        >
+          <i class="ti ti-refresh" [class.spin]="isRefreshing"></i>
+          <span class="ms-1">{{ isRefreshing ? 'Actualizando...' : 'Actualizar' }}</span>
+        </button>
+        
+        <div class="filter-container">
+          <!-- Búsqueda instantánea -->
+          <div class="input-group search-group">
+            <span class="input-group-text">
+              <i class="ti ti-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Buscar por nombre, email, teléfono, rol..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchInput()"
+            >
+          </div>
+
+          <!-- Filtro por rol -->
+          <select 
+            class="form-select form-select-sm filter-select role-select"
+            [(ngModel)]="selectedRole"
+            (change)="applyFilters()"
+            title="Filtrar por rol"
+          >
+            <option value="">Todos los roles</option>
+            @for (role of availableRoles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+
+          <!-- Filtro por verificación -->
+          <select 
+            class="form-select form-select-sm filter-select verification-select"
+            [(ngModel)]="verificationFilter"
+            (change)="applyFilters()"
+            title="Filtrar por verificación"
+          >
+            <option value="all">Todos</option>
+            <option value="verified">Verificados</option>
+            <option value="unverified">No verificados</option>
+          </select>
+
+          <!-- Botón limpiar -->
+          <button 
+            class="btn btn-sm btn-outline-danger clear-filter-btn mobile-hide-text"
+            (click)="clearFilters()"
+            [disabled]="!searchTerm && !selectedRole && verificationFilter === 'all'"
+            title="Limpiar todos los filtros"
+          >
+            <i class="ti ti-filter-off"></i>
+            <span>Limpiar</span>
+          </button>
+        </div>
+      </div>
+      </div>
+
+      <!-- Loading inicial -->
+      @if (isLoading) {
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando usuarios...</span>
+          </div>
+          <p class="mt-3 text-muted">Cargando todos los usuarios...</p>
+        </div>
+      } @else {
+        <!-- Estadísticas rápidas -->
+        @if (statistics) {
+          <div class="card-body border-bottom">
+            <div class="row">
+              <div class="col-auto">
+                <span class="text-muted">Total: </span>
+                <strong>{{ allUsers.length }} usuarios</strong>
+              </div>
+              <div class="col-auto">
+                <span class="text-muted">Mostrando: </span>
+                <strong>{{ pagination.startIndex }}-{{ pagination.endIndex }}</strong>
+              </div>
+              <div class="col-auto ms-auto">
+                <span class="text-muted">Filtrados: </span>
+                <strong>{{ pagination.totalItems }}</strong>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tabla de usuarios -->
+        <div class="card-body">
+          @if (displayedUsers.length === 0) {
+            <div class="text-center py-5">
+              <i class="ti ti-users-off fs-48 text-muted mb-3"></i>
+              <p class="text-muted">
+                {{ searchTerm || selectedRole || verificationFilter !== 'all' 
+                  ? 'No se encontraron usuarios con los filtros aplicados' 
+                  : 'No hay usuarios registrados' }}
+              </p>
+              @if (searchTerm || selectedRole || verificationFilter !== 'all') {
+                <button class="btn btn-sm btn-primary" (click)="clearFilters()">
+                  <i class="ti ti-filter-off me-1"></i>
+                  Limpiar filtros
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th width="50">
+                      <input class="form-check-input" type="checkbox">
+                    </th>
+                    <th (click)="onSortChange('name')" style="cursor: pointer; ">
+                      Nombre
+                      @if (sortBy === 'name') {
+                        <i class="ti ti-chevron-{{ sortOrder === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                      }
+                    </th>
+                    <th>Rol</th>
+                    <th (click)="onSortChange('email')" style="cursor: pointer;">
+                      Email
+                      @if (sortBy === 'email') {
+                        <i class="ti ti-chevron-{{ sortOrder === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                      }
+                    </th>
+                    <th>Teléfono</th>
+                    <th (click)="onSortChange('created_at')" style="cursor: pointer;">
+                      Registrado
+                      @if (sortBy === 'created_at') {
+                        <i class="ti ti-chevron-{{ sortOrder === 'asc' ? 'up' : 'down' }} ms-1"></i>
+                      }
+                    </th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (client of displayedUsers; track client.id) {
+                    <tr>
+                    <th scope="row">
+                        <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'user-' + client.id"
+                        [value]="client.id"
+                        aria-label="Seleccionar usuario"
+                        />
+                    </th>
+                    <td>
+                        <div class="d-flex align-items-center" style="min-width: 150px;">
+                        <span class="avatar avatar-xs me-2 online avatar-rounded">
+                            <img 
+                            [src]="getAvatarUrl(client)" 
+                            [alt]="client.name"
+                            onerror="this.src='./assets/images/faces/1.jpg'"
+                            />
+                        </span>
+                        <div>
+                            <div class="fw-semibold">{{ client.name }}</div>
+                            @if (client.email_verified_at) {
+                            <small class="text-success">
+                                <i class="ti ti-check me-1"></i>Verificado
+                            </small>
+                            } @else {
+                            <small class="text-danger">
+                                <i class="ti ti-x me-1"></i>No verificado
+                            </small>
+                            }
+                        </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span 
+                        [class]="'badge ' + getRoleBadgeClass(client.roles)"
+                        >
+                        {{ getRoleDisplayName(client.roles) }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                        <i class="ti ti-mail me-2 text-muted"></i>
+                        {{ client.email }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                        <i class="ti ti-phone me-2 text-muted"></i>
+                        {{ getPhoneNumber(client) }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                        <span class="fw-semibold">{{ formatDate(client.created_at) }}</span>
+                        <small class="text-muted">Agentes: {{ client.chatbots_count || 0 }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="hstack gap-2 fs-15">
+                        <button 
+                            class="btn btn-icon btn-sm btn-outline-primary"
+
+                            [title]="'Ver detalles de ' + client.name"
+                            (click)="viewDetails(client)"
+                        >
+                            <i class="ti ti-eye"></i>
+                        </button>
+                        <button 
+                            class="btn btn-icon btn-sm btn-outline-info"
+
+                            [title]="'Editar ' + client.name"
+                        >
+                            <i class="ti ti-edit"></i>
+                        </button>
+                        
+                        </div>
+                    </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Paginación -->
+            @if (pagination.totalPages > 1) {
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted">
+                  Mostrando {{ pagination.startIndex }}-{{ pagination.endIndex }} 
+                  de {{ pagination.totalItems }} usuarios
+                </div>
+                
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item" [class.disabled]="!pagination.hasPrevPage">
+                      <button 
+                        class="page-link" 
+                        (click)="onPageChange(pagination.currentPage - 1)"
+                        [disabled]="!pagination.hasPrevPage"
+                      >
+                        <i class="ti ti-chevron-left"></i>
+                      </button>
+                    </li>
+                    
+                    @for (page of [].constructor(pagination.totalPages); track $index; let i = $index) {
+                      <li class="page-item" [class.active]="pagination.currentPage === i + 1">
+                        <button 
+                          class="page-link" 
+                          (click)="onPageChange(i + 1)"
+                        >
+                          {{ i + 1 }}
+                        </button>
+                      </li>
+                    }
+                    
+                    <li class="page-item" [class.disabled]="!pagination.hasNextPage">
+                      <button 
+                        class="page-link" 
+                        (click)="onPageChange(pagination.currentPage + 1)"
+                        [disabled]="!pagination.hasNextPage"
+                      >
+                        <i class="ti ti-chevron-right"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-muted">Mostrar:</span>
+                  <select 
+                    class="form-select form-select-sm" 
+                    style="width: 80px;"
+                    [(ngModel)]="pagination.pageSize"
+                    (change)="onPageSizeChange(pagination.pageSize)"
+                  >
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                  <span class="text-muted">por página</span>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

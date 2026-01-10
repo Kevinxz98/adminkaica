@@ -1,193 +1,375 @@
-<app-breadcrumb title="Pages" [subtitle]="false" active_item="Profile Settings"></app-breadcrumb>
+<app-breadcrumb
+  title="Pages"
+  [subtitle]="false"
+  active_item="Profile Settings"
+></app-breadcrumb>
 
 <!-- Start::row-1 -->
 <div class="row">
+  @if(!loading){
   <div class="col-xl-12">
-    <div class="card custom-card">
-      <div class="card-header">
-        <div class="card-title">
-          Account
+    <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Cuenta</div>
+          <a (click)="back()" class="back btn btn-info cursor-pointer">
+            <i class="bi bi-arrow-left me-2"></i> Volver
+          </a>
         </div>
-      </div>
-      <div class="card-body p-4">
-        <div class="row gy-3">
-          <div class="col-xl-12">
-            <div class="d-flex align-items-start flex-wrap gap-3">
-              <div>
-                <span class="avatar avatar-xxl">
-                  <img src="./assets/images/faces/9.jpg" alt="">
-                </span>
-              </div>
-              <div>
-                <span class="fw-medium d-block mb-2">Profile Picture</span>
-                <div class="btn-list mb-1">
-                  <button class="btn btn-sm btn-primary btn-wave"><i class="ri-upload-2-line me-1"></i>Change
-                    Image</button>
-                  <button class="btn btn-sm btn-light btn-wave"><i class="ri-delete-bin-line me-1"></i>Remove</button>
+        <div class="card-body p-4">
+          <div class="row gy-3">
+            <div class="col-xl-12">
+              <div class="d-flex align-items-start flex-wrap gap-3">
+                @if(!imageLoading){
+                <div>
+                  <span class="avatar avatar-xxl">
+                    <img
+                      [src]="previewImage || profile_image ||  './assets/images/faces/9.jpg'"
+                      alt="Foto de perfil"
+                    />
+                  </span>
                 </div>
-                <span class="d-block fs-12 text-muted">Use JPEG, PNG, or GIF. Best size: 200x200 pixels. Keep it under
-                  5MB</span>
+                }@else {
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                }
+                <div>
+                  <span class="fw-medium d-block mb-2">Foto de perfil</span>
+                  <div class="btn-list mb-1">
+                    <label
+                      for="profile_image"
+                      class="btn btn-sm btn-primary btn-wave me-2"
+                      ><i class="ri-upload-2-line me-1"></i>Cambiar
+                      imagen</label
+                    >
+                    <input
+                      type="file"
+                      id="profile_image"
+                      class="d-none"
+                      (change)="onFileSelected($event)"
+                    />
+                    <button
+                      (click)="deleteProfileImage()"
+                      class="btn btn-sm btn-light btn-wave m-0"
+                      ><i class="ri-delete-bin-line me-1"></i>Eliminar</button
+                    >
+                  </div>
+                  <span class="d-block fs-12 text-muted">
+                    Utilice JPEG, PNG o GIF. Tamaño recomendado: 200x200
+                    píxeles. No supere los 2MB.</span
+                  >
+                </div>
               </div>
             </div>
-          </div>
-          <div class="col-xl-6">
-            <label for="profile-user-name" class="form-label">User Name :</label>
-            <input type="text" class="form-control" id="profile-user-name" value="" placeholder="Enter Name">
-          </div>
-          <div class="col-xl-6">
-            <label for="profile-email" class="form-label">Email :</label>
-            <input type="email" class="form-control" id="profile-email" value="" placeholder="Enter Email">
-          </div>
-          <div class="col-xl-6">
-            <label for="profile-phn-no" class="form-label">Phone No :</label>
-            <input type="text" class="form-control" id="profile-phn-no" value="" placeholder="Enter Number">
-          </div>
-          <div class="col-xl-3">
-            <label for="profile-age" class="form-label">Age :</label>
-            <input type="number" class="form-control" id="profile-age" value="" placeholder="Enter Age">
-          </div>
-          <div class="col-xl-3">
-            <label for="profile-designation" class="form-label">Designation :</label>
-            <input type="text" class="form-control" id="profile-designation" value="" placeholder="Enter Designation">
-          </div>
-          <div class="col-xl-12">
-            <label for="profile-address" class="form-label">Address :</label>
-            <textarea class="form-control" id="profile-address" rows="3"></textarea>
-          </div>
-          <div class="col-xl-6">
-            <label for="profile-language" class="form-label">Language :</label>
-            <spk-ng-select [options]="Language" [id]="'profile-language'" [selectClass]="''" [clearable]="true"
-              [searchable]="true" [hideSelected]="true" [placeholder]="'Us English'" [additionalProperties]="{}">
-            </spk-ng-select>
-          </div>
-          <div class="col-xl-6">
-            <label for="profile-timezone" class="form-label">Timezone :</label>
-            <spk-ng-select [options]="timeZoneOptions" [id]="'profile-timezone'" [selectClass]="''" [clearable]="true"
-              [searchable]="true" [hideSelected]="true" [placeholder]="'(GMT-11:00) Midway Island, Samoa'"
-              [additionalProperties]="{}">
-            </spk-ng-select>
+            <div class="col-xl-6">
+              <label for="profile-user-name" class="form-label"
+                >Nombre de usuario :</label
+              >
+              <input
+                type="text"
+                formControlName="name"
+                class="form-control"
+                id="profile-user-name"
+                value=""
+                placeholder="Enter Name"
+              />
+            </div>
+            <div class="col-xl-6">
+              <label class="form-label"
+                >Correo electrónico :</label
+              >
+              <p class="form-control disabled" id="profile-email">
+                {{this.userData.email}}
+              </p>
+            </div>
+            <div class="col-xl-6">
+              <label for="profile-phn-no" class="form-label"
+                >Número de teléfono :</label
+              >
+              <input
+                type="text"
+                formControlName="phone_number"
+                class="form-control"
+                id="profile-phn-no"
+                value=""
+                placeholder="Enter Number"
+              />
+            </div>
+            <div class="col-xl-6">
+              <label for="profile-age" class="form-label">Edad :</label>
+              <input
+                type="number"
+                formControlName="age"
+                class="form-control"
+                id="profile-age"
+                value=""
+                placeholder="Enter Age"
+              />
+            </div>
+            <div class="col-xl-12">
+              <label for="profile-address" class="form-label"
+                >Biografia :</label
+              >
+              <textarea
+                class="form-control"
+                formControlName="bio"
+                id="profile-address"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="col-xl-6">
+              <label for="profile-language" class="form-label">Idioma :</label>
+              <select
+                class="form-select"
+                id="profile-language"
+                formControlName="language"
+              >
+                <option value="" disabled>Seleccione un idioma</option>
+                <option *ngFor="let lang of languages" [value]="lang.value">
+                  {{ lang.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-xl-6">
+              <label for="profile-timezone" class="form-label"
+                >Zona horaria :</label
+              >
+              <select
+                class="form-select"
+                id="profile-timezone"
+                formControlName="timezone"
+              >
+                <option value="" disabled>Seleccione una zona horaria</option>
+                <option *ngFor="let tz of timezones" [value]="tz.value">
+                  {{ tz.label }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary float-end">
+            Guardar Perfil
+          </button>
+        </div>
       </div>
-    </div>
+    </form>
+  </div>
+  }@else {
+  <app-spk-edit-profile-skeleton></app-spk-edit-profile-skeleton>
+  }
+
+  <div class="col-xl-12">
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Cambiar la contraseña</div>
+        </div>
+        <div class="card-body">
+          <div class="row gy-3">
+            <div class="col-xl-4">
+              <label for="Password" class="form-label">Contraseña actual</label>
+              <input
+                type="text"
+                class="form-control"
+                id="CPassword"
+                value=""
+                placeholder="Enter Password"
+                formControlName="current_password"
+              />
+            </div>
+            <div class="col-xl-4">
+              <label for="Password" class="form-label">Nueva contraseña</label>
+              <input
+                type="text"
+                class="form-control"
+                id="Password"
+                value=""
+                placeholder="Enter Password"
+                formControlName="new_password"
+              />
+            </div>
+            <div class="col-xl-4">
+              <label for="confirm-password" class="form-label"
+                >Confirmar Contraseña</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="confirm-password"
+                value=""
+                placeholder="Confirm Password"
+                formControlName="new_password_confirmation"
+                [class.is-invalid]="
+    passwordForm.get('new_password_confirmation')?.hasError('mismatch') &&
+    passwordForm.get('new_password_confirmation')?.touched
+  "
+              />
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary float-end">Guardar cambios</button>
+        </div>
+      </div>
+    </form>
   </div>
   <div class="col-xl-12">
     <div class="card custom-card">
       <div class="card-header">
-        <div class="card-title">
-          Change Password
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="row gy-3">
-          <div class="col-xl-6">
-            <label for="Password" class="form-label">New Password</label>
-            <input type="text" class="form-control" id="Password" value="" placeholder="Enter Password">
-          </div>
-          <div class="col-xl-6">
-            <label for="confirm-password" class="form-label">Confirm Password</label>
-            <input type="text" class="form-control" id="confirm-password" value="" placeholder="Confirm Password">
-          </div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <button class="btn btn-primary float-end">Save Changes</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-12">
-    <div class="card custom-card">
-      <div class="card-header">
-        <div class="card-title">
-          Security Settings
-        </div>
+        <div class="card-title">Configuración de seguridad</div>
       </div>
       <div class="card-body">
         <div class="d-sm-flex d-block align-items-top justify-content-between">
           <div class="w-50">
-            <p class="fs-14 mb-1 fw-medium">Login Verification</p>
-            <p class="fs-12 mb-0 text-muted">This helps protect accounts from unauthorized access, even if a password is
-              compromised.</p>
+            <p class="fs-14 mb-1 fw-medium">Verificación de inicio de sesión</p>
+            <p class="fs-12 mb-0 text-muted">
+              Esto ayuda a proteger las cuentas del acceso no autorizado,
+              incluso si una contraseña está comprometida.
+            </p>
           </div>
-          <a href="javascript:void(0);" class="link-primary text-decoration-underline">Set Up Verification</a>
+          <a
+            href="javascript:void(0);"
+            class="link-primary text-decoration-underline"
+            >Configurar la verificación(BETA)</a
+          >
         </div>
-        <div class="d-sm-flex d-block align-items-top justify-content-between mt-3">
+        <div
+          class="d-sm-flex d-block align-items-top justify-content-between mt-3"
+        >
           <div class="w-50">
-            <p class="fs-14 mb-1 fw-medium">Password Verification</p>
-            <p class="fs-12 mb-0 text-muted">This additional step helps ensure that the person attempting to modify
-              account details is the legitimate account owner.</p>
+            <p class="fs-14 mb-1 fw-medium">Verificación de contraseña</p>
+            <p class="fs-12 mb-0 text-muted">
+              Este paso adicional ayuda a garantizar que la persona que intenta
+              modificar los detalles de la cuenta sea el propietario legítimo de
+              la misma.
+            </p>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="personal-details">
+            <!--<input class="form-check-input" type="checkbox" value="" id="personal-details">
             <label class="form-check-label" for="personal-details">
-              Require Personal Details
-            </label>
+              Requerir datos personales
+            </label>-->
           </div>
         </div>
       </div>
       <div class="card-footer">
         <div class="btn-list float-end">
-          <button class="btn btn-danger btn-wave">Deactivate Account</button>
-          <button class="btn btn-light btn-wave">Restore Defaults</button>
+          <button class="btn btn-danger btn-wave">Desactivar cuenta</button>
         </div>
       </div>
     </div>
   </div>
+  @if(!loading){
+
+  
   <div class="col-xl-12">
-    <div class="card custom-card">
-      <div class="card-header">
-        <div class="card-title">
-          Notifications
+    <form [formGroup]="notificationForm" (ngSubmit)="saveNotifications()">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Notificaciones</div>
+        </div>
+        <div class="card-body">
+          <div class="row gx-5 gy-3">
+            <div class="col-xl-12">
+              <p class="fs-14 mb-1 fw-medium">Configurar notificaciones</p>
+              <p class="fs-12 mb-0 text-muted">
+                Al configurar las notificaciones, los usuarios pueden
+                personalizar su experiencia para recibir alertas sobre los tipos
+                de eventos que les interesan.
+              </p>
+            </div>
+            <div class="col-xl-12">
+              <div
+                class="d-flex align-items-top justify-content-between mt-sm-0 mt-3"
+              >
+                <div class="mail-notification-settings">
+                  <p class="fs-14 mb-1 fw-medium">
+                    Notificaciones en la aplicación
+                  </p>
+                  <p class="fs-12 mb-0 text-muted">
+                    Alertas que aparecen dentro de la interfaz de la aplicación.
+                  </p>
+                </div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="in-app-notifications"
+                    formControlName="in_app_notifications"
+                  />
+                </div>
+              </div>
+              <div class="d-flex align-items-top justify-content-between mt-3">
+                <div class="mail-notification-settings">
+                  <p class="fs-14 mb-1 fw-medium">
+                    Notificaciones por correo electrónico
+                  </p>
+                  <p class="fs-12 mb-0 text-muted">
+                    Mensajes enviados a la dirección de correo electrónico del
+                    usuario.
+                  </p>
+                </div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="email_notifications"
+                    formControlName="email_notifications"
+                  />
+                </div>
+              </div>
+              <div class="d-flex align-items-top justify-content-between mt-3">
+                <div class="mail-notification-settings">
+                  <p class="fs-14 mb-1 fw-medium">Notificaciones push</p>
+                  <p class="fs-12 mb-0 text-muted">
+                    Alertas enviadas al dispositivo móvil o al escritorio del
+                    usuario.
+                  </p>
+                </div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="push_notifications"
+                    formControlName="push_notifications"
+                  />
+                </div>
+              </div>
+              <div class="d-flex align-items-top justify-content-between mt-3">
+                <div class="mail-notification-settings">
+                  <p class="fs-14 mb-1 fw-medium">Notificaciones por SMS</p>
+                  <p class="fs-12 mb-0 text-muted">
+                    Mensajes de texto enviados al teléfono móvil del usuario.
+                  </p>
+                </div>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    role="switch"
+                    id="sms_notifications"
+                    formControlName="sms_notifications"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary float-end">
+            Guardar Notificaciones
+          </button>
         </div>
       </div>
-      <div class="card-body">
-        <div class="row gx-5 gy-3">
-          <div class="col-xl-12">
-            <p class="fs-14 mb-1 fw-medium">Configure Notifications</p>
-            <p class="fs-12 mb-0 text-muted">By configuring notifications, users can tailor their experience to receive
-              alerts for the types of events that matter to them.</p>
-          </div>
-          <div class="col-xl-12">
-            <div class="d-flex align-items-top justify-content-between mt-sm-0 mt-3">
-              <div class="mail-notification-settings">
-                <p class="fs-14 mb-1 fw-medium">In-App Notifications</p>
-                <p class="fs-12 mb-0 text-muted">Alerts that appear within the application interface.</p>
-              </div>
-              <div appToggleBtn class="toggle toggle-success on mb-0 float-sm-end" id="in-app-notifications">
-                <span></span>
-              </div>
-            </div>
-            <div class="d-flex align-items-top justify-content-between mt-3">
-              <div class="mail-notification-settings">
-                <p class="fs-14 mb-1 fw-medium">Email Notifications</p>
-                <p class="fs-12 mb-0 text-muted">Messages sent to the user's email address.</p>
-              </div>
-              <div appToggleBtn class="toggle toggle-success on mb-0 float-sm-end" id="email-notifications">
-                <span></span>
-              </div>
-            </div>
-            <div class="d-flex align-items-top justify-content-between mt-3">
-              <div class="mail-notification-settings">
-                <p class="fs-14 mb-1 fw-medium">Push Notifications</p>
-                <p class="fs-12 mb-0 text-muted">Alerts sent to the user's mobile device or desktop.</p>
-              </div>
-              <div appToggleBtn class="toggle toggle-success mb-0 float-sm-end" id="push-notifications">
-                <span></span>
-              </div>
-            </div>
-            <div class="d-flex align-items-top justify-content-between mt-3">
-              <div class="mail-notification-settings">
-                <p class="fs-14 mb-1 fw-medium">SMS Notifications</p>
-                <p class="fs-12 mb-0 text-muted">Text messages sent to the user's mobile phone.</p>
-              </div>
-              <div appToggleBtn class="toggle toggle-success on mb-0 float-sm-end" id="sms-notifications">
-                <span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </form>
   </div>
+  }@else {
+    <app-spk-notifications-skeleton> </app-spk-notifications-skeleton>
+  }
 </div>
 <!--End::row-1 -->

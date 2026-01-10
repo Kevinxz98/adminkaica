@@ -538,6 +538,10 @@ export class Wizard implements OnInit {
       next: (response) => {
         this.handleSuccess(response);
         this.chatbotId = response.data?.id || null;
+          setTimeout(
+            location.href = "/agents/my-agents", 
+            1500
+          );
       },
       error: (error) => {
         this.handleError(error);
@@ -554,6 +558,10 @@ export class Wizard implements OnInit {
       next: (response) => {
         this.handleSuccess(response);
         this.chatbotId = response.data?.id || null;
+          setTimeout(
+            location.href = "/agents/my-agents", 
+            1500
+          );
       }
       ,error: (error) => {
         this.handleError(error);

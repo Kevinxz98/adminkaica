@@ -47,6 +47,23 @@ export class Sidebar implements OnInit, OnDestroy {
     return htmlElement !== null;
   }
 
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/auth/login']);
+        console.log('Sesion cerrada');
+      },
+      error: (err) => {
+        console.error('Error al cerrar sesión:', err);
+        // Limpiar localStorage incluso si hay error
+        localStorage.removeItem('token');
+        this.router.navigate(['/auth/login']);
+      }
+    });
+  }
+
+
+
   // Method to determine if tooltip should be shown
   shouldShowTooltip(menuItem: any): boolean {
     return this.isDoubleMenu() && menuItem.title !== '';
@@ -133,6 +150,7 @@ export class Sidebar implements OnInit, OnDestroy {
 
     this.menuitemsSubscribe$ = this.navServices.items.subscribe((items) => {
       this.menuItems = items;
+      console.log('Menu Items:', this.menuItems);
     });
 
     this.setNavActive(null, this.router.url);

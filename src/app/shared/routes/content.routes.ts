@@ -23,6 +23,13 @@ export const Full_Content_Routes: Routes = [
         (r) => r.servicesRoutingModule
       ),
   },
+   {
+    path: '',
+    loadChildren: () =>
+      import('../../components/clients/clients.routes').then(
+        (r) => r.clientsRoutingModule
+      ),
+  },
   {
     path: '',
     loadChildren: () =>

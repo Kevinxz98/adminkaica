@@ -111,7 +111,7 @@ export interface Chatbot {
   providedIn: 'root',
 })
 export class ClientsService {
-  private apiUrl = 'http://localhost:8000/api/admin';
+  private apiUrl = 'https://backend.kaica.co/public/api/admin';
   private tokenKey = 'auth_token';
 
   // Almacenar todos los usuarios en memoria

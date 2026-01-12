@@ -116,6 +116,14 @@
                   </li>
                   <li>
                     <a
+                    [routerLink]="['/agents/my-agents', row.public_key, 'statistics']"
+                      class="dropdown-item"
+                    >
+                      <i class="bi bi-eye me-2"></i> Detalles
+                    </a>
+                  </li>
+                  <li>
+                    <a
                       class="dropdown-item"
                       [routerLink]="['/agents/my-agents', row.public_key, 'edit']"
                     >

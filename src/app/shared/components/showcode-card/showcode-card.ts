@@ -1,5 +1,5 @@
 
-import { Component, ContentChild, ElementRef, Input, Renderer2, ViewChild, input } from '@angular/core';
+import { Component, ContentChild, ElementRef, Input, Renderer2, ViewChild, input, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
@@ -10,10 +10,11 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
   imports: [NgbModule]
 })
-export class ShowcodeCard {
+export class ShowcodeCard implements OnInit {
 
    title = input<string>();
    prism = input<string>();
+   showCodeByDefault = input<boolean>(false); 
   @Input('tsCode') tsCode!:string;
   @Input('reuseCode') reuseCode!:string;
    classbody = input<string>();
@@ -24,4 +25,8 @@ export class ShowcodeCard {
     this.toggleStatus = !this.toggleStatus;
   }
   hasTsCode = false;
+
+   ngOnInit() {
+    this.toggleStatus = this.showCodeByDefault();
+  }
 }

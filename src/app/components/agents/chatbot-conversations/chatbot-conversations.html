@@ -1,209 +1,322 @@
-<app-breadcrumb title="Applications" [subtitle]="false" active_item="Chat"></app-breadcrumb>
+<app-breadcrumb
+  title="Applications"
+  [subtitle]="false"
+  active_item="Chat"
+></app-breadcrumb>
 
 <div class="main-chart-wrapper gap-lg-2 gap-0 mb-3 d-lg-flex">
   <div class="chat-info border">
-    <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+    <div
+      class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom"
+    >
       <div>
         <h5 class="fw-semibold mb-0">Chats del Bot</h5>
         <p class="text-muted mb-0 fs-12">ID: {{chatbotId}}</p>
       </div>
     </div>
-    
-    <ul ngbNav #nav="ngbNav" [activeId]="1" class="nav nav-style-1 nav-pills nav-justified p-2 border-bottom d-flex"
-      id="myTab1" role="tablist">
+
+    <ul
+      ngbNav
+      #nav="ngbNav"
+      [activeId]="1"
+      class="nav nav-style-1 nav-pills nav-justified p-2 border-bottom d-flex"
+      id="myTab1"
+      role="tablist"
+    >
       <li [ngbNavItem]="1" class="nav-item me-0" role="presentation">
-        <button ngbNavLink class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users-tab-pane"
-          type="button" role="tab" aria-controls="users-tab-pane" aria-selected="true">
+        <button
+          ngbNavLink
+          class="nav-link"
+          id="users-tab"
+          data-bs-toggle="tab"
+          data-bs-target="#users-tab-pane"
+          type="button"
+          role="tab"
+          aria-controls="users-tab-pane"
+          aria-selected="true"
+        >
           Historial
           <span class="badge bg-secondary ms-1 rounded-pill">
             {{allchats.length}}
           </span>
         </button>
-        <ng-template ngbNavContent class="border-0 chat-users-tab" id="users-tab-pane">
+        <ng-template
+          ngbNavContent
+          class="border-0 chat-users-tab"
+          id="users-tab-pane"
+        >
           <overlay-scrollbars>
             @if (isLoading) {
-              <div class="text-center p-4">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Cargando chats...</span>
-                </div>
+            <div class="text-center p-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando chats...</span>
               </div>
+            </div>
             } @else if (allchats.length === 0) {
-              <div class="text-center p-4">
-                <p class="text-muted mb-0">No hay conversaciones</p>
-              </div>
+            <div class="text-center p-4">
+              <p class="text-muted mb-0">No hay conversaciones</p>
+            </div>
             } @else {
-              <ul class="list-unstyled mb-0 mt-2 chat-users-tab" id="chat-msg-scroll">
-                <li class="pb-0">
-                  <p class="text-muted fs-11 fw-medium mb-2 op-7">Todas las Sesiones</p>
-                </li>
-                @for (chat of allchats; track chat.session_id) {
-                <li class="checkforactive"
-                  [ngClass]="{'chat-msg-unread': chat.chatMsgUnread, 'chat-msg-unread active': activeSession?.session_id === chat.session_id}">
-                  <a href="javascript:void(0);" (click)="handleClick(chat)">
-                    <div class="d-flex align-items-top">
-                      <div class="me-1 lh-1">
-                        <span class="avatar avatar-md {{chat.status}} avatar-rounded me-2">
-                          <img [src]="chat.image" alt="img">
+            <ul
+              class="list-unstyled mb-0 mt-2 chat-users-tab"
+              id="chat-msg-scroll"
+            >
+              <li class="pb-0">
+                <p class="text-muted fs-11 fw-medium mb-2 op-7">
+                  Todas las Sesiones
+                </p>
+              </li>
+              @for (chat of allchats; track chat.session_id) {
+              <li
+                class="checkforactive"
+                [ngClass]="{'chat-msg-unread': chat.chatMsgUnread, 'chat-msg-unread active': activeSession?.session_id === chat.session_id}"
+              >
+                <a href="javascript:void(0);" (click)="handleClick(chat)">
+                  <div class="d-flex align-items-top">
+                    <div class="me-1 lh-1">
+                      <span
+                        class="avatar avatar-md avatar-rounded me-2"
+                        [style.--avatar-bg]="chatbotInfo.color || '#6f42c1'"
+                      >
+                        @if (!shouldShowFallback(chat.session_id, chat.image)) {
+                        <img
+                          [src]="chat.image"
+                          alt="Chatbot"
+                          (error)="onAvatarError(chat.session_id)"
+                        />
+                        } @else {
+                        <span class="avatar-fallback avatar-md">
+                          {{ getInitial(chat.title || chat.name) }}
                         </span>
-                      </div>
-                      <div class="flex-fill">
-                        <p class="mb-0 fw-medium">
-                          {{ chat.title || chat.name }}
-                          <span class="float-end text-muted fw-normal fs-11">{{chat.time}}</span>
-                        </p>
-                        <p class="fs-13 mb-0">
-                          <span class="chat-msg !text-truncate">{{ chat.last_message }}</span>
-                          <span class="chat-read-icon float-end align-middle">
-                            <i class="ri-check-double-fill"></i>
-                          </span>
-                        </p>
-                        <p class="text-muted fs-11 mb-0">
-                          {{chat.message_count}} mensajes
-                        </p>
-                      </div>
+                        }
+                      </span>
                     </div>
-                  </a>
-                </li>
-                }
-              </ul>
+                    <div class="flex-fill">
+                      <p class="mb-0 fw-medium">
+                        {{ chat.title || chat.name }}
+                        <span class="float-end text-muted fw-normal fs-11"
+                          >{{chat.time}}</span
+                        >
+                      </p>
+                      <p class="fs-13 mb-0">
+                        <span class="chat-msg !text-truncate"
+                          >{{ chat.last_message }}</span
+                        >
+                        <span class="chat-read-icon float-end align-middle">
+                          <i class="ri-check-double-fill"></i>
+                        </span>
+                      </p>
+                      <p class="text-muted fs-11 mb-0">
+                        {{chat.message_count}} mensajes
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </li>
+              }
+            </ul>
             }
           </overlay-scrollbars>
         </ng-template>
       </li>
     </ul>
-    
+
     <div class="chat-search p-3 border-bottom border-block-end-dashed">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Buscar conversación..." aria-describedby="button-addon2">
-        <button aria-label="button" class="btn btn-primary" type="button" id="button-addon2">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar conversación..."
+          aria-describedby="button-addon2"
+        />
+        <button
+          aria-label="button"
+          class="btn btn-primary"
+          type="button"
+          id="button-addon2"
+        >
           <i class="ri-search-line"></i>
         </button>
       </div>
     </div>
-    
-    <div class="tab-content faq-tabs" id="myTabContent" [ngbNavOutlet]="nav">
-    </div>
+
+    <div
+      class="tab-content faq-tabs"
+      id="myTabContent"
+      [ngbNavOutlet]="nav"
+    ></div>
   </div>
-  
+
   <div class="main-chat-area border">
     @if (!activeSession) {
-      <div class="d-flex align-items-center justify-content-center h-100">
-        <div class="text-center">
-          <div class="avatar avatar-xl avatar-rounded mb-3">
-            <img src="./assets/images/media/icons/chatbot-icon.png" alt="Chatbot">
-          </div>
-          <h5 class="fw-semibold mb-2">Selecciona una conversación</h5>
-          <p class="text-muted mb-0">Elige una sesión del historial para ver los mensajes</p>
+    <div class="d-flex align-items-center justify-content-center h-100">
+      <div class="text-center">
+        <div class="avatar avatar-xl avatar-rounded mb-3">
+          <img
+            src="./assets/images/media/icons/chatbot-icon.png"
+            alt="Chatbot"
+          />
         </div>
+        <h5 class="fw-semibold mb-2">Selecciona una conversación</h5>
+        <p class="text-muted mb-0">
+          Elige una sesión del historial para ver los mensajes
+        </p>
       </div>
+    </div>
     } @else {
-      <div class="d-flex align-items-center border-bottom main-chat-head flex-wrap">
-        <div class="me-2 lh-1">
-          <span class="avatar avatar-md online avatar-rounded chatstatusperson">
-            <img class="chatimageperson" [src]="chatbotAvatar" alt="Chatbot">
+    <div
+      class="d-flex align-items-center border-bottom main-chat-head flex-wrap"
+    >
+      <div class="me-2 lh-1">
+        <span
+          class="avatar avatar-md avatar-rounded chatstatusperson"
+          [style.--avatar-bg]="chatbotInfo?.color || '#198754'"
+        >
+          @if (!shouldShowFallback('chatbot-msg', chatbotAvatar || '')) {
+          <img
+            class="chatimageperson"
+            [src]="chatbotAvatar"
+            alt="Chatbot"
+            (error)="onAvatarError('chatbot-msg')"
+          />
+          } @else {
+          <span class="avatar-fallback avatar-md">
+            {{ getInitial(activeSession.title || 'A') }}
           </span>
-        </div>
-        <div class="flex-fill">
-          <p class="mb-0 fw-medium fs-14 lh-1">
-            <a href="javascript:void(0);" class="chatnameperson">
-              {{activeSession.title || 'Conversación'}}
-            </a>
-          </p>
-          <p class="text-muted mb-0 chatpersonstatus">
-            Sesión: {{activeSession.session_id | slice:0:8}}...
-          </p>
-        </div>
-        <div class="d-flex align-items-center flex-wrap rightIcons">
-          <button aria-label="button" type="button" class="btn btn-icon btn-light ms-2 btn-sm" (click)="detailsclick1(sessionDetails)">
-            <i class="ti ti-info-circle"></i>
-          </button>
-          <button aria-label="button" type="button" class="btn btn-icon btn-light ms-2 responsive-userinfo-open btn-sm">
-            <i class="ti ti-user-circle" id="responsive-chat-close"></i>
-          </button>
-          <button (click)="removedetails()" aria-label="button" type="button" class="btn btn-icon btn-light ms-2 responsive-chat-close btn-sm">
-            <i class="ri-close-line"></i>
-          </button>
+          }
+        </span>
+      </div>
+      <div class="flex-fill">
+        <p class="mb-0 fw-medium fs-14 lh-1">
+          <a href="javascript:void(0);" class="chatnameperson">
+            {{activeSession.title || 'Conversación'}}
+          </a>
+        </p>
+        <p class="text-muted mb-0 chatpersonstatus">
+          Sesión: {{activeSession.session_id | slice:0:8}}...
+        </p>
+      </div>
+      <div class="d-flex align-items-center flex-wrap rightIcons">
+        <button
+          aria-label="button"
+          type="button"
+          class="btn btn-icon btn-light ms-2 btn-sm"
+          (click)="detailsclick1(sessionDetails)"
+        >
+          <i class="ti ti-info-circle"></i>
+        </button>
+        <button
+          aria-label="button"
+          type="button"
+          class="btn btn-icon btn-light ms-2 responsive-userinfo-open btn-sm"
+        >
+          <i class="ti ti-user-circle" id="responsive-chat-close"></i>
+        </button>
+        <button
+          (click)="removedetails()"
+          aria-label="button"
+          type="button"
+          class="btn btn-icon btn-light ms-2 responsive-chat-close btn-sm"
+        >
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+    </div>
+
+    <overlay-scrollbars [defer] class="chat-content" id="main-chat-content">
+      <div class="chat-content-background">
+        <img src="./assets/images/media/backgrounds/12.png" alt="" />
+      </div>
+
+      @if (isLoadingMessages) {
+      <div class="text-center p-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando mensajes...</span>
         </div>
       </div>
-      
-      <overlay-scrollbars [defer] class="chat-content" id="main-chat-content">
-        <div class="chat-content-background">
-          <img src="./assets/images/media/backgrounds/12.png" alt="">
-        </div>
-        
-        @if (isLoadingMessages) {
-          <div class="text-center p-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Cargando mensajes...</span>
+      } @else if (activeMessages.length === 0) {
+      <div class="text-center p-4">
+        <p class="text-muted mb-0">No hay mensajes en esta conversación</p>
+      </div>
+      } @else {
+      <ul class="list-unstyled">
+        @for (msg of activeMessages; track msg.id || (msg.content + msg.time +
+        $index); let first = $first) { @if (first || msg.date !==
+        activeMessages[$index - 1]?.date) {
+        <li class="chat-day-label">
+          <span
+            >{{(msg.date | date:'yyyy-MM-dd') === (today | date:'yyyy-MM-dd') ?
+            'Hoy' : (msg.date | date:'dd/MM/yyyy')}}</span
+          >
+        </li>
+        } @if (msg.sender === 'bot') {
+        <li class="chat-item-start">
+          <div class="chat-list-inner">
+            <div class="chat-user-profile">
+              <span
+                class="avatar avatar-md avatar-rounded chatstatusperson"
+                [style.--avatar-bg]="chatbotInfo.color || '#0d6efd'"
+              >
+                @if (!shouldShowFallback('chatbot-header', chatbotAvatar || ''))
+                {
+                <img
+                  class="chatimageperson"
+                  [src]="chatbotAvatar"
+                  alt="Chatbot"
+                  (error)="onAvatarError('chatbot-header')"
+                />
+                } @else {
+                <span class="avatar-fallback avatar-md">
+                  {{ getInitial(activeSession.title || 'Bot') }}
+                </span>
+                }
+              </span>
+            </div>
+            <div class="ms-3">
+              <span class="chatting-user-info">
+                <span class="chatnameperson">Asistente IA</span>
+                <span class="msg-sent-time">{{msg.time}}</span>
+              </span>
+              <div class="main-chat-msg">
+                <div>
+                  <p class="mb-0">{{msg.content}}</p>
+                </div>
+              </div>
             </div>
           </div>
-        } @else if (activeMessages.length === 0) {
-          <div class="text-center p-4">
-            <p class="text-muted mb-0">No hay mensajes en esta conversación</p>
-          </div>
+        </li>
         } @else {
-          <ul class="list-unstyled">
-            @for (msg of activeMessages; track msg.id || (msg.content + msg.time + $index); let first = $first) {
-              @if (first || msg.date !== activeMessages[$index - 1]?.date) {
-                <li class="chat-day-label">
-                  <span>{{(msg.date | date:'yyyy-MM-dd') === (today | date:'yyyy-MM-dd') ? 'Hoy' : (msg.date | date:'dd/MM/yyyy')}}</span>
-                </li>
-              }
-              
-              @if (msg.sender === 'bot') {
-                <li class="chat-item-start">
-                  <div class="chat-list-inner">
-                    <div class="chat-user-profile">
-                      <span class="avatar avatar-md online avatar-rounded chatstatusperson">
-                        <img class="chatimageperson" [src]="chatbotAvatar" alt="Chatbot">
-                      </span>
-                    </div>
-                    <div class="ms-3">
-                      <span class="chatting-user-info">
-                        <span class="chatnameperson">Asistente IA</span>
-                        <span class="msg-sent-time">{{msg.time}}</span>
-                      </span>
-                      <div class="main-chat-msg">
-                        <div>
-                          <p class="mb-0">{{msg.content}}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              } @else {
-                <li class="chat-item-end">
-                  <div class="chat-list-inner">
-                    <div class="me-3">
-                      <span class="chatting-user-info">
-                        <span class="msg-sent-time">
-                          {{msg.time}}
-                          <span class="chat-read-mark align-middle d-inline-flex">
-                            <i class="ri-check-double-line"></i>
-                          </span>
-                        </span>
-                        Tú
-                      </span>
-                      <div class="main-chat-msg">
-                        <div>
-                          <p class="mb-0">{{msg.content}}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="chat-user-profile">
-                      <span class="avatar avatar-md online avatar-rounded">
-                        <img src="./assets/images/faces/15.jpg" alt="Usuario">
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              }
-            }
-          </ul>
-        }
-      </overlay-scrollbars>
-      
-      <!--<div class="chat-footer">
+        <li class="chat-item-end">
+          <div class="chat-list-inner">
+            <div class="me-3">
+              <span class="chatting-user-info">
+                <span class="msg-sent-time">
+                  {{msg.time}}
+                  <span class="chat-read-mark align-middle d-inline-flex">
+                    <i class="ri-check-double-line"></i>
+                  </span>
+                </span>
+                Tú
+              </span>
+              <div class="main-chat-msg">
+                <div>
+                  <p class="mb-0">{{msg.content}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="chat-user-profile">
+              <span class="avatar avatar-md online avatar-rounded">
+                <img src="./assets/images/faces/15.jpg" alt="Usuario" />
+              </span>
+            </div>
+          </div>
+        </li>
+        } }
+      </ul>
+      }
+    </overlay-scrollbars>
+
+    <!--<div class="chat-footer">
         <a aria-label="anchor" class="btn btn-icon me-2 btn-light" href="javascript:void(0)">
           <i class="ri-attachment-line"></i>
         </a>
@@ -233,50 +346,60 @@
 <ng-template #sessionDetails let-offcanvas>
   <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title">Detalles de la Sesión</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss()"></button>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="offcanvas.dismiss()"
+    ></button>
   </div>
   <div class="offcanvas-body">
     @if (activeSession) {
-      <div class="mb-4">
-        <h6 class="fw-semibold mb-3">Información</h6>
-        <ul class="list-unstyled mb-0">
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">ID de Sesión:</span>
-            <code class="fs-12">{{activeSession.session_id}}</code>
-          </li>
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">Título:</span>
-            <span class="fs-13">{{activeSession.title}}</span>
-          </li>
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">Total Mensajes:</span>
-            <span class="fs-13">{{activeSession.message_count}}</span>
-          </li>
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">Inicio:</span>
-            <span class="fs-13">{{activeSession.created_at | date:'dd/MM/yyyy HH:mm'}}</span>
-          </li>
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">Último mensaje:</span>
-            <span class="fs-13">{{activeSession.last_message_time | date:'dd/MM/yyyy HH:mm'}}</span>
-          </li>
-          <li class="mb-2">
-            <span class="text-muted fs-11 d-block">Origen:</span>
-            <span class="fs-13">{{activeSession.source || 'N/A'}}</span>
-          </li>
-          <li>
-            <span class="text-muted fs-11 d-block">IP:</span>
-            <span class="fs-13">{{activeSession.ip || 'N/A'}}</span>
-          </li>
-        </ul>
-      </div>
-      
-      <div class="mt-4 pt-3 border-top">
-        <h6 class="fw-semibold mb-3">Resumen</h6>
-        <p class="text-muted fs-12 mb-0">
-          Esta sesión contiene {{activeMessages.length}} mensajes intercambiados entre el usuario y el asistente IA.
-        </p>
-      </div>
+    <div class="mb-4">
+      <h6 class="fw-semibold mb-3">Información</h6>
+      <ul class="list-unstyled mb-0">
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">ID de Sesión:</span>
+          <code class="fs-12">{{activeSession.session_id}}</code>
+        </li>
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">Título:</span>
+          <span class="fs-13">{{activeSession.title}}</span>
+        </li>
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">Total Mensajes:</span>
+          <span class="fs-13">{{activeSession.message_count}}</span>
+        </li>
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">Inicio:</span>
+          <span class="fs-13"
+            >{{activeSession.created_at | date:'dd/MM/yyyy HH:mm'}}</span
+          >
+        </li>
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">Último mensaje:</span>
+          <span class="fs-13"
+            >{{activeSession.last_message_time | date:'dd/MM/yyyy HH:mm'}}</span
+          >
+        </li>
+        <li class="mb-2">
+          <span class="text-muted fs-11 d-block">Origen:</span>
+          <span class="fs-13">{{activeSession.source || 'N/A'}}</span>
+        </li>
+        <li>
+          <span class="text-muted fs-11 d-block">IP:</span>
+          <span class="fs-13">{{activeSession.ip || 'N/A'}}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mt-4 pt-3 border-top">
+      <h6 class="fw-semibold mb-3">Resumen</h6>
+      <p class="text-muted fs-12 mb-0">
+        Esta sesión contiene {{activeMessages.length}} mensajes intercambiados
+        entre el usuario y el asistente IA.
+      </p>
+    </div>
     }
   </div>
 </ng-template>

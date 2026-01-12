@@ -60,6 +60,7 @@ export class ChatbotConversations {
   allchats: ChatSession[] = [];
   activeSession: ChatSession | null = null;
   activeMessages: ChatMessage[] = [];
+  chatbotInfo: any = null;
 
   chatbotAvatar: string | null = null;
 
@@ -125,6 +126,7 @@ export class ChatbotConversations {
           if (response.success) {
             this.chatbotAvatar = response.chatbot?.avatar || null;
             this.allchats = response.conversations || [];
+            this.chatbotInfo = response.chatbot;
 
             if (this.allchats.length > 0) {
               // Programar el handleClick para más tarde
@@ -145,6 +147,20 @@ export class ChatbotConversations {
         });
       },
     });
+  }
+
+  avatarErrorMap = new Set<string>();
+
+  onAvatarError(key: string): void {
+    this.avatarErrorMap.add(key);
+  }
+
+  shouldShowFallback(key: string, image?: string): boolean {
+    return !image || this.avatarErrorMap.has(key);
+  }
+
+  getInitial(text?: string): string {
+    return text?.trim()?.charAt(0)?.toUpperCase() || '?';
   }
 
   // Función helper para actualizaciones seguras

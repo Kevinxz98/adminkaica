@@ -15,7 +15,7 @@ export interface BugReport {
   providedIn: 'root',
 })
 export class BugService {
-  private apiUrl = 'http://localhost:8000/api/report-bug';
+  private apiUrl = 'https://backend.kaica.co/public/api/report-bug';
 
   constructor(private http: HttpClient) {}
 

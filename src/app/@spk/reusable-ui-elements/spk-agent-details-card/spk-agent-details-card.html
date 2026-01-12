@@ -3,8 +3,17 @@
   <div class="card-header">
     <div class="d-flex align-items-center w-100">
       <div class="me-2">
-        <span class="avatar avatar-rounded">
-          <img [src]="avatar()" alt="avatar" />
+        <span
+          class="avatar avatar-rounded avatar-fallback"
+          [style.background]="color()"
+        >
+          @if (!avatarError && avatar()) {
+          <img [src]="avatar()" alt="avatar" (error)="onAvatarError()" />
+          } @else {
+          <span class="avatar-letter">
+            {{ name().charAt(0).toUpperCase() }}
+          </span>
+          }
         </span>
       </div>
 
@@ -101,9 +110,9 @@
           </button>
         </div>
         @if (copied) {
-          <small class="text-muted ms-2" style="font-size: 0.8rem">
-            <i class="ri-check-line text-success"></i> ¡Copiado!
-          </small>
+        <small class="text-muted ms-2" style="font-size: 0.8rem">
+          <i class="ri-check-line text-success"></i> ¡Copiado!
+        </small>
         }
       </div>
     </div>

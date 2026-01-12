@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './spk-agent-details-card.scss',
 })
 export class SpkAgentDetailsCard {
+   avatarError = false;
    avatar = input<string>(''); // Avatar image URL
    estadoClass = input<string>(''); 
    name = input<string>(''); 
@@ -80,6 +81,10 @@ export class SpkAgentDetailsCard {
     const key = this.apiKey();
     if (key.length <= 8) return '••••••••';
     return `${key.substring(0, 4)}${'•'.repeat(key.length - 8)}${key.substring(key.length - 4)}`;
+  }
+
+  onAvatarError(): void {
+    this.avatarError = true;
   }
 
 

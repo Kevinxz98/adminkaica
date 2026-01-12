@@ -6,6 +6,7 @@ import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 export interface ChatbotInfo {
   id: number;
   name: string;
+  color: string;
   avatar: string | null;
   description?: string;
 }
@@ -42,7 +43,7 @@ export interface ChatMessage {
   providedIn: 'root',
 })
 export class ChatService {
-  private apiUrl = 'http://localhost:8000/api/chatbot-conversations';
+  private apiUrl = 'https://backend.kaica.co/public/api/chatbot-conversations';
 
   constructor(private http: HttpClient) { }
 

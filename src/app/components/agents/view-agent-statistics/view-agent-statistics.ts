@@ -283,6 +283,7 @@ export class ViewAgentStatistics implements OnInit {
   get agentCode(): string {
     const publicKey = this.route.snapshot.paramMap.get('public_key');
     return `<!-- Código de integración del Chatbot -->
+    <!-- Copia y pega este código justo antes de cerrar la etiqueta </body> -->
 <script 
   src="https://chatbotv2-auerf7dbcpdudjfs.mexicocentral-01.azurewebsites.net/widget/embed.js"
   data-client="${publicKey}">

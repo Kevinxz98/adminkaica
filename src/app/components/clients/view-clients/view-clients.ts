@@ -326,11 +326,11 @@ export class ViewClients implements OnInit, OnDestroy {
 
     // Si comienza con storage/
     if (imagePath.startsWith('storage/')) {
-      return 'http://localhost:8000/' + imagePath;
+      return 'https://backend.kaica.co/public/' + imagePath;
     }
 
     // Asumir que es una ruta de almacenamiento de Laravel
-    return 'http://localhost:8000/storage/' + imagePath;
+    return 'https://backend.kaica.co/public/storage/' + imagePath;
   }
 
   getPhoneNumber(user: User): string {

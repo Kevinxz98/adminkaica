@@ -86,7 +86,7 @@ export class ViewSingleClient implements OnInit, OnDestroy {
       if (img.startsWith('http') || img.startsWith('./assets/')) {
         return img;
       }
-      return `http://localhost:8000/storage/${img}`;
+      return `https://backend.kaica.co/storage/${img}`;
     }
     return './assets/images/media/icons/user-icon.png';
   }
@@ -150,7 +150,7 @@ export class ViewSingleClient implements OnInit, OnDestroy {
       if (chatbot.avatar.startsWith('http') || chatbot.avatar.startsWith('/')) {
         return chatbot.avatar;
       }
-      return `http://localhost:8000/storage/${chatbot.avatar}`;
+      return `https://backend.kaica.co/storage/${chatbot.avatar}`;
     }
     return './assets/images/faces/1.jpg';
   }

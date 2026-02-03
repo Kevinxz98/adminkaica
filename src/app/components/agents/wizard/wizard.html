@@ -252,15 +252,6 @@
 
           <div class="website-simulator mt-0">
 
-            <div class="website-header">
-              <div class="website-navbar">
-                <div class="website-logo">🌐 {{wizardForm.get('nombreEmpresa')?.value || 'Mi Empresa'}}</div>
-              </div>
-              <div class="website-hero">
-                <h1>Bienvenido a {{wizardForm.get('nombreEmpresa')?.value || 'nuestra empresa'}}</h1>
-                <p>{{wizardForm.get('descripcionEmpresa')?.value || 'Descripción de la empresa'}}</p>
-              </div>
-            </div>
 
             <!-- Widget del Chatbot -->
             <div class="chatbot-widget" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
@@ -270,14 +261,14 @@
                   <div class="avatar-circle" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
                     <span *ngIf="!wizardForm.get('avatar')?.value">{{wizardForm.get('nombre')?.value?.charAt(0) ||
                       'B'}}</span>
-                    <img *ngIf="wizardForm.get('avatar')?.value" [src]="avatarUrl" alt="Avatar">
+                    <img *ngIf="wizardForm.get('avatar')?.value" [src]="avatarCircle" alt="Avatar">
                   </div>
                   <div class="chat-info">
                     <h4>{{wizardForm.get('nombre')?.value || 'Mi Chatbot'}}</h4>
                     <span class="chat-status">● En línea</span>
                   </div>
                 </div>
-                <button (click)="closeChat()" class="chat-close">×</button>
+                <span (click)="closeChat()" class="chat-close">×</span>
               </div>
 
               <!-- Cuerpo del chat -->
@@ -315,19 +306,19 @@
               </div>
 
               <!-- Input para mensajes -->
-              <div class="chat-input">
+              <div class="chat-input2">
                 <input type="text" placeholder="Escribe tu mensaje aquí..." value="¿Qué productos tienen?">
-                <button class="send-button">➤</button>
+                <span class="send-button">➤</span>
               </div>
             </div>
 
             <!-- Posición del widget -->
             <div class="widget-position-indicator"
               [class]="'position-' + (wizardForm.get('posicion')?.value || 'bottom-right')">
-              <div class="widget-bubble" [style.background]="wizardForm.get('color')?.value || '#2196F3'">
-                <div class="widget-icon" (click)="openChat()">
+              <div class="widget-bubble" [style.background]="wizardForm.get('color')?.value || '#2196F3'" (click)="openChat()">
+                <div class="widget-icon" >
                   <ng-container>
-                    <img *ngIf="avatarUrl && wizardForm.get('mostrarAvatar')?.value" [src]="avatarUrl" alt="Avatar"
+                    <img *ngIf="avatarUrl && wizardForm.get('mostrarAvatar')?.value" [src]="avatarCircle" alt="Avatar"
                       class="avatar-preview" />
                   </ng-container>
 

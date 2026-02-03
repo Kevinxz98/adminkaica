@@ -21,7 +21,7 @@ interface StateType {
   providedIn: 'root'
 })
 export class AppStateService {
-  private readonly localStorageKey = 'vyzor-ng3'; // Customize this key
+  private readonly localStorageKey = 'kaica-ng3'; // Customize this key
   private initialState: StateType = {
     theme: 'light',                 // light, dark
     direction: 'ltr',               // ltr, rtl

@@ -43,6 +43,7 @@ export class Wizard implements OnInit {
   totalSteps = 8;
   wizardForm!: FormGroup;
   companyLogo: any = null;
+  avatarCircle: any = null;
   avatarUrl: string | null = null;
   isChatOpen = true;
   isSubmitting = false;
@@ -161,10 +162,12 @@ export class Wizard implements OnInit {
           preguntasFrecuentes: chatbot.preguntasFrecuentes,
           temasExcluidos: chatbot.temasExcluidos,
           estadoActivacion: chatbot.estadoActivacion,
+         
         });
         if (chatbot.avatar) {
-          this.avatarUrl =  `https://backend.kaica.co/public/avatar/${chatbot.avatar}`;
-          this.companyLogo = `https://backend.kaica.co/public/avatar/${chatbot.avatar}`;
+          this.avatarUrl =  `https://backend.kaica.co/public/chatbots/avatar/${chatbot.avatar}`;
+          this.companyLogo = `https://backend.kaica.co/public/chatbots/avatar/${chatbot.avatar}`;
+          this.avatarCircle = `https://backend.kaica.co/public/storage/${chatbot.avatar}`;
         }
         this.cdr.detectChanges();
         this.agentName = chatbot.nombre;
@@ -393,7 +396,7 @@ export class Wizard implements OnInit {
       widget.style.animation = 'widgetClose 0.3s ease-out forwards';
       setTimeout(() => {
         widget.style.display = 'none';
-      }, 300);
+      }, 100);
     }
   }
 
@@ -407,7 +410,7 @@ export class Wizard implements OnInit {
       widget.style.animation = 'widgetClose 0.3s ease-out forwards';
       setTimeout(() => {
         widget.style.display = 'flex';
-      }, 300);
+      }, 100);
     }
   }
 
